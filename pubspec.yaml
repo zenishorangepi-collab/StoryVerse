@@ -38,6 +38,7 @@ dependencies:
   audioplayers: ^6.1.1
   just_audio: ^0.9.45
   google_fonts: ^6.3.3
+  rename: ^3.1.0
 
 dev_dependencies:
   flutter_test:
