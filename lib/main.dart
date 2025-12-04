@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
-import 'app/data/modules/audio_highlight/audio_highlight_screen.dart';
-
 void main() {
   runApp(const AudioHighlighterApp());
 }
