@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:utsav_interview/core/common_color.dart';
 
@@ -42,6 +41,10 @@ class AppTextStyles {
   );
   static TextStyle bodyMediumGrey = GoogleFonts.robotoSlab(
     fontSize: 14,
+    color: AppColors.colorGrey,
+  );
+  static TextStyle bodyMediumGrey16 = GoogleFonts.robotoSlab(
+    fontSize: 16,
     color: AppColors.colorGrey,
   );
 

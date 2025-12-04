@@ -56,14 +56,34 @@ class AudioTextController extends GetxController{
 
   // AudioTextController(this._duration, [this._audioUrl]);
 
-  
+  var isCollapsed = false;
+  bool isAnimateAppBarText = false;
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
     scrollController = ScrollController();
+
+    scrollController.addListener(() {
+
+      if (scrollController.position.pixels > 40) {
+        if (!isCollapsed) {
+          isCollapsed = true;
+
+          update();
+        }
+      } else {
+        if (isCollapsed) {
+          isCollapsed = false;
+
+          update();
+        }
+      }
+    });
     initializeApp();
   }
+
+
 
   Future<void> initializeApp() async {
     try {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:utsav_interview/app/audio_text_screen/models/paragrah_data_model.dart';
+import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_style.dart';
 
 
 class ParagraphWidget extends StatefulWidget {
@@ -36,12 +38,12 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: widget.isCurrentParagraph
-            ? (isDark ? Colors.grey[800] : Colors.grey.withOpacity(0.05))
+            ? AppColors.colorBlue200
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
-        border: widget.isCurrentParagraph
-            ? Border(left: BorderSide(color: theme.primaryColor, width: 3))
-            : null,
+        // border: widget.isCurrentParagraph
+        //     ? Border(left: BorderSide(color: theme.primaryColor, width: 3))
+        //     : null,
       ),
       child: Wrap(
         spacing: 4,
@@ -65,18 +67,13 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
           decoration: BoxDecoration(
             color: isCurrentWord
-                ? Colors.yellow.withOpacity(0.4)
-                : Colors.transparent,
+                ? AppColors.colorBlue500
+                : AppColors.colorTransparent,
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
             word.word,
-            style: TextStyle(
-              fontSize: 18,
-              height: 1.6,
-              color: isDark ? Colors.white : Colors.black87,
-              fontWeight: isCurrentWord ? FontWeight.bold : FontWeight.normal,
-            ),
+            style: AppTextStyles.heading4
           ),
         ),
       );

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_screen/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_screen/widgets/paragraph_widget.dart';
+import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
+import 'package:utsav_interview/core/common_style.dart';
 
 class AudioTextScreen extends StatelessWidget {
   const AudioTextScreen({super.key});
@@ -18,29 +20,99 @@ class AudioTextScreen extends StatelessWidget {
             body: _buildErrorView(controller),
           );
         }
-        return Scaffold(
-          appBar: AppBar(title: Text(CS.vAudioTextSynchronizer), elevation: 2),
-          body: Stack(
-            children: [
-              Column(
-                children: [
-                  if (controller.isLoading) const LinearProgressIndicator(),
-                  if (controller.error != null)
-                    Container(
-                      color: Colors.red[100],
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        controller.error!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  Expanded(child: _buildTranscriptView(controller)),
-                  _buildControlPanel(controller),
+        return  Scaffold(
+          backgroundColor: AppColors.colorBlack,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(120),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+
+              height:  80 ,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+
+              decoration: const BoxDecoration(
+                color: AppColors.colorBlack,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
                 ],
               ),
+
+              child: Row(
+          
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+
+Icon(Icons.keyboard_arrow_down_rounded,color: AppColors.colorWhite,),
+
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 300),
+                    left: 0,
+                    top: controller.isCollapsed ? 18 : -40,
+                    child: Opacity(
+                      opacity: controller.isCollapsed ? 1 : 0,
+                      child:  AnimatedSlide(
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeOut,
+                        offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3), // ↓ start, ↑ end
+                        child: AnimatedOpacity(
+                          duration: Duration(milliseconds: 500),
+                          opacity: controller.isCollapsed ? 1 : 0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Audio Text Synchronizer",
+                                style: AppTextStyles.bodyLarge,
+                              ),
+                              Text(
+                                "Subtitle text",
+                                style: AppTextStyles.bodyMediumGrey,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Icon(Icons.cloud_upload_outlined,color: AppColors.colorWhite,),
+                  Icon(Icons.more_horiz,color: AppColors.colorWhite,),
+                ],
+              ),
+            ),
+          ),
+
+          body: Column(
+            children: [
+              if (controller.isLoading) const LinearProgressIndicator(),
+
+              if (controller.error != null)
+                Container(
+                  color: Colors.red[100],
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    controller.error!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+
+
+
+              Expanded(
+                child: _buildTranscriptView(controller),
+              ),
+
+              _buildControlPanel(controller),
             ],
           ),
         );
+
       },
     );
   }
@@ -111,11 +183,13 @@ class AudioTextScreen extends StatelessWidget {
   }
 
   Widget _buildControlPanel(AudioTextController controller) {
-    final theme = Theme.of(Get.context!);
+    // final theme = Theme.of(Get.context!);
 
     return Container(
+      padding: EdgeInsets.only(top: 20),
+
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor,
+        color: AppColors.colorBlack,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -128,17 +202,31 @@ class AudioTextScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Slider(
+
+              min: 0,padding: EdgeInsets.all(0),
+              max: controller.duration.toDouble(),
+              value: controller.position.toDouble(),
+              activeColor: AppColors.colorWhite,inactiveColor: AppColors.colorBgWhite02,overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
+              onChanged: (value) {
+                controller.seek(value.toInt());
+              },
+
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             child: Row(
               children: [
                 Text(
                   controller.formatTime(controller.position),
-                  style: theme.textTheme.bodySmall,
+                  style: AppTextStyles.bodyMedium,
                 ),
                 const Spacer(),
                 Text(
                   controller.formatTime(controller.duration),
-                  style: theme.textTheme.bodySmall,
+                  style: AppTextStyles.bodyMedium,
                 ),
               ],
             ),
@@ -148,8 +236,11 @@ class AudioTextScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(width: 16),
+                Icon(Icons.favorite_border,color: AppColors.colorGrey,size: 26,),
+                Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.replay_10),
+                  icon:  Icon(Icons.replay_10,color: AppColors.colorWhite,),
                   iconSize: 32,
                   onPressed: controller.skipBackward,
                   tooltip: '${CS.vSkip} -10s',
@@ -158,22 +249,40 @@ class AudioTextScreen extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     controller.isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 48,
+                    size: 48,color: AppColors.colorWhite,
                   ),
                   onPressed: controller.togglePlayPause,
                   tooltip: controller.isPlaying ? CS.vPause : CS.vPlay,
                 ),
                 const SizedBox(width: 16),
                 IconButton(
-                  icon: const Icon(Icons.forward_10),
+                  icon: const Icon(Icons.forward_10,color: AppColors.colorWhite,),
                   iconSize: 32,
                   onPressed: controller.skipForward,
                   tooltip: '${CS.vSkip} +10s',
                 ),
-                const SizedBox(width: 24),
+             Spacer(),
+                Text("1x",style: AppTextStyles.bodyMediumGrey16,),
+                const SizedBox(width: 16),
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                const SizedBox(width: 16),
+                Icon(Icons.person,color: AppColors.colorGrey,size: 30,),
+                Icon(Icons.menu,color: AppColors.colorGrey,size: 30,),
+                Icon(Icons.volume_down,color: AppColors.colorGrey,size: 30,),
+
+
+                const SizedBox(width: 16),
+              ],
+            ),
+          ),
+          SizedBox(height: 40,)
         ],
       ),
     );
