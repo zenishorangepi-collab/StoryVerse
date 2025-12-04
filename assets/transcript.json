@@ -1,0 +1,196 @@
+{
+  "paragraphs": [
+    {
+      "id": "p1",
+      "words": [
+        {"word": "Welcome", "start": 0, "end": 386},
+        {"word": "to", "start": 386, "end": 482},
+        {"word": "the", "start": 482, "end": 627},
+        {"word": "Audio", "start": 627, "end": 964},
+        {"word": "Text", "start": 964, "end": 1205},
+        {"word": "Synchronization", "start": 1205, "end": 1929},
+        {"word": "Engine.", "start": 1929, "end": 2314}
+      ]
+    },
+    {
+      "id": "p2",
+      "words": [
+        {"word": "This", "start": 2507, "end": 2747},
+        {"word": "revolutionary", "start": 2747, "end": 3471},
+        {"word": "system", "start": 3471, "end": 3857},
+        {"word": "provides", "start": 3857, "end": 4339},
+        {"word": "real-time", "start": 4339, "end": 4918},
+        {"word": "word", "start": 4918, "end": 5159},
+        {"word": "by", "start": 5159, "end": 5304},
+        {"word": "word", "start": 5304, "end": 5593},
+        {"word": "highlighting", "start": 5593, "end": 6268},
+        {"word": "with", "start": 6268, "end": 6461},
+        {"word": "sub", "start": 6461, "end": 6700},
+        {"word": "fifty", "start": 6700, "end": 7039},
+        {"word": "millisecond", "start": 7039, "end": 7611},
+        {"word": "precision.", "start": 7611, "end": 8196}
+      ]
+    },
+    {
+      "id": "p3",
+      "words": [
+        {"word": "It", "start": 8389, "end": 8534},
+        {"word": "can", "start": 8534, "end": 8725},
+        {"word": "handle", "start": 8725, "end": 9111},
+        {"word": "over", "start": 9111, "end": 9400},
+        {"word": "ten", "start": 9400, "end": 9643},
+        {"word": "thousand", "start": 9643, "end": 10077},
+        {"word": "words", "start": 10077, "end": 10414},
+        {"word": "while", "start": 10414, "end": 10704},
+        {"word": "maintaining", "start": 10704, "end": 11379},
+        {"word": "a", "start": 11379, "end": 11475},
+        {"word": "smooth", "start": 11475, "end": 11861},
+        {"word": "sixty", "start": 11861, "end": 12247},
+        {"word": "frames", "start": 12247, "end": 12632},
+        {"word": "per", "start": 12632, "end": 12825},
+        {"word": "second", "start": 12825, "end": 13211},
+        {"word": "performance.", "start": 13211, "end": 13982}
+      ]
+    },
+    {
+      "id": "p4",
+      "words": [
+        {"word": "The", "start": 14175, "end": 14368},
+        {"word": "advanced", "start": 14368, "end": 14946},
+        {"word": "binary", "start": 14946, "end": 15382},
+        {"word": "search", "start": 15382, "end": 15768},
+        {"word": "algorithm", "start": 15768, "end": 16393},
+        {"word": "ensures", "start": 16393, "end": 16875},
+        {"word": "logarithmic", "start": 16875, "end": 17646},
+        {"word": "time", "start": 17646, "end": 17936},
+        {"word": "complexity", "start": 17936, "end": 18611},
+        {"word": "for", "start": 18611, "end": 18804},
+        {"word": "all", "start": 18804, "end": 19043},
+        {"word": "word", "start": 19043, "end": 19332},
+        {"word": "lookups.", "start": 19332, "end": 19961}
+      ]
+    },
+    {
+      "id": "p5",
+      "words": [
+        {"word": "Auto", "start": 20154, "end": 20493},
+        {"word": "scroll", "start": 20493, "end": 20879},
+        {"word": "functionality", "start": 20879, "end": 21793},
+        {"word": "keeps", "start": 21793, "end": 22132},
+        {"word": "the", "start": 22132, "end": 22275},
+        {"word": "current", "start": 22275, "end": 22661},
+        {"word": "word", "start": 22661, "end": 22950},
+        {"word": "perfectly", "start": 22950, "end": 23529},
+        {"word": "centered", "start": 23529, "end": 24061},
+        {"word": "in", "start": 24061, "end": 24204},
+        {"word": "your", "start": 24204, "end": 24443},
+        {"word": "viewport", "start": 24443, "end": 25018},
+        {"word": "for", "start": 25018, "end": 25211},
+        {"word": "optimal", "start": 25211, "end": 25693},
+        {"word": "reading", "start": 25693, "end": 26079},
+        {"word": "comfort.", "start": 26079, "end": 26657}
+      ]
+    },
+    {
+      "id": "p6",
+      "words": [
+        {"word": "You", "start": 26850, "end": 27043},
+        {"word": "can", "start": 27043, "end": 27236},
+        {"word": "adjust", "start": 27236, "end": 27675},
+        {"word": "playback", "start": 27675, "end": 28207},
+        {"word": "speed", "start": 28207, "end": 28543},
+        {"word": "from", "start": 28543, "end": 28786},
+        {"word": "half", "start": 28786, "end": 29075},
+        {"word": "speed", "start": 29075, "end": 29411},
+        {"word": "to", "start": 29411, "end": 29554},
+        {"word": "double", "start": 29554, "end": 29943},
+        {"word": "speed", "start": 29943, "end": 30279},
+        {"word": "without", "start": 30279, "end": 30664},
+        {"word": "losing", "start": 30664, "end": 31050},
+        {"word": "synchronization.", "start": 31050, "end": 32014}
+      ]
+    },
+    {
+      "id": "p7",
+      "words": [
+        {"word": "Simply", "start": 32207, "end": 32643},
+        {"word": "tap", "start": 32643, "end": 32886},
+        {"word": "any", "start": 32886, "end": 33125},
+        {"word": "word", "start": 33125, "end": 33414},
+        {"word": "to", "start": 33414, "end": 33557},
+        {"word": "instantly", "start": 33557, "end": 34186},
+        {"word": "seek", "start": 34186, "end": 34475},
+        {"word": "to", "start": 34475, "end": 34618},
+        {"word": "that", "start": 34618, "end": 34857},
+        {"word": "position", "start": 34857, "end": 35389},
+        {"word": "in", "start": 35389, "end": 35532},
+        {"word": "the", "start": 35532, "end": 35675},
+        {"word": "audio.", "start": 35675, "end": 36161}
+      ]
+    },
+    {
+      "id": "p8",
+      "words": [
+        {"word": "The", "start": 36354, "end": 36546},
+        {"word": "performance", "start": 36546, "end": 37221},
+        {"word": "monitor", "start": 37221, "end": 37704},
+        {"word": "displays", "start": 37704, "end": 38232},
+        {"word": "real", "start": 38232, "end": 38521},
+        {"word": "time", "start": 38521, "end": 38811},
+        {"word": "metrics", "start": 38811, "end": 39343},
+        {"word": "including", "start": 39343, "end": 39921},
+        {"word": "frames", "start": 39921, "end": 40307},
+        {"word": "per", "start": 40307, "end": 40500},
+        {"word": "second,", "start": 40500, "end": 40982},
+        {"word": "frame", "start": 40982, "end": 41318},
+        {"word": "time,", "start": 41318, "end": 41657},
+        {"word": "and", "start": 41657, "end": 41850},
+        {"word": "cache", "start": 41850, "end": 42186},
+        {"word": "hit", "start": 42186, "end": 42429},
+        {"word": "rate.", "start": 42429, "end": 42814}
+      ]
+    },
+    {
+      "id": "p9",
+      "words": [
+        {"word": "This", "start": 43007, "end": 43293},
+        {"word": "ensures", "start": 43293, "end": 43775},
+        {"word": "the", "start": 43775, "end": 43918},
+        {"word": "application", "start": 43918, "end": 44639},
+        {"word": "runs", "start": 44639, "end": 44929},
+        {"word": "smoothly", "start": 44929, "end": 45461},
+        {"word": "even", "start": 45461, "end": 45750},
+        {"word": "with", "start": 45750, "end": 45943},
+        {"word": "very", "start": 45943, "end": 46232},
+        {"word": "large", "start": 46232, "end": 46571},
+        {"word": "transcripts.", "start": 46571, "end": 47339}
+      ]
+    },
+    {
+      "id": "p10",
+      "words": [
+        {"word": "Built", "start": 47532, "end": 47868},
+        {"word": "with", "start": 47868, "end": 48061},
+        {"word": "production", "start": 48061, "end": 48732},
+        {"word": "quality", "start": 48732, "end": 49168},
+        {"word": "standards,", "start": 49168, "end": 49843},
+        {"word": "this", "start": 49843, "end": 50082},
+        {"word": "engine", "start": 50082, "end": 50518},
+        {"word": "is", "start": 50518, "end": 50661},
+        {"word": "ready", "start": 50661, "end": 51000},
+        {"word": "for", "start": 51000, "end": 51193},
+        {"word": "deployment", "start": 51193, "end": 51868},
+        {"word": "in", "start": 51868, "end": 52011},
+        {"word": "any", "start": 52011, "end": 52254},
+        {"word": "professional", "start": 52254, "end": 53018},
+        {"word": "application.", "start": 53018, "end": 53893}
+      ]
+    }
+  ],
+  "audioUrl": "YOUR_ELEVEN_LABS_AUDIO_URL_HERE.mp3",
+  "metadata": {
+    "totalWords": 143,
+    "duration": 54000,
+    "language": "en-US"
+  }
+}

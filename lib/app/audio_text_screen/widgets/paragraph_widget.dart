@@ -1,0 +1,85 @@
+import 'package:flutter/material.dart';
+import 'package:utsav_interview/app/audio_text_screen/models/paragrah_data_model.dart';
+
+
+class ParagraphWidget extends StatefulWidget {
+  final ParagraphData paragraph;
+  final int paragraphIndex;
+  final int? currentWordIndex;
+  final bool isCurrentParagraph;
+  final Function(int) onWordTap;
+  final GlobalKey widgetKey;
+
+  const ParagraphWidget({
+    required this.paragraph,
+    required this.paragraphIndex,
+    required this.currentWordIndex,
+    required this.isCurrentParagraph,
+    required this.onWordTap,
+    required this.widgetKey,
+    super.key,
+  });
+
+  @override
+  State<ParagraphWidget> createState() => _ParagraphWidgetState();
+}
+
+class _ParagraphWidgetState extends State<ParagraphWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      key: widget.widgetKey,
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: widget.isCurrentParagraph
+            ? (isDark ? Colors.grey[800] : Colors.grey.withOpacity(0.05))
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        border: widget.isCurrentParagraph
+            ? Border(left: BorderSide(color: theme.primaryColor, width: 3))
+            : null,
+      ),
+      child: Wrap(
+        spacing: 4,
+        runSpacing: 4,
+        children: _buildWordWidgets(isDark),
+      ),
+    );
+  }
+
+  List<Widget> _buildWordWidgets(bool isDark) {
+    return widget.paragraph.words.asMap().entries.map((entry) {
+      final index = entry.key;
+      final word = entry.value;
+      final isCurrentWord = index == widget.currentWordIndex;
+
+      return GestureDetector(
+        onTap: () => widget.onWordTap(word.start),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+          decoration: BoxDecoration(
+            color: isCurrentWord
+                ? Colors.yellow.withOpacity(0.4)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            word.word,
+            style: TextStyle(
+              fontSize: 18,
+              height: 1.6,
+              color: isDark ? Colors.white : Colors.black87,
+              fontWeight: isCurrentWord ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+}
