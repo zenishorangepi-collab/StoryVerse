@@ -1,6 +1,4 @@
-
-import 'package:utsav_interview/app/audio_text_screen/models/paragrah_data_model.dart';
-
+import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 
 class TranscriptData {
   final List<ParagraphData> paragraphs;
@@ -9,20 +7,11 @@ class TranscriptData {
   final int? duration;
   final String language;
 
-  const TranscriptData({
-    this.paragraphs = const [],
-    this.audioUrl,
-    this.totalWords,
-    this.duration,
-    this.language = 'en-US',
-  });
+  const TranscriptData({this.paragraphs = const [], this.audioUrl, this.totalWords, this.duration, this.language = 'en-US'});
 
   factory TranscriptData.fromJson(Map<String, dynamic> json) {
     try {
-      final paragraphs = (json['paragraphs'] as List)
-          .map((p) => ParagraphData.fromJson(p as Map<String, dynamic>))
-          .where((p) => !p.isEmpty)
-          .toList();
+      final paragraphs = (json['paragraphs'] as List).map((p) => ParagraphData.fromJson(p as Map<String, dynamic>)).where((p) => !p.isEmpty).toList();
 
       if (paragraphs.isEmpty) {
         throw FormatException('No valid paragraphs found');

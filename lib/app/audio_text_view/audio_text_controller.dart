@@ -4,13 +4,13 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/audio_text_screen/models/transcript_data_model.dart';
-import 'package:utsav_interview/app/audio_text_screen/services/sync_enginge_service.dart';
+import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
+import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
 import 'package:utsav_interview/core/common_string.dart';
 
-
-class AudioTextController extends GetxController{
-  final AudioPlayer _player = AudioPlayer();
+class AudioTextController extends GetxController {
+  TextEditingController addNoteController = TextEditingController();
+  AudioPlayer audioPlayer = AudioPlayer();
   TranscriptData? transcript;
   late final SyncEngine? syncEngine;
   late final ScrollController scrollController;
@@ -24,11 +24,11 @@ class AudioTextController extends GetxController{
 
   bool hasError = false;
   String? errorMessage;
-  
+
   bool _isPlaying = false;
   double _speed = 1.0;
   int _position = 0;
-  int _duration=0;
+  int _duration = 0;
   String? _audioUrl;
 
   bool _isLoading = false;
@@ -42,12 +42,19 @@ class AudioTextController extends GetxController{
   bool _operationInProgress = false;
 
   bool get isPlaying => _isPlaying;
+
   int get position => _position;
+
   double get speed => _speed;
+
   int get duration => _duration;
+
   bool get isLoading => _isLoading;
+
   String? get error => _error;
+
   int get driftCorrectionCount => _driftCorrectionCount;
+
   bool get isInitialized => _isInitialized;
 
   StreamSubscription<Duration>? _positionSubscription;
@@ -58,14 +65,49 @@ class AudioTextController extends GetxController{
 
   var isCollapsed = false;
   bool isAnimateAppBarText = false;
+  double currentSpeed = 1.0;
+  int currentIndex = 8;
+  final List<double> presetSpeeds = [0.5, 0.75, 1.0, 1.5, 2.0];
+  final List<double> speedSteps = [
+    0.25,
+    0.30,
+    0.40,
+    0.50,
+    0.60,
+    0.70,
+    0.80,
+    0.90,
+    1.0,
+    1.1,
+    1.2,
+    1.3,
+    1.4,
+    1.5,
+    1.6,
+    1.7,
+    1.8,
+    1.9,
+    2.0,
+    2.1,
+    2.2,
+    2.3,
+    2.4,
+    2.5,
+    2.6,
+    2.7,
+    2.8,
+    2.9,
+    3.0,
+  ];
+
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    scrollController = ScrollController();
+
+    scrollController = ScrollController(initialScrollOffset: -10);
 
     scrollController.addListener(() {
-
       if (scrollController.position.pixels > 40) {
         if (!isCollapsed) {
           isCollapsed = true;
@@ -83,54 +125,46 @@ class AudioTextController extends GetxController{
     initializeApp();
   }
 
-
-
   Future<void> initializeApp() async {
     try {
       transcript = await loadRealData();
       syncEngine = SyncEngine(transcript!.paragraphs);
-      _duration=transcript?.duration??0;
-      _audioUrl=transcript?.audioUrl;
+      _duration = transcript?.duration ?? 0;
+      _audioUrl = transcript?.audioUrl;
 
-
-      for (
-      int i = 0;
-      i < (transcript ?? TranscriptData()).paragraphs.length;
-      i++
-      ) {
+      for (int i = 0; i < (transcript ?? TranscriptData()).paragraphs.length; i++) {
         paragraphKeys.add(GlobalKey());
       }
 
       await initialize();
 
-      addListener(_onAudioPositionUpdate);
+      addListener(onAudioPositionUpdate);
       scrollController.addListener(_onUserScroll);
 
       if (!isClosed) update();
     } catch (e) {
-      if (!isClosed)  {
-
-          hasError = true;
-          errorMessage = 'Initialization error: $e';
-     update();
+      if (!isClosed) {
+        hasError = true;
+        errorMessage = 'Initialization error: $e';
+        update();
       }
     }
   }
+
   void _onUserScroll() {
-    if (scrollController.hasClients &&
-        scrollController.position.isScrollingNotifier.value) {
+    if (scrollController.hasClients && scrollController.position.isScrollingNotifier.value) {
       userScrolling = true;
       userScrollTimer?.cancel();
       userScrollTimer = Timer(const Duration(seconds: 3), () {
-        if (!isClosed)  {
-           userScrolling = false;
-           update();
+        if (!isClosed) {
+          userScrolling = false;
+          update();
         }
       });
     }
   }
 
-  void _onAudioPositionUpdate() {
+  void onAudioPositionUpdate() {
     debounceTimer?.cancel();
     debounceTimer = Timer(const Duration(milliseconds: 16), () {
       final engine = syncEngine; // local variable promotes correctly
@@ -146,52 +180,80 @@ class AudioTextController extends GetxController{
         }
 
         if (!userScrolling && scrollController.hasClients) {
-          _autoScrollToCurrentWord();
+          autoScrollToCurrentWord();
         }
       }
     });
   }
 
+  void scrollToTime(int ms) {
+    final engine = syncEngine;
+    if (engine == null) return;
 
-  void _autoScrollToCurrentWord() {
-    if (currentParagraphIndex < 0 ||
-        currentParagraphIndex >= paragraphKeys.length) {
+    // 🔵 find word index
+    final wordIndex = engine.findWordIndexAtTime(ms);
+    if (wordIndex < 0) return;
+
+    // update current word & paragraph
+    currentWordIndex = wordIndex;
+    currentParagraphIndex = engine.getParagraphIndex(wordIndex);
+
+    update(); // highlight word
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      autoScrollToCurrentWord();
+    });
+  }
+
+  // void scrollToParagraphIndex(int index) {
+  //   if (!scrollController.hasClients) return;
+  //
+  //   const double itemHeight = 150; // Height of each paragraph widget
+  //   final double target = index * itemHeight;
+  //
+  //   scrollController.animateTo(
+  //     target.clamp(0, scrollController.position.maxScrollExtent),
+  //     duration: const Duration(milliseconds: 300),
+  //     curve: Curves.easeOut,
+  //   );
+  // }
+
+  void autoScrollToCurrentWord() {
+    if (currentParagraphIndex < 0 || currentParagraphIndex >= paragraphKeys.length) {
       return;
     }
 
     try {
       final key = paragraphKeys[currentParagraphIndex];
+
       final context = key.currentContext;
 
       if (context != null) {
         final renderBox = context.findRenderObject() as RenderBox?;
+
         if (renderBox != null && scrollController.hasClients) {
           final position = renderBox.localToGlobal(Offset.zero);
           final viewportHeight = scrollController.position.viewportDimension;
           final currentScroll = scrollController.offset;
 
-          final targetScroll =
-              currentScroll + position.dy - (viewportHeight * 0.4);
+          final targetScroll = currentScroll + position.dy - (viewportHeight * 0.4);
 
           final relativePosition = position.dy / viewportHeight;
 
           if (relativePosition < 0.3 || relativePosition > 0.7) {
             scrollController.animateTo(
-              targetScroll.clamp(
-                0.0,
-                scrollController.position.maxScrollExtent,
-              ),
+              targetScroll.clamp(0.0, scrollController.position.maxScrollExtent),
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
             );
           }
         }
       }
-
     } catch (e) {
       debugPrint('Auto-scroll error: $e');
     }
   }
+
   Future<void> initialize() async {
     if (_isDisposed || _isInitialized) return;
 
@@ -201,10 +263,10 @@ class AudioTextController extends GetxController{
       update();
 
       if (_audioUrl != null) {
-        await _player.setReleaseMode(ReleaseMode.stop);
-        await _player.setSourceAsset(_audioUrl??"");
-        await _player.setPlaybackRate(_speed);
-        _positionSubscription = _player.onPositionChanged.listen((pos) {
+        await audioPlayer.setReleaseMode(ReleaseMode.stop);
+        await audioPlayer.setSourceAsset(_audioUrl ?? "");
+        await audioPlayer.setPlaybackRate(_speed);
+        _positionSubscription = audioPlayer.onPositionChanged.listen((pos) {
           if (!_isSeeking && !_isDisposed) {
             final newPos = pos.inMilliseconds.clamp(0, _duration);
             if ((_position - newPos).abs() > 100) {
@@ -213,10 +275,9 @@ class AudioTextController extends GetxController{
               update();
             }
           }
-
         });
 
-        _stateSubscription = _player.onPlayerStateChanged.listen((state) {
+        _stateSubscription = audioPlayer.onPlayerStateChanged.listen((state) {
           if (_isDisposed) return;
 
           final wasPlaying = _isPlaying;
@@ -228,9 +289,8 @@ class AudioTextController extends GetxController{
               update();
             }
           }
-
         });
-        _completionSubscription = _player.onPlayerComplete.listen((_) {
+        _completionSubscription = audioPlayer.onPlayerComplete.listen((_) {
           if (!_isDisposed) {
             _handleCompletion();
           }
@@ -264,18 +324,20 @@ class AudioTextController extends GetxController{
     if (_lastDriftCheck != null) {
       final elapsed = now.difference(_lastDriftCheck!);
       if (elapsed.inSeconds >= 5) {
-        _player.getCurrentPosition().then((actualPosition) {
-          if (actualPosition != null && !_isDisposed && _isPlaying) {
-            final actualMs = actualPosition.inMilliseconds.clamp(0, _duration);
-            final drift = (actualMs - _position).abs();
-            if (drift > 200) {
-              _position = actualMs;
-              _driftCorrectionCount++;
-              update();
-            }
-          }
-        }).catchError((e) {
-        });
+        audioPlayer
+            .getCurrentPosition()
+            .then((actualPosition) {
+              if (actualPosition != null && !_isDisposed && _isPlaying) {
+                final actualMs = actualPosition.inMilliseconds.clamp(0, _duration);
+                final drift = (actualMs - _position).abs();
+                if (drift > 200) {
+                  _position = actualMs;
+                  _driftCorrectionCount++;
+                  update();
+                }
+              }
+            })
+            .catchError((e) {});
         _lastDriftCheck = now;
       }
     } else {
@@ -293,15 +355,15 @@ class AudioTextController extends GetxController{
       if (_position >= _duration - 100) {
         _position = 0;
         _isSeeking = true;
-        await _player.seek(Duration.zero);
+        await audioPlayer.seek(Duration.zero);
         _isSeeking = false;
         _hasPlayedOnce = false;
       }
       if (!_hasPlayedOnce) {
-        await _player.play(AssetSource(_audioUrl!));
+        await audioPlayer.play(AssetSource(_audioUrl!));
         _hasPlayedOnce = true;
       } else {
-        await _player.resume();
+        await audioPlayer.resume();
       }
 
       _isPlaying = true;
@@ -323,7 +385,7 @@ class AudioTextController extends GetxController{
 
     _operationInProgress = true;
     try {
-      await _player.pause();
+      await audioPlayer.pause();
       _isPlaying = false;
       _lastDriftCheck = null;
       update();
@@ -352,7 +414,7 @@ class AudioTextController extends GetxController{
 
     try {
       _position = positionMs.clamp(0, _duration);
-      await _player.seek(Duration(milliseconds: _position));
+      await audioPlayer.seek(Duration(milliseconds: _position));
       _lastDriftCheck = _isPlaying ? DateTime.now() : null;
       await Future.delayed(const Duration(milliseconds: 50));
       update();
@@ -366,6 +428,7 @@ class AudioTextController extends GetxController{
   }
 
   Future<void> skipForward() async => await seek(_position + 10000);
+
   Future<void> skipBackward() async => await seek(_position - 10000);
 
   Future<void> setSpeed(double newSpeed) async {
@@ -379,7 +442,7 @@ class AudioTextController extends GetxController{
         return;
       }
       _speed = clampedSpeed;
-      await _player.setPlaybackRate(_speed);
+      await audioPlayer.setPlaybackRate(_speed);
       _lastDriftCheck = _isPlaying ? DateTime.now() : null;
       _driftCorrectionCount = 0;
 
@@ -401,7 +464,6 @@ class AudioTextController extends GetxController{
     _driftCorrectionCount = 0;
     _hasPlayedOnce = false;
     update();
-
   }
 
   String formatTime(int milliseconds) {
@@ -423,6 +485,7 @@ class AudioTextController extends GetxController{
       throw Exception('Failed to load transcript: $e');
     }
   }
+
   @override
   void dispose() {
     if (_isDisposed) return;
@@ -431,15 +494,14 @@ class AudioTextController extends GetxController{
     _positionSubscription?.cancel();
     _stateSubscription?.cancel();
     _completionSubscription?.cancel();
-    _player.stop();
-    _player.dispose();
+    audioPlayer.stop();
+    audioPlayer.dispose();
 
-
-      debounceTimer?.cancel();
-      userScrollTimer?.cancel();
-      removeListener(_onAudioPositionUpdate);
-      scrollController.dispose();
-      super.dispose();
+    debounceTimer?.cancel();
+    userScrollTimer?.cancel();
+    removeListener(onAudioPositionUpdate);
+    scrollController.dispose();
+    super.dispose();
 
     super.dispose();
   }

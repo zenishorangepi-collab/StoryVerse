@@ -27,6 +27,11 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
     color: AppColors.colorWhite,
   );
+  static TextStyle errorText18 = GoogleFonts.robotoSlab(
+    fontSize: 18,
+    // fontWeight: FontWeight.w600,
+    color: AppColors.colorRed,
+  );
 
   /// BODY TEXT
   static TextStyle bodyLarge = GoogleFonts.robotoSlab(
@@ -54,10 +59,14 @@ class AppTextStyles {
   );
 
   /// BUTTON TEXT
-  static TextStyle buttonText = GoogleFonts.robotoSlab(
+  static TextStyle buttonTextWhite = GoogleFonts.robotoSlab(
     fontSize: 16,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.bold,
     color: AppColors.colorWhite,
+  );  static TextStyle buttonTextBlack = GoogleFonts.robotoSlab(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: AppColors.colorBlack,
   );
 
   /// TabBar Text
