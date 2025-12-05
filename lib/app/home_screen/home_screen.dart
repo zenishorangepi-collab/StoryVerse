@@ -37,15 +37,8 @@ class HomeScreen extends StatelessWidget {
                       child: Container(
                         width: 34,
                         height: 34,
-                        decoration: BoxDecoration(
-                          color: AppColors.colorBgWhite10,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.search,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                        decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
+                        child: const Icon(Icons.search, color: Colors.white, size: 20),
                       ),
                     ),
                   ),
@@ -57,22 +50,12 @@ class HomeScreen extends StatelessWidget {
                       child: CircleAvatar(
                         radius: 17,
                         backgroundColor: Colors.white24,
-                        child: ClipOval(
-                          child: Image.network(
-                            "https://i.pravatar.cc/100",
-                            fit: BoxFit.cover,
-                            height: 34,
-                            width: 34,
-                          ),
-                        ),
+                        child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 34, width: 34)),
                       ),
                     ),
                   ),
                 ],
-                title: Text(
-                  "${CS.vWelcome} User",
-                  style: AppTextStyles.heading2,
-                ),
+                title: Text("${CS.vWelcome} User", style: AppTextStyles.heading2),
               ),
 
               SliverList(
@@ -83,11 +66,7 @@ class HomeScreen extends StatelessWidget {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: [
-                            _buildChip(Icons.star, CS.vForYou),
-                            _buildChip(Icons.people, CS.vFollowing),
-                            _buildChip(Icons.history, CS.vRecents),
-                          ],
+                          children: [buildChip(Icons.star, CS.vForYou), buildChip(Icons.people, CS.vFollowing), buildChip(Icons.history, CS.vRecents)],
                         ),
                       ),
 
@@ -109,12 +88,7 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 14),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children:
-                              controller.dummyCategoryList
-                                  .map((item) => categoryCard(item))
-                                  .toList(),
-                        ),
+                        child: Row(children: controller.dummyCategoryList.map((item) => categoryCard(item)).toList()),
                       ),
                     ],
                   ).screenPadding();
@@ -127,43 +101,18 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChip(IconData icon, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Chip(
-        avatar: Icon(icon, size: 18, color: AppColors.colorWhite),
-
-        label: Text(label, style: AppTextStyles.bodyMedium),
-        color: WidgetStatePropertyAll(AppColors.colorBgWhite02),
-
-        side: BorderSide.none,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(20),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      ),
-    );
-  }
-
   Widget buildActionBox(IconData icon, String label) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: AppColors.colorBgWhite02,
-          borderRadius: BorderRadius.circular(12),
-        ),
+        decoration: BoxDecoration(color: AppColors.colorBgWhite02, borderRadius: BorderRadius.circular(12)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 26, color: Colors.white),
             const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.bodySmall,
-            ),
+            Text(label, textAlign: TextAlign.center, style: AppTextStyles.bodySmall),
           ],
         ),
       ),
@@ -181,11 +130,7 @@ class HomeScreen extends StatelessWidget {
             height: 180,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.pink.shade300, Colors.purple.shade300],
-              ),
+              gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Colors.pink.shade300, Colors.purple.shade300]),
             ),
             padding: EdgeInsets.all(20),
           ),
@@ -196,12 +141,7 @@ class HomeScreen extends StatelessWidget {
 
           SizedBox(height: 4),
 
-          Text(
-            item.description,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodyMediumGrey,
-          ),
+          Text(item.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTextStyles.bodyMediumGrey),
         ],
       ),
     );

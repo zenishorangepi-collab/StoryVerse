@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:utsav_interview/app/audio_text_screen/models/paragrah_data_model.dart';
+import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_style.dart';
-
 
 class ParagraphWidget extends StatefulWidget {
   final ParagraphData paragraph;
@@ -33,23 +32,17 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      key: widget.widgetKey,
+      // key: widget.widgetKey,
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: widget.isCurrentParagraph
-            ? AppColors.colorBlue200
-            : Colors.transparent,
+        color: widget.isCurrentParagraph ? AppColors.colorBlue200 : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         // border: widget.isCurrentParagraph
         //     ? Border(left: BorderSide(color: theme.primaryColor, width: 3))
         //     : null,
       ),
-      child: Wrap(
-        spacing: 4,
-        runSpacing: 4,
-        children: _buildWordWidgets(isDark),
-      ),
+      child: Wrap(spacing: 4, runSpacing: 4, children: _buildWordWidgets(isDark)),
     );
   }
 
@@ -65,16 +58,8 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeOut,
           padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-          decoration: BoxDecoration(
-            color: isCurrentWord
-                ? AppColors.colorBlue500
-                : AppColors.colorTransparent,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            word.word,
-            style: AppTextStyles.heading4
-          ),
+          decoration: BoxDecoration(color: isCurrentWord ? AppColors.colorBlue500 : AppColors.colorTransparent, borderRadius: BorderRadius.circular(4)),
+          child: Text(word.word, style: AppTextStyles.heading4),
         ),
       );
     }).toList();

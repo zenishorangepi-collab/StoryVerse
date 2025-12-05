@@ -1,14 +1,15 @@
-
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
+import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
+import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
+import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_style.dart';
 
-import '../../../audio_text_screen/services/sync_enginge_service.dart';
-import '../../../audio_text_screen/models/transcript_data_model.dart';
 import 'audio_highlight_controller.dart';
-import '../../../audio_text_screen/widgets/paragraph_widget.dart';
 
 class AudioHighlighterScreen extends StatefulWidget {
   const AudioHighlighterScreen({super.key});
@@ -43,16 +44,9 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
     try {
       _transcript = await _loadRealData();
       _syncEngine = SyncEngine(_transcript!.paragraphs);
-      _audioController = AudioControllerForHighLight(
-        _transcript?.duration ?? 0,
-        _transcript?.audioUrl,
-      );
+      _audioController = AudioControllerForHighLight(_transcript?.duration ?? 0, _transcript?.audioUrl);
       scrollController = ScrollController();
-      for (
-        int i = 0;
-        i < (_transcript ?? TranscriptData()).paragraphs.length;
-        i++
-      ) {
+      for (int i = 0; i < (_transcript ?? TranscriptData()).paragraphs.length; i++) {
         _paragraphKeys.add(GlobalKey());
       }
 
@@ -73,8 +67,7 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
   }
 
   void _onUserScroll() {
-    if (scrollController.hasClients &&
-        scrollController.position.isScrollingNotifier.value) {
+    if (scrollController.hasClients && scrollController.position.isScrollingNotifier.value) {
       _userScrolling = true;
       _userScrollTimer?.cancel();
       _userScrollTimer = Timer(const Duration(seconds: 3), () {
@@ -86,22 +79,17 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
   }
 
   void _onAudioPositionUpdate() {
-
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 16), () {
       if (_syncEngine == null) return;
 
-      final newWordIndex = _syncEngine.findWordIndexAtTime(
-        _audioController.position,
-      );
+      final newWordIndex = _syncEngine.findWordIndexAtTime(_audioController.position);
 
       if (newWordIndex != _currentWordIndex && newWordIndex >= 0) {
         if (mounted) {
           setState(() {
             _currentWordIndex = newWordIndex;
-            _currentParagraphIndex = _syncEngine.getParagraphIndex(
-              newWordIndex,
-            );
+            _currentParagraphIndex = _syncEngine.getParagraphIndex(newWordIndex);
           });
         }
 
@@ -113,8 +101,7 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
   }
 
   void _autoScrollToCurrentWord() {
-    if (_currentParagraphIndex < 0 ||
-        _currentParagraphIndex >= _paragraphKeys.length) {
+    if (_currentParagraphIndex < 0 || _currentParagraphIndex >= _paragraphKeys.length) {
       return;
     }
 
@@ -128,15 +115,11 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
           final position = renderBox.localToGlobal(Offset.zero);
           final viewportHeight = scrollController.position.viewportDimension;
           final currentScroll = scrollController.offset;
-          final targetScroll =
-              currentScroll + position.dy - (viewportHeight * 0.4);
+          final targetScroll = currentScroll + position.dy - (viewportHeight * 0.4);
           final relativePosition = position.dy / viewportHeight;
           if (relativePosition < 0.3 || relativePosition > 0.7) {
             scrollController.animateTo(
-              targetScroll.clamp(
-                0.0,
-                scrollController.position.maxScrollExtent,
-              ),
+              targetScroll.clamp(0.0, scrollController.position.maxScrollExtent),
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
             );
@@ -161,38 +144,22 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
   @override
   Widget build(BuildContext context) {
     if (_hasError) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Error')),
-        body: _buildErrorView(),
-      );
+      return Scaffold(appBar: AppBar(title: const Text('Error')), body: _buildErrorView());
     }
 
     if (_transcript == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Loading...')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
+      return Scaffold(appBar: AppBar(title: const Text('Loading...')), body: const Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Audio Text Synchronizer'),
-        elevation: 2,
-      ),
+      appBar: AppBar(title: const Text('Audio Text Synchronizer'), elevation: 2),
       body: Stack(
         children: [
           Column(
             children: [
               if (_audioController.isLoading) const LinearProgressIndicator(),
               if (_audioController.error != null)
-                Container(
-                  color: Colors.red[100],
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    _audioController.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
+                Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(_audioController.error!, style: AppTextStyles.errorText18)),
               Expanded(child: _buildTranscriptView()),
               _buildControlPanel(),
             ],
@@ -209,13 +176,9 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const Icon(Icons.error_outline, size: 64, color: AppColors.colorRed),
             const SizedBox(height: 16),
-            Text(
-              _errorMessage ?? 'An error occurred',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(_errorMessage ?? 'An error occurred', textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
@@ -243,9 +206,7 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
       itemBuilder: (context, index) {
         final paragraph = _transcript!.paragraphs[index];
         final isCurrentParagraph = index == _currentParagraphIndex;
-        final wordIndexInParagraph = isCurrentParagraph && _syncEngine != null
-            ? _syncEngine.getWordIndexInParagraph(_currentWordIndex, index)
-            : null;
+        final wordIndexInParagraph = isCurrentParagraph && _syncEngine != null ? _syncEngine.getWordIndexInParagraph(_currentWordIndex, index) : null;
 
         return ParagraphWidget(
           paragraph: paragraph,
@@ -265,31 +226,18 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
     return Container(
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, -2))],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                Text(
-                  _formatTime(_audioController.position),
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text(_formatTime(_audioController.position), style: theme.textTheme.bodySmall),
                 const Spacer(),
-                Text(
-                  _formatTime(_audioController.duration),
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text(_formatTime(_audioController.duration), style: theme.textTheme.bodySmall),
               ],
             ),
           ),
@@ -298,28 +246,15 @@ class _AudioHighlighterScreenState extends State<AudioHighlighterScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.replay_10),
-                  iconSize: 32,
-                  onPressed: _audioController.skipBackward,
-                  tooltip: 'Skip -10s',
-                ),
+                IconButton(icon: const Icon(Icons.replay_10), iconSize: 32, onPressed: _audioController.skipBackward, tooltip: 'Skip -10s'),
                 const SizedBox(width: 16),
                 IconButton(
-                  icon: Icon(
-                    _audioController.isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 48,
-                  ),
+                  icon: Icon(_audioController.isPlaying ? Icons.pause : Icons.play_arrow, size: 48),
                   onPressed: _audioController.togglePlayPause,
                   tooltip: _audioController.isPlaying ? 'Pause' : 'Play',
                 ),
                 const SizedBox(width: 16),
-                IconButton(
-                  icon: const Icon(Icons.forward_10),
-                  iconSize: 32,
-                  onPressed: _audioController.skipForward,
-                  tooltip: 'Skip +10s',
-                ),
+                IconButton(icon: const Icon(Icons.forward_10), iconSize: 32, onPressed: _audioController.skipForward, tooltip: 'Skip +10s'),
                 const SizedBox(width: 24),
               ],
             ),
