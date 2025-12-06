@@ -32,7 +32,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      // key: widget.widgetKey,
+      key: widget.widgetKey,
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -58,7 +58,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeOut,
           padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-          decoration: BoxDecoration(color: isCurrentWord ? AppColors.colorBlue500 : AppColors.colorTransparent, borderRadius: BorderRadius.circular(4)),
+          decoration: BoxDecoration(color: isCurrentWord ? AppColors.colorBlue500 : Colors.transparent, borderRadius: BorderRadius.circular(4)),
           child: Text(word.word, style: AppTextStyles.heading4),
         ),
       );

@@ -21,112 +21,115 @@ class AudioTextScreen extends StatelessWidget {
         if (controller.hasError) {
           return Scaffold(appBar: AppBar(title: const Text('Error')), body: _buildErrorView(controller));
         }
-        return Scaffold(
-          backgroundColor: AppColors.colorBlack,
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(120),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              height: 80,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.colorBlack,
-                boxShadow: [
-                  BoxShadow(
-                    color: controller.isCollapsed ? AppColors.colorBlack800 : AppColors.colorTransparent,
-                    blurRadius: 25,
-                    spreadRadius: 5,
-                    offset: Offset(0, 15),
-                  ),
-                ],
-              ),
-
-              child: Stack(
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: AppColors.colorBlack,
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(80),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                height: 70,
                 alignment: Alignment.center,
-                children: [
-                  /// --- TOP ROW (Back + Icons) ---
-                  Positioned(
-                    left: 0,
-                    child: GestureDetector(onTap: () => Get.back(), child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite)),
-                  ),
-                  AnimatedPositioned(
-                    duration: Duration(milliseconds: 300),
-                    left: 40,
-                    top: controller.isCollapsed ? 18 : 40,
-                    child: AnimatedOpacity(
-                      duration: Duration(milliseconds: 400),
-                      opacity: controller.isCollapsed ? 1 : 0,
-                      child: AnimatedSlide(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.colorBlack,
+                  boxShadow: [
+                    BoxShadow(
+                      color: controller.isCollapsed ? AppColors.colorBlack800 : AppColors.colorTransparent,
+                      blurRadius: 25,
+                      spreadRadius: 5,
+                      offset: Offset(0, 15),
+                    ),
+                  ],
+                ),
+
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    /// --- TOP ROW (Back + Icons) ---
+                    Positioned(
+                      left: 0,
+                      child: GestureDetector(onTap: () => Get.back(), child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite)),
+                    ),
+                    AnimatedPositioned(
+                      duration: Duration(milliseconds: 300),
+                      left: 40,
+                      top: controller.isCollapsed ? 12 : 40,
+                      child: AnimatedOpacity(
                         duration: Duration(milliseconds: 400),
-                        curve: Curves.easeOut,
-                        offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
+                        opacity: controller.isCollapsed ? 1 : 0,
+                        child: AnimatedSlide(
+                          duration: Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                          offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
 
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Audio Text Synchronizer", style: AppTextStyles.bodyLarge),
-                            Text("Subtitle text", style: AppTextStyles.bodyMediumGrey),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Positioned(
-                    right: 0,
-                    child: Row(
-                      children: [
-                        Icon(Icons.cloud_upload_outlined, color: AppColors.colorWhite),
-                        SizedBox(width: 12),
-                        Icon(Icons.more_horiz, color: AppColors.colorWhite),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          body: Column(
-            children: [
-              if (controller.isLoading) const LinearProgressIndicator(),
-
-              if (controller.error != null)
-                Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
-
-              /// -------------------------
-              /// 🔵 SliverAppBar inserted here
-              /// -------------------------
-              Expanded(
-                child: NestedScrollView(
-                  controller: controller.scrollController,
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      SliverAppBar(
-                        pinned: false,
-                        expandedHeight: 50,
-                        backgroundColor: AppColors.colorBlack,
-                        automaticallyImplyLeading: false,
-                        flexibleSpace: FlexibleSpaceBar(
-                          // title: const Text("Audio Text Synchronizer"),
-                          background: Container(
-                            padding: const EdgeInsets.only(left: 16, bottom: 20),
-                            alignment: Alignment.bottomLeft,
-                            child: const Text("Audio Text Synchronizer", style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(CS.vAudioTextSynchronizer, style: AppTextStyles.heading4),
+                              Text("Subtitle text", style: AppTextStyles.bodyMediumGrey),
+                            ],
                           ),
                         ),
                       ),
-                    ];
-                  },
+                    ),
 
-                  /// Transcript List (Slivers)
-                  body: _buildTranscriptView(controller),
+                    Positioned(
+                      right: 0,
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud_upload_outlined, color: AppColors.colorWhite),
+                          SizedBox(width: 12),
+                          Icon(Icons.more_horiz, color: AppColors.colorWhite),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              _buildControlPanel(context, controller),
-            ],
+            body: Column(
+              children: [
+                if (controller.isLoading) const LinearProgressIndicator(),
+
+                if (controller.error != null)
+                  Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
+
+                /// -------------------------
+                /// 🔵 SliverAppBar inserted here
+                /// -------------------------
+                Expanded(
+                  child: NestedScrollView(
+                    controller: controller.scrollController,
+                    headerSliverBuilder: (context, innerBoxIsScrolled) {
+                      return [
+                        SliverAppBar(
+                          pinned: false,
+                          expandedHeight: 50,
+                          backgroundColor: AppColors.colorBlack,
+                          automaticallyImplyLeading: false,
+                          flexibleSpace: FlexibleSpaceBar(
+                            // title: const Text("Audio Text Synchronizer"),
+                            background: Container(
+                              padding: const EdgeInsets.only(left: 25, bottom: 5),
+                              alignment: Alignment.bottomLeft,
+                              child: Text(CS.vAudioTextSynchronizer, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ),
+                      ];
+                    },
+
+                    /// Transcript List (Slivers)
+                    body: _buildTranscriptView(controller),
+                  ),
+                ),
+
+                _buildControlPanel(context, controller),
+              ],
+            ),
           ),
         );
       },
@@ -213,17 +216,29 @@ class AudioTextScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Slider(
               min: 0,
+              allowedInteraction: SliderInteraction.slideOnly,
               padding: EdgeInsets.all(5),
               max: controller.duration.toDouble(),
               value: controller.position.toDouble(),
               activeColor: AppColors.colorWhite,
               inactiveColor: AppColors.colorBgWhite02,
               overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
-              onChanged: (value) {
-                controller.seek(value.toInt());
 
-                // controller.scrollToTime(value.toInt());
+              // onChangeStart: (value) {
+              //   // user started dragging: suppress auto-scroll
+              //   controller.userScrolling = true;
+              //   controller.suppressAutoScroll = true; // if field is private, add a public method
+              // },
+              onChanged: (value) {
+                // live-seek while dragging, call seek(fromUser: true)
+                controller.pause();
+
+                controller.seek(value.toInt(), fromUser: true);
               },
+              // onChangeEnd: (value) {
+              //   // user released slider — final seek + re-enable auto-scroll will happen inside seek()
+              //   controller.seek(value.toInt(), fromUser: true);
+              // },
             ),
           ),
 
