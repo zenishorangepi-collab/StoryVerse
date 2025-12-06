@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_style.dart';
 
 class ParagraphWidget extends StatefulWidget {
   final ParagraphData paragraph;
+  final AudioTextController controller;
   final int paragraphIndex;
   final int? currentWordIndex;
   final bool isCurrentParagraph;
@@ -18,6 +20,7 @@ class ParagraphWidget extends StatefulWidget {
     required this.isCurrentParagraph,
     required this.onWordTap,
     required this.widgetKey,
+    required this.controller,
     super.key,
   });
 
@@ -52,7 +55,11 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       final word = entry.value;
       final isCurrentWord = index == widget.currentWordIndex;
 
+      final wordKey = GlobalKey();
+      // widget.controller.wordKeys.add(wordKey);
+
       return GestureDetector(
+        key: wordKey,
         onTap: () => widget.onWordTap(word.start),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),

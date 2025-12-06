@@ -190,6 +190,7 @@ class AudioTextScreen extends StatelessWidget {
                 isCurrentParagraph: isCurrentParagraph,
                 onWordTap: (start) => controller.seek(start),
                 widgetKey: controller.paragraphKeys[index],
+                controller: controller,
               );
             }, childCount: paragraphs.length),
           ),
@@ -223,22 +224,11 @@ class AudioTextScreen extends StatelessWidget {
               activeColor: AppColors.colorWhite,
               inactiveColor: AppColors.colorBgWhite02,
               overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
-
-              // onChangeStart: (value) {
-              //   // user started dragging: suppress auto-scroll
-              //   controller.userScrolling = true;
-              //   controller.suppressAutoScroll = true; // if field is private, add a public method
-              // },
               onChanged: (value) {
                 // live-seek while dragging, call seek(fromUser: true)
                 controller.pause();
-
-                controller.seek(value.toInt(), fromUser: true);
+                controller.seek(value.toInt());
               },
-              // onChangeEnd: (value) {
-              //   // user released slider — final seek + re-enable auto-scroll will happen inside seek()
-              //   controller.seek(value.toInt(), fromUser: true);
-              // },
             ),
           ),
 

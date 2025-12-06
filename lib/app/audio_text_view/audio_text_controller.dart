@@ -24,6 +24,7 @@ class AudioTextController extends GetxController {
 
   late final ScrollController scrollController;
   final List<GlobalKey> paragraphKeys = [];
+  final List<GlobalKey> wordKeys = [];
 
   // ------------------------------------------------------------
   // Auto-scroll / UI
@@ -275,7 +276,7 @@ class AudioTextController extends GetxController {
       if (_isAutoScrolling) return;
 
       BuildContext? ctx = key.currentContext;
-
+      print(ctx);
       // Multi-frame recovery: try a few frames if context null
       if (ctx == null) {
         for (int i = 0; i < 6; i++) {
@@ -549,13 +550,8 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Seek
   // ------------------------------------------------------------
-  Future<void> seek(int positionMs, {bool fromUser = false}) async {
+  Future<void> seek(int positionMs) async {
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
-
-    if (fromUser) {
-      suppressAutoScroll = true;
-      userScrolling = true;
-    }
 
     _operationInProgress = true;
     _isSeeking = true;
@@ -563,10 +559,8 @@ class AudioTextController extends GetxController {
     try {
       _position = positionMs.clamp(0, _duration);
       await audioPlayer.seek(Duration(milliseconds: _position));
-
-      await Future.delayed(const Duration(milliseconds: 70));
-
       _lastDriftCheck = _isPlaying ? DateTime.now() : null;
+      await Future.delayed(const Duration(milliseconds: 50));
       update();
     } catch (e) {
       _error = 'Seek error: $e';
@@ -574,20 +568,7 @@ class AudioTextController extends GetxController {
     } finally {
       _isSeeking = false;
       _operationInProgress = false;
-
-      if (fromUser) {
-        // allow UI to settle then re-enable auto-scroll and force paragraph scroll
-        Future.delayed(const Duration(milliseconds: 120), () async {
-          if (_isDisposed) return;
-
-          userScrolling = false;
-          suppressAutoScroll = false;
-          update();
-
-          // Force paragraph-scroll on user seek end
-          forceAutoScrollToCurrentParagraph();
-        });
-      }
+      update();
     }
   }
 
@@ -602,7 +583,7 @@ class AudioTextController extends GetxController {
     final key = paragraphKeys[pIndex];
 
     // prefer context-based, fallback inside scrollToParagraph handles other cases
-    scrollToParagraph(key, alignment: 0.20);
+    scrollToParagraph(key);
   }
 
   Future<void> skipForward() async => await seek(_position + 10000);
