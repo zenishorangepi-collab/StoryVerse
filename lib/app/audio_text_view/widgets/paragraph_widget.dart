@@ -79,11 +79,11 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
   }
 
   // NEW: Public method to get word key by global index
-  GlobalKey? getWordKey(int globalWordIndex) {
-    final localIndex = globalWordIndex - widget.globalWordStartIndex;
-    if (localIndex >= 0 && localIndex < wordKeys.length) {
-      return wordKeys[localIndex];
-    }
-    return null;
-  }
+  // GlobalKey? getWordKey(int globalWordIndex) {
+  //   final localIndex = globalWordIndex - widget.globalWordStartIndex;
+  //   if (localIndex >= 0 && localIndex < wordKeys.length) {
+  //     return wordKeys[localIndex];
+  //   }
+  //   return null;
+  // }
 }

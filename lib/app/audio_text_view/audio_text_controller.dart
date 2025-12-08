@@ -406,6 +406,7 @@ class AudioTextController extends GetxController {
 
       _isPlaying = true;
       _lastDriftCheck = DateTime.now();
+
       update();
     } catch (e) {
       _error = 'Playback error: $e';
