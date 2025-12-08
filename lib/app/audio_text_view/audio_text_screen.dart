@@ -183,6 +183,11 @@ class AudioTextScreen extends StatelessWidget {
                       ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, index)
                       : null;
 
+              int globalWordStartIndex = 0;
+              for (int p = 0; p < index; p++) {
+                globalWordStartIndex += paragraphs[p].words.length;
+              }
+
               return ParagraphWidget(
                 paragraph: paragraph,
                 paragraphIndex: index,
@@ -191,6 +196,7 @@ class AudioTextScreen extends StatelessWidget {
                 onWordTap: (start) => controller.seek(start),
                 widgetKey: controller.paragraphKeys[index],
                 controller: controller,
+                globalWordStartIndex: globalWordStartIndex, // NEW
               );
             }, childCount: paragraphs.length),
           ),
@@ -315,7 +321,7 @@ class AudioTextScreen extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 40),
+          SizedBox(height: 10),
         ],
       ),
     );
@@ -343,18 +349,20 @@ class AudioTextScreen extends StatelessWidget {
   // MAIN UI
   // ==========================================================
   Widget _contentsSheetUI(AudioTextController controller, BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.colorGrey900,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-      ),
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 250),
-        padding: MediaQuery.of(context).viewInsets,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [_contentsHeader(), const SizedBox(height: 25), _contentsItems(), const SizedBox(height: 35)],
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.colorGrey900,
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        ),
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 250),
+          padding: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [_contentsHeader(), const SizedBox(height: 25), _contentsItems(), const SizedBox(height: 35)],
+          ),
         ),
       ),
     );
@@ -421,29 +429,31 @@ class AudioTextScreen extends StatelessWidget {
   // MAIN BOTTOMSHEET UI
   // ==========================================================
   Widget _speedSheetUI(AudioTextController controller, BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.colorGrey900,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-      ),
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 250),
-        padding: MediaQuery.of(context).viewInsets,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _speedHeader(controller),
-            const SizedBox(height: 25),
-            _speedSlider(controller, context),
-            const SizedBox(height: 10),
-            _speedSliderLabels(),
-            const SizedBox(height: 25),
-            _speedPresetButtons(controller),
-            const SizedBox(height: 25),
-            _speedSaveButton(),
-            const SizedBox(height: 35),
-          ],
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.colorGrey900,
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        ),
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 250),
+          padding: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _speedHeader(controller),
+              const SizedBox(height: 25),
+              _speedSlider(controller, context),
+              const SizedBox(height: 10),
+              _speedSliderLabels(),
+              const SizedBox(height: 25),
+              _speedPresetButtons(controller),
+              const SizedBox(height: 25),
+              _speedSaveButton(),
+              const SizedBox(height: 35),
+            ],
+          ),
         ),
       ),
     );
@@ -590,42 +600,44 @@ class AudioTextScreen extends StatelessWidget {
   // BOOKMARK POPUP UI
   // ---------------------------------------------------------
   Widget _bookmarkPopupUI(BuildContext context, Animation<double> animation) {
-    return Transform.translate(
-      offset: Offset(0, 100 * (1 - animation.value)),
-      child: Opacity(
-        opacity: animation.value,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              decoration: BoxDecoration(
-                color: AppColors.colorGrey900,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 4))],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(CS.vBookmarkSaved, style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 16),
+    return SafeArea(
+      child: Transform.translate(
+        offset: Offset(0, 100 * (1 - animation.value)),
+        child: Opacity(
+          opacity: animation.value,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                decoration: BoxDecoration(
+                  color: AppColors.colorGrey900,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 4))],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(CS.vBookmarkSaved, style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 16),
 
-                  const SizedBox(height: 5),
+                    const SizedBox(height: 5),
 
-                  Text(CS.vYouCanAccessYourBookmark, style: AppTextStyles.bodyMediumGrey).paddingSymmetric(horizontal: 16),
+                    Text(CS.vYouCanAccessYourBookmark, style: AppTextStyles.bodyMediumGrey).paddingSymmetric(horizontal: 16),
 
-                  Divider(),
+                    Divider(),
 
-                  GestureDetector(
-                    onTap: () => _openAddNoteSheet(context),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Icon(Icons.edit_rounded, color: AppColors.colorWhite), Text(CS.vAddNote, style: AppTextStyles.bodyLarge)],
+                    GestureDetector(
+                      onTap: () => _openAddNoteSheet(context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [Icon(Icons.edit_rounded, color: AppColors.colorWhite), Text(CS.vAddNote, style: AppTextStyles.bodyLarge)],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -656,66 +668,68 @@ class AudioTextScreen extends StatelessWidget {
   // ADD NOTE BOTTOMSHEET UI
   // ---------------------------------------------------------
   Widget _addNoteSheetUI(AudioTextController controller, BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.colorGrey900,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-      ),
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 250),
-        padding: MediaQuery.of(context).viewInsets,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ---------------- HEADER ----------------
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.colorBgWhite10,
-                borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(CS.vAddNote, style: AppTextStyles.heading3),
-                  GestureDetector(onTap: () => Get.back(), child: const Icon(Icons.cancel, color: Colors.white, size: 28)),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // ---------------- DESCRIPTION ----------------
-            Text("Level II is an intensive workshop for experienced writers...", style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 20),
-
-            const SizedBox(height: 25),
-
-            // ---------------- TEXTFIELD ----------------
-            CommonTextFormField(controller: controller.addNoteController, hint: CS.vWriteNote, maxLines: 6).paddingSymmetric(horizontal: 20),
-
-            const SizedBox(height: 25),
-
-            // ---------------- SAVE BUTTON ----------------
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.colorGrey900,
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        ),
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 250),
+          padding: MediaQuery.of(context).viewInsets,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ---------------- HEADER ----------------
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.colorBgWhite10,
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
                 ),
-                onPressed: () {
-                  // TODO: save note
-                  Get.back();
-                },
-                child: Text(CS.vSaveSettings, style: AppTextStyles.buttonTextBlack),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(CS.vAddNote, style: AppTextStyles.heading3),
+                    GestureDetector(onTap: () => Get.back(), child: const Icon(Icons.cancel, color: Colors.white, size: 28)),
+                  ],
+                ),
               ),
-            ).paddingSymmetric(horizontal: 25),
 
-            const SizedBox(height: 35),
-          ],
+              const SizedBox(height: 25),
+
+              // ---------------- DESCRIPTION ----------------
+              Text("Level II is an intensive workshop for experienced writers...", style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 20),
+
+              const SizedBox(height: 25),
+
+              // ---------------- TEXTFIELD ----------------
+              CommonTextFormField(controller: controller.addNoteController, hint: CS.vWriteNote, maxLines: 6).paddingSymmetric(horizontal: 20),
+
+              const SizedBox(height: 25),
+
+              // ---------------- SAVE BUTTON ----------------
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () {
+                    // TODO: save note
+                    Get.back();
+                  },
+                  child: Text(CS.vSaveSettings, style: AppTextStyles.buttonTextBlack),
+                ),
+              ).paddingSymmetric(horizontal: 25),
+
+              const SizedBox(height: 35),
+            ],
+          ),
         ),
       ),
     );

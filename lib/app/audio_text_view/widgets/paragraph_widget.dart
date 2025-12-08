@@ -6,12 +6,13 @@ import 'package:utsav_interview/core/common_style.dart';
 
 class ParagraphWidget extends StatefulWidget {
   final ParagraphData paragraph;
-  final AudioTextController controller;
   final int paragraphIndex;
   final int? currentWordIndex;
   final bool isCurrentParagraph;
   final Function(int) onWordTap;
+  final AudioTextController controller;
   final GlobalKey widgetKey;
+  final int globalWordStartIndex; // NEW: Starting global word index for this paragraph
 
   const ParagraphWidget({
     required this.paragraph,
@@ -19,8 +20,9 @@ class ParagraphWidget extends StatefulWidget {
     required this.currentWordIndex,
     required this.isCurrentParagraph,
     required this.onWordTap,
-    required this.widgetKey,
     required this.controller,
+    required this.widgetKey,
+    required this.globalWordStartIndex, // NEW
     super.key,
   });
 
@@ -29,6 +31,15 @@ class ParagraphWidget extends StatefulWidget {
 }
 
 class _ParagraphWidgetState extends State<ParagraphWidget> {
+  late final List<GlobalKey> wordKeys; // NEW: Word keys for this paragraph
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize word keys for this paragraph
+    wordKeys = List.generate(widget.paragraph.words.length, (index) => GlobalKey());
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -38,37 +49,41 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       key: widget.widgetKey,
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: widget.isCurrentParagraph ? AppColors.colorBlue200 : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-        // border: widget.isCurrentParagraph
-        //     ? Border(left: BorderSide(color: theme.primaryColor, width: 3))
-        //     : null,
-      ),
+      decoration: BoxDecoration(color: widget.isCurrentParagraph ? AppColors.colorBlue200 : Colors.transparent, borderRadius: BorderRadius.circular(8)),
       child: Wrap(spacing: 4, runSpacing: 4, children: _buildWordWidgets(isDark)),
     );
   }
 
   List<Widget> _buildWordWidgets(bool isDark) {
     return widget.paragraph.words.asMap().entries.map((entry) {
-      final index = entry.key;
+      final localIndex = entry.key;
       final word = entry.value;
-      final isCurrentWord = index == widget.currentWordIndex;
 
-      final wordKey = GlobalKey();
-      // widget.controller.wordKeys.add(wordKey);
+      // 🔥 COMPARE LOCAL INDEX (currentWordIndex is now local from screen)
+      final isCurrentWord = localIndex == widget.currentWordIndex;
 
-      return GestureDetector(
-        key: wordKey,
-        onTap: () => widget.onWordTap(word.start),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOut,
-          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
-          decoration: BoxDecoration(color: isCurrentWord ? AppColors.colorBlue500 : Colors.transparent, borderRadius: BorderRadius.circular(4)),
-          child: Text(word.word, style: AppTextStyles.heading4),
+      return Container(
+        key: widget.controller.wordKeys[widget.globalWordStartIndex + localIndex],
+        child: GestureDetector(
+          onTap: () => widget.onWordTap(word.start),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 100),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+            decoration: BoxDecoration(color: isCurrentWord ? AppColors.colorBlue500 : Colors.transparent, borderRadius: BorderRadius.circular(4)),
+            child: Text(word.word, style: AppTextStyles.heading4),
+          ),
         ),
       );
     }).toList();
+  }
+
+  // NEW: Public method to get word key by global index
+  GlobalKey? getWordKey(int globalWordIndex) {
+    final localIndex = globalWordIndex - widget.globalWordStartIndex;
+    if (localIndex >= 0 && localIndex < wordKeys.length) {
+      return wordKeys[localIndex];
+    }
+    return null;
   }
 }
