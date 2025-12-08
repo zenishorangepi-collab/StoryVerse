@@ -169,10 +169,19 @@ class SyncEngine {
   }
 
   int getWordIndexInParagraph(int globalWordIndex, int paragraphIndex) {
-    if (paragraphIndex < 0 || paragraphIndex >= _paragraphStartIndices.length - 1) {
-      return -1;
+    int currentGlobalIndex = 0;
+
+    // Find paragraph containing globalWordIndex
+    for (int p = 0; p < paragraphs.length; p++) {
+      final para = paragraphs[p];
+      if (currentGlobalIndex + para.words.length > globalWordIndex) {
+        // Found paragraph - return local index
+        return globalWordIndex - currentGlobalIndex;
+      }
+      currentGlobalIndex += para.words.length;
     }
-    return globalWordIndex - _paragraphStartIndices[paragraphIndex];
+
+    return -1; // Not found
   }
 
   double get cacheHitRate => (_searchHits + _searchMisses) > 0 ? _searchHits / (_searchHits + _searchMisses) : 0.0;
