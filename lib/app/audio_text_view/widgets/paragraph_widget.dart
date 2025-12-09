@@ -12,7 +12,7 @@ class ParagraphWidget extends StatefulWidget {
   final Function(int) onWordTap;
   final AudioTextController controller;
   final GlobalKey widgetKey;
-  final int globalWordStartIndex; // NEW: Starting global word index for this paragraph
+  final int globalWordStartIndex;
 
   const ParagraphWidget({
     required this.paragraph,
@@ -22,7 +22,7 @@ class ParagraphWidget extends StatefulWidget {
     required this.onWordTap,
     required this.controller,
     required this.widgetKey,
-    required this.globalWordStartIndex, // NEW
+    required this.globalWordStartIndex,
     super.key,
   });
 
@@ -36,7 +36,6 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
   @override
   void initState() {
     super.initState();
-    // Initialize word keys for this paragraph
     wordKeys = List.generate(widget.paragraph.words.length, (index) => GlobalKey());
   }
 
@@ -47,8 +46,8 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
 
     return Container(
       key: widget.widgetKey,
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(color: widget.isCurrentParagraph ? AppColors.colorBlue200 : Colors.transparent, borderRadius: BorderRadius.circular(8)),
       child: Wrap(spacing: 4, runSpacing: 4, children: _buildWordWidgets(isDark)),
     );
@@ -59,7 +58,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       final localIndex = entry.key;
       final word = entry.value;
 
-      // 🔥 COMPARE LOCAL INDEX (currentWordIndex is now local from screen)
+      // COMPARE LOCAL INDEX (currentWordIndex is now local from screen)
       final isCurrentWord = localIndex == widget.currentWordIndex;
 
       return Container(
@@ -77,13 +76,4 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       );
     }).toList();
   }
-
-  // NEW: Public method to get word key by global index
-  // GlobalKey? getWordKey(int globalWordIndex) {
-  //   final localIndex = globalWordIndex - widget.globalWordStartIndex;
-  //   if (localIndex >= 0 && localIndex < wordKeys.length) {
-  //     return wordKeys[localIndex];
-  //   }
-  //   return null;
-  // }
 }
