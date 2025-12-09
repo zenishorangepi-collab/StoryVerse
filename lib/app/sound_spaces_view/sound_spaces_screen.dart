@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 
@@ -48,6 +51,8 @@ class SoundSpacesScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   Text(CS.vSoundscapeVolume, style: AppTextStyles.bodyMediumGrey16),
+                  SizedBox(height: 20),
+
                   Slider(
                     min: 0,
                     padding: EdgeInsets.all(5),
@@ -61,13 +66,46 @@ class SoundSpacesScreen extends StatelessWidget {
                       controller.update();
                     },
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   Text(CS.vAllSoundscape, style: AppTextStyles.bodyMediumGrey16),
-                  ListView.builder(
-                    itemBuilder: (context, index) {
-                      return ListTile();
-                    },
+                  Expanded(
+                    child: ListView.builder(
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            controller.selectedTile = index;
+                            controller.update();
+                          },
+                          child: ListTile(
+                            contentPadding: EdgeInsets.all(5),
+                            leading: Container(
+                              height: 50,
+                              width: 50,
+                              // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              // margin: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                gradient: controller.myGradient,
+                                borderRadius: BorderRadius.circular(25), // rounded
+                              ),
+                            ),
+                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyLarge),
+                            trailing: controller.selectedTile == index ? Icon(Icons.check_circle_rounded, color: AppColors.colorWhite) : null,
+                          ).paddingOnly(bottom: 6),
+                        );
+                      },
+                    ),
                   ),
+                  SizedBox(height: 10),
+                  Row(
+                    spacing: 15,
+                    children: [
+                      Expanded(
+                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgWhite02, textStyle: AppTextStyles.buttonTextWhite),
+                      ),
+                      Expanded(child: CommonElevatedButton(title: CS.vSave)),
+                    ],
+                  ),
+                  SizedBox(height: 45),
                 ],
               ).screenPadding(),
         );

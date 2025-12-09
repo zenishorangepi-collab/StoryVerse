@@ -9,6 +9,8 @@ import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_binding.dart'
 import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_screen.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_binding.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_screen.dart';
+import 'package:utsav_interview/app/voice_view/voice_binding.dart';
+import 'package:utsav_interview/app/voice_view/voice_screen.dart';
 
 import '../app/splash_screen/splash_binding.dart';
 import '../app/splash_screen/splash_screen.dart';
@@ -20,12 +22,20 @@ class AppRoutes {
   static String tabBarScreen = "/tabBarScreen";
   static String audioTextScreen = "/audioTextScreen";
   static String soundSpacesScreen = "/soundSpacesScreen";
+  static String voiceScreen = "/voiceScreen";
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
     GetPage(name: tabBarScreen, page: () => TabBarScreen(), binding: TabBarBinding()),
     GetPage(name: homeScreen, page: () => HomeScreen(), binding: HomeBinding()),
     GetPage(name: exploreScreen, page: () => ExploreScreen(), binding: ExploreScreenBinding()),
+    GetPage(
+      name: voiceScreen,
+      page: () => VoiceScreen(),
+      binding: VoiceBinding(),
+      transition: Transition.downToUp,
+      transitionDuration: Duration(milliseconds: 500),
+    ),
     GetPage(
       name: soundSpacesScreen,
       page: () => SoundSpacesScreen(),

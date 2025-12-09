@@ -10,6 +10,8 @@ import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/common_textfield.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
+import '../../core/common_elevated_button.dart';
+
 class AudioTextScreen extends StatelessWidget {
   const AudioTextScreen({super.key});
 
@@ -308,7 +310,12 @@ class AudioTextScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 const SizedBox(width: 16),
-                Icon(Icons.person, color: AppColors.colorGrey, size: 30),
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed(AppRoutes.voiceScreen);
+                  },
+                  child: Icon(Icons.person, color: AppColors.colorGrey, size: 30),
+                ),
                 GestureDetector(
                   onTap: () {
                     openContentsSheet(context);
@@ -715,22 +722,7 @@ class AudioTextScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // ---------------- SAVE BUTTON ----------------
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: () {
-                    // TODO: save note
-                    Get.back();
-                  },
-                  child: Text(CS.vSaveSettings, style: AppTextStyles.buttonTextBlack),
-                ),
-              ).paddingSymmetric(horizontal: 25),
+              SizedBox(width: double.infinity, child: CommonElevatedButton(title: CS.vSaveSettings)).paddingSymmetric(horizontal: 25),
 
               const SizedBox(height: 35),
             ],

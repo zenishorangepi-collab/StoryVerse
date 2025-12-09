@@ -66,7 +66,11 @@ class HomeScreen extends StatelessWidget {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          children: [buildChip(Icons.star, CS.vForYou), buildChip(Icons.people, CS.vFollowing), buildChip(Icons.history, CS.vRecents)],
+                          children: [
+                            buildChip(icon: Icons.star, label: CS.vForYou),
+                            buildChip(icon: Icons.people, label: CS.vFollowing),
+                            buildChip(icon: Icons.history, label: CS.vRecents),
+                          ],
                         ),
                       ),
 
