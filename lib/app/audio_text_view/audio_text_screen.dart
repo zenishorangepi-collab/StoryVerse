@@ -19,7 +19,17 @@ class AudioTextScreen extends StatelessWidget {
       init: AudioTextController(),
       builder: (controller) {
         if (controller.hasError) {
-          return Scaffold(appBar: AppBar(title: const Text('Error')), body: _buildErrorView(controller));
+          return SafeArea(
+            child: Scaffold(
+              backgroundColor: AppColors.colorBg,
+              appBar: AppBar(
+                backgroundColor: AppColors.colorBlack,
+                foregroundColor: AppColors.colorWhite,
+                title: Text('Error', style: AppTextStyles.errorText18),
+              ),
+              body: _buildErrorView(controller),
+            ),
+          );
         }
         return SafeArea(
           child: Scaffold(
@@ -98,35 +108,13 @@ class AudioTextScreen extends StatelessWidget {
                   Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
 
                 /// -------------------------
-                /// 🔵 SliverAppBar inserted here
+                /// 🔵 Transcript List (Slivers)
                 /// -------------------------
-                Expanded(
-                  child: NestedScrollView(
-                    controller: controller.scrollController,
-                    headerSliverBuilder: (context, innerBoxIsScrolled) {
-                      return [
-                        SliverAppBar(
-                          pinned: false,
-                          expandedHeight: 50,
-                          backgroundColor: AppColors.colorBlack,
-                          automaticallyImplyLeading: false,
-                          flexibleSpace: FlexibleSpaceBar(
-                            // title: const Text("Audio Text Synchronizer"),
-                            background: Container(
-                              padding: const EdgeInsets.only(left: 25, bottom: 5),
-                              alignment: Alignment.bottomLeft,
-                              child: Text(CS.vAudioTextSynchronizer, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-                            ),
-                          ),
-                        ),
-                      ];
-                    },
+                Expanded(child: _buildTranscriptView(controller)),
 
-                    /// Transcript List (Slivers)
-                    body: _buildTranscriptView(controller),
-                  ),
-                ),
-
+                /// -------------------------
+                /// 🔵 slider, play button, other settings
+                /// -------------------------
                 _buildControlPanel(context, controller),
               ],
             ),
@@ -136,6 +124,7 @@ class AudioTextScreen extends StatelessWidget {
     );
   }
 
+  /// new
   Widget _buildErrorView(AudioTextController controller) {
     return Center(
       child: Padding(
@@ -145,7 +134,7 @@ class AudioTextScreen extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, size: 64, color: AppColors.colorRed),
             const SizedBox(height: 16),
-            Text(controller.errorMessage ?? CS.vAnErrorOccurred, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+            Text(controller.errorMessage ?? CS.vAnErrorOccurred, textAlign: TextAlign.center, style: AppTextStyles.errorText18),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
@@ -162,6 +151,7 @@ class AudioTextScreen extends StatelessWidget {
     );
   }
 
+  /// new
   Widget _buildTranscriptView(AudioTextController controller) {
     final paragraphs = controller.transcript?.paragraphs;
 
@@ -170,7 +160,22 @@ class AudioTextScreen extends StatelessWidget {
     }
 
     return CustomScrollView(
+      controller: controller.scrollController,
       slivers: [
+        SliverAppBar(
+          pinned: false,
+          expandedHeight: 50,
+          backgroundColor: AppColors.colorBlack,
+          automaticallyImplyLeading: false,
+          flexibleSpace: FlexibleSpaceBar(
+            // title: const Text("Audio Text Synchronizer"),
+            background: Container(
+              padding: const EdgeInsets.only(left: 25, bottom: 5),
+              alignment: Alignment.bottomLeft,
+              child: Text(CS.vAudioTextSynchronizer, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
@@ -205,6 +210,7 @@ class AudioTextScreen extends StatelessWidget {
     );
   }
 
+  /// new
   Widget _buildControlPanel(BuildContext context, AudioTextController controller) {
     // final theme = Theme.of(Get.context!);
 
@@ -231,7 +237,6 @@ class AudioTextScreen extends StatelessWidget {
               inactiveColor: AppColors.colorBgWhite02,
               overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
               onChanged: (value) {
-                // live-seek while dragging, call seek(fromUser: true)
                 controller.pause();
                 controller.seek(value.toInt());
               },

@@ -23,6 +23,7 @@ class AudioTextController extends GetxController {
   SyncEngine? syncEngine;
 
   late final ScrollController scrollController;
+  late final ScrollController nestedScrollViewController;
   final List<GlobalKey> paragraphKeys = [];
   final List<GlobalKey> wordKeys = [];
 
@@ -144,24 +145,10 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // keep initialScrollOffset as in original code
     scrollController = ScrollController(initialScrollOffset: -10);
     scrollController.addListener(_onCollapseScroll);
     initializeApp();
-  }
-
-  // ------------------------------------------------------------
-  // Collapse AppBar on Scroll
-  // ------------------------------------------------------------
-  void _onCollapseScroll() {
-    if (!scrollController.hasClients) return;
-
-    if (scrollController.position.pixels > 40 && !isCollapsed) {
-      isCollapsed = true;
-      update();
-    } else if (scrollController.position.pixels <= 40 && isCollapsed) {
-      isCollapsed = false;
-      update();
-    }
   }
 
   // ------------------------------------------------------------
@@ -175,9 +162,10 @@ class AudioTextController extends GetxController {
       paragraphKeys.clear();
       wordKeys.clear();
 
+      // keep original behaviour: generate paragraph keys
       paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
 
-      // Build wordKeys list
+      // Build wordKeys list (preserve original logic)
       for (final paragraph in paragraphs) {
         for (int i = 0; i < paragraph.words.length; i++) {
           wordKeys.add(GlobalKey());
@@ -191,8 +179,10 @@ class AudioTextController extends GetxController {
 
       await audioInitialize();
 
-      // scrollController.addListener(_onUserScroll);
+      // Preserve user scroll listener addition
+      scrollController.addListener(_onUserScroll);
 
+      // Retained comment from original code (disabled post-frame capture)
       // WidgetsBinding.instance.addPostFrameCallback((_) {
       //    captureParagraphOffsets();
       // });
@@ -206,23 +196,40 @@ class AudioTextController extends GetxController {
   }
 
   // ------------------------------------------------------------
+  // Collapse AppBar on Scroll
+  // ------------------------------------------------------------
+  void _onCollapseScroll() {
+    if (!scrollController.hasClients) return;
+
+    final px = scrollController.position.pixels;
+    if (px > 40 && !isCollapsed) {
+      isCollapsed = true;
+      update();
+    } else if (px <= 40 && isCollapsed) {
+      isCollapsed = false;
+      update();
+    }
+  }
+
+  // ------------------------------------------------------------
   // Detect manual scroll
   // ------------------------------------------------------------
-  // void _onUserScroll() {
-  //   if (_isAutoScrolling || !scrollController.hasClients) return;
-  //
-  //   final direction = scrollController.position.userScrollDirection;
-  //
-  //   if (direction != ScrollDirection.idle) {
-  //     userScrolling = true;
-  //     userScrollTimer?.cancel();
-  //     print(ScrollDirection.reverse);
-  //     userScrollTimer = Timer(Duration(milliseconds: direction == ScrollDirection.reverse ? 200 : 400), () {
-  //       userScrolling = false;
-  //       update();
-  //     });
-  //   }
-  // }
+  void _onUserScroll() {
+    if (_isAutoScrolling || !scrollController.hasClients) return;
+
+    // capture original behaviour: userScrollDirection used to decide debounce
+    final direction = scrollController.position.userScrollDirection;
+
+    if (direction != ScrollDirection.idle) {
+      suppressAutoScroll = true;
+      userScrollTimer?.cancel();
+
+      userScrollTimer = Timer(Duration(milliseconds: direction == ScrollDirection.reverse ? 200 : 400), () {
+        suppressAutoScroll = false;
+        update();
+      });
+    }
+  }
 
   // ------------------------------------------------------------
   // Position listener → highlight + auto-scroll
@@ -236,7 +243,7 @@ class AudioTextController extends GetxController {
     currentWordIndex = newIndex;
     currentParagraphIndex = syncEngine!.getParagraphIndex(newIndex);
 
-    if (!userScrolling && wordKeys.isNotEmpty) {
+    if (newIndex != -1) {
       scrollToCurrentWord(newIndex);
     }
 
@@ -247,32 +254,49 @@ class AudioTextController extends GetxController {
     if (index < 0 || index >= wordKeys.length) return;
     final key = wordKeys[index];
 
-    if (key.currentContext == null) return;
+    // quick check: if context is not ready, wait a short time and recheck
+    if (key.currentContext == null) {
+      await Future.delayed(const Duration(milliseconds: 40));
+      if (key.currentContext == null) return;
+    }
+
     try {
       await Scrollable.ensureVisible(key.currentContext!, duration: const Duration(milliseconds: 200), alignment: 0.4, curve: Curves.easeOutCubic);
-    } catch (_) {}
+    } catch (_) {
+      // swallow errors as original
+    }
   }
 
-  // ------------------------------------------------------------
-  // Capture paragraph offsets
-  // ------------------------------------------------------------
-  // void captureParagraphOffsets() {
-  //   if (!scrollController.hasClients) return;
-  //
-  //   paragraphOffsets.clear();
-  //
-  //   for (int i = 0; i < paragraphKeys.length; i++) {
-  //     final ctx = paragraphKeys[i].currentContext;
-  //
-  //     if (ctx == null) continue;
-  //
-  //     final box = ctx.findRenderObject() as RenderBox?;
-  //     if (box == null) continue;
-  //
-  //     final dy = box.localToGlobal(Offset.zero).dy + scrollController.offset;
-  //     paragraphOffsets[i] = dy;
-  //   }
-  // }
+  void scrollToCurrentParagraph(int index) {
+    if (scrollController.hasClients == false) return;
+    if (index < 0 || index >= paragraphKeys.length) return;
+
+    final key = paragraphKeys[index];
+    final context = key.currentContext;
+
+    if (context != null) {
+      // Paragraph built → safe to compute offset and animate
+      final box = context.findRenderObject() as RenderBox;
+      final offset = box.localToGlobal(Offset.zero).dy;
+
+      scrollController.animateTo(
+        scrollController.offset + offset - 200, // Adjust padding as original
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      // Offscreen paragraph → fallback estimation
+      _scrollToIndexFallback(index);
+    }
+  }
+
+  void _scrollToIndexFallback(int index) {
+    // Estimate height per paragraph or store heights dynamically
+    const double estimatedParagraphHeight = 180.0;
+    final position = index * estimatedParagraphHeight;
+
+    scrollController.animateTo(position, duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
+  }
 
   // ------------------------------------------------------------
   // Audio Initialization
@@ -387,20 +411,25 @@ class AudioTextController extends GetxController {
     _operationInProgress = true;
 
     try {
+      // If audio ended → reset position
       if (_position >= _duration - 100) {
         _position = 0;
-        _isSeeking = true;
-
-        await audioPlayer.seek(Duration.zero);
-
-        _isSeeking = false;
         _hasPlayedOnce = false;
       }
 
+      // 🔥 IMPORTANT → Call seek() here (preserved logic)
+      if (_position > 0) {
+        _operationInProgress = false;
+        await seek(_position, isPlay: true);
+      }
+
+      // First-time play
       if (!_hasPlayedOnce) {
         await audioPlayer.play(AssetSource(_audioUrl!));
         _hasPlayedOnce = true;
-      } else {
+      }
+      // Resume
+      else {
         await audioPlayer.resume();
       }
 
@@ -445,7 +474,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Seek
   // ------------------------------------------------------------
-  Future<void> seek(int positionMs) async {
+  Future<void> seek(int positionMs, {bool isPlay = false}) async {
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
 
     _operationInProgress = true;
@@ -467,7 +496,11 @@ class AudioTextController extends GetxController {
         currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
 
         if (!userScrolling && wordKeys.isNotEmpty) {
-          scrollToCurrentWord(currentWordIndex);
+          if (isPlay) {
+            safeScrollToParagraph(currentParagraphIndex);
+          } else {
+            scrollToCurrentWord(currentWordIndex);
+          }
         }
       }
 
@@ -484,6 +517,18 @@ class AudioTextController extends GetxController {
 
       update();
     }
+  }
+
+  DateTime? _lastScrollTime;
+
+  void safeScrollToParagraph(int index) {
+    final now = DateTime.now();
+    if (_lastScrollTime != null && now.difference(_lastScrollTime!) < const Duration(milliseconds: 120)) {
+      return;
+    }
+
+    _lastScrollTime = now;
+    scrollToCurrentParagraph(index);
   }
 
   Future<void> skipForward() async => seek(_position + 10000);
@@ -555,6 +600,7 @@ class AudioTextController extends GetxController {
       final jsonString = await rootBundle.loadString(CS.vJsonTranscript1);
       final jsonData = json.decode(jsonString);
 
+      // preserve original assignment
       jsonData['audioUrl'] = 'audio.mp3';
 
       return TranscriptData.fromJson(jsonData);
@@ -577,7 +623,10 @@ class AudioTextController extends GetxController {
     debounceTimer?.cancel();
     userScrollTimer?.cancel();
 
-    scrollController.dispose();
+    // safe dispose of scrollController
+    try {
+      scrollController.dispose();
+    } catch (_) {}
 
     audioPlayer.stop();
     audioPlayer.dispose();
