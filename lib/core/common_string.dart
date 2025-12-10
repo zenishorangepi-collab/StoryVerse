@@ -12,11 +12,15 @@ class CS {
   static const String vFollowing = "Following";
   static const String vFavorites = "Favorites";
   static const String vLanguage = "Language";
+  static const String vFilterLanguage = "Filter by language";
   static const String vBestFor = "Best For";
   static const String vAge = "Age";
+  static const String vSearchDot = "Search...";
   static const String vGender = "Gender";
   static const String vExplore = "Explore";
   static const String vRecents = "Recents";
+  static const String vShareLink = "Share link";
+  static const String vShareCurrentClip = "Share current clip";
   static const String vSaveSettings = "Save settings";
   static const String vReadingSpeed = "Reading speed";
   static const String vContents = "Contents";
@@ -40,16 +44,33 @@ class CS {
   static const String vSoundscapeVolume = "Soundscape volume";
   static const String vAllSoundscape = "All Soundscape";
   static const String vAddNote = "Add a note";
+  static const String vHideText = "Hide text";
+  static const String vPreferences = "Preferences";
+  static const String vVoices = "Voices";
+  static const String vPronunciations = "Pronunciations";
+  static const String vSearch = "Search";
+  static const String vShare = "Share";
+  static const String vAddToCollection = "Add to collection";
+  static const String vDownload = "Download";
+  static const String vDelete = "Delete";
+  static const String vReportIssue = "Report issue";
   static const String vBookmarkSaved = "Bookmark saved";
+  static const String vBookmarks = "Bookmarks";
+  static const String vConfirm = "Confirm";
+  static const String vDismiss = "Dismiss";
   static const String vRecommendedCollection = "Recommended collection";
   static const String vUploadAndListen = "Upload & listen";
   static const String vWriteNote = "Write a note so you can easily refer to your bookmark later";
+  static const String vVoiceChat = "Voice Chat";
+  static const String vSleepTimer = "Sleep Timer";
   static const String vWriteText = "Write\ntext";
   static const String vUploadFile = "Upload\na file";
   static const String vScanText = "Scan\ntext";
   static const String vPasteLink = "Paste a\nlink";
   static String vAudioTextSynchronizer = "Audio Text Synchronizer";
   static String vAnErrorOccurred = "An error occurred";
+  static String vConfirmDeletion = "Confirm deletion?";
+  static String vYouWillNoLonger = "You will no longer have this item in your library.";
   static String vYouCanAccessYourBookmark = "You can access your bookmark from this read's setting menu";
 
   /// images path
@@ -57,6 +78,21 @@ class CS {
   static String icSettings = "assets/icons/settings.png";
   static String icSearch = "assets/icons/search.png";
   static String icClose = "assets/icons/close.png";
+  static String icShareLink = "assets/icons/share_link.png";
+  static String icMusic = "assets/icons/music.png";
+  static String icSleepTimer = "assets/icons/sleep_timer.png";
+  static String icChat = "assets/icons/chat-bubble.png";
+  static String icContents = "assets/icons/list_contents.png";
+  static String icHeadphone = "assets/icons/headphone.png";
+  static String icPreferences = "assets/icons/pallete_preferences.png";
+  static String icVoiceScapes = "assets/icons/sound-on.png";
+  static String icPronunciation = "assets/icons/pronunciation.png";
+  static String icBookmark = "assets/icons/bookmark.png";
+  static String icShareExport = "assets/icons/share_export.png";
+  static String icPlus = "assets/icons/plus.png";
+  static String icDownloads = "assets/icons/downloads.png";
+  static String icDelete = "assets/icons/delete.png";
+  static String icReport = "assets/icons/report-issue.png";
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

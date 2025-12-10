@@ -86,7 +86,7 @@ class AudioTextController extends GetxController {
   double currentSpeed = 1.0;
   int currentIndex = 8;
 
-  final List<double> presetSpeeds = [0.5, 0.75, 1.0, 1.5, 2.0];
+  final List<double> presetSpeeds = [0.5, 0.75, 1, 1.5, 2];
 
   final List<double> speedSteps = [
     0.25,

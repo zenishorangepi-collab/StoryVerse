@@ -12,6 +12,7 @@ import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/common_textfield.dart';
 
 import '../../core/common_function.dart';
+import 'language_bottomsheet.dart';
 
 class VoiceScreen extends StatelessWidget {
   const VoiceScreen({super.key});
@@ -22,6 +23,7 @@ class VoiceScreen extends StatelessWidget {
       init: VoiceController(),
       builder: (controller) {
         return Scaffold(
+          backgroundColor: AppColors.colorBgGray02,
           body:
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +99,7 @@ class VoiceScreen extends StatelessWidget {
                     spacing: 15,
                     children: [
                       Expanded(
-                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgWhite02, textStyle: AppTextStyles.buttonTextWhite),
+                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgGray02, textStyle: AppTextStyles.buttonTextWhite),
                       ),
                       Expanded(child: CommonElevatedButton(title: CS.vSave)),
                     ],
@@ -116,8 +118,9 @@ class VoiceScreen extends StatelessWidget {
   void _openSettingSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.colorBgGray02,
       isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (_) {
         return GetBuilder<VoiceController>(
           builder: (controller) {
@@ -135,7 +138,7 @@ class VoiceScreen extends StatelessWidget {
     return SafeArea(
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.colorGrey900,
+          color: AppColors.colorBgGray02,
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
         ),
         child: AnimatedPadding(
@@ -149,14 +152,14 @@ class VoiceScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.colorBlack,
+                  color: AppColors.colorDialogHeaderGray,
                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(CS.vFilters, style: AppTextStyles.heading3),
-                    GestureDetector(onTap: () => Get.back(), child: const Icon(Icons.cancel, color: Colors.white, size: 28)),
+                    commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                   ],
                 ),
               ),
@@ -168,40 +171,101 @@ class VoiceScreen extends StatelessWidget {
                 spacing: 10,
                 runSpacing: 8,
                 children: [
-                  commonRoundedTextButton(text: CS.vTrending),
-                  commonRoundedTextButton(text: CS.vLatest),
-                  commonRoundedTextButton(text: CS.vMostPopular),
+                  commonRoundedTextButton(
+                    text: CS.vTrending,
+                    onTap: () {
+                      if (controller.selectedShortBy == CS.vTrending) {
+                        controller.selectedShortBy = "";
+                      } else {
+                        controller.selectedShortBy = CS.vTrending;
+                      }
+                      controller.update();
+                    },
+                    selectedChip: controller.selectedShortBy,
+                  ),
+                  commonRoundedTextButton(
+                    text: CS.vLatest,
+                    onTap: () {
+                      if (controller.selectedShortBy == CS.vLatest) {
+                        controller.selectedShortBy = "";
+                      } else {
+                        controller.selectedShortBy = CS.vLatest;
+                      }
+                      controller.update();
+                    },
+                    selectedChip: controller.selectedShortBy,
+                  ),
+                  commonRoundedTextButton(
+                    text: CS.vMostPopular,
+                    onTap: () {
+                      if (controller.selectedShortBy == CS.vMostPopular) {
+                        controller.selectedShortBy = "";
+                      } else {
+                        controller.selectedShortBy = CS.vMostPopular;
+                      }
+                      controller.update();
+                    },
+                    selectedChip: controller.selectedShortBy,
+                  ),
                 ],
               ).screenPadding(),
               SizedBox(height: 20),
               Text(CS.vLanguage, style: AppTextStyles.heading4).screenPadding(),
               SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(10), border: Border.all(color: AppColors.colorWhite)),
-                child: ListTile(
-                  leading: Icon(Icons.flag, color: AppColors.colorWhite),
-                  title: Text("india", style: AppTextStyles.buttonTextWhite),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-           
-                    children: [Text("32", style: AppTextStyles.bodyMediumGrey), Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey)],
-                  ),
-                ),
-              ).screenPadding(),
+              GestureDetector(
+                onTap: () async {
+                  final result = await showLanguageBottomSheet(context, selectedLanguage: controller.selectedLang);
+
+                  if (result != null) {
+                    controller.selectedLang = result["name"]!;
+                    controller.selectedFlag = result["flag"]!;
+
+                    controller.update();
+                  }
+                },
+                child:
+                    Container(
+                      decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(10), border: Border.all(color: AppColors.colorWhite)),
+                      child: ListTile(
+                        leading:
+                            controller.selectedFlag == null
+                                ? Icon(Icons.language, color: AppColors.colorWhite)
+                                : Text(controller.selectedFlag ?? "", style: AppTextStyles.heading3),
+                        title: Text(controller.selectedLang ?? CS.vFilterLanguage, style: AppTextStyles.bodyLarge),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+
+                          children: [Text("32", style: AppTextStyles.bodyMediumGrey), Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey)],
+                        ),
+                      ),
+                    ).screenPadding(),
+              ),
               SizedBox(height: 20),
               Text(CS.vBestFor, style: AppTextStyles.heading4).screenPadding(),
               SizedBox(height: 10),
               Wrap(
                 spacing: 10,
                 runSpacing: 8,
-                children: [
-                  commonRoundedTextButton(text: CS.vNarrativeStory),
-                  commonRoundedTextButton(text: CS.vConversational),
-                  commonRoundedTextButton(text: CS.vCharactersAnimation),
-                  commonRoundedTextButton(text: CS.vInformativeEducational),
-                  commonRoundedTextButton(text: CS.vEntertainmentTV),
-                ],
+                children:
+                    controller.listBestForItems
+                        .map(
+                          (text) => commonRoundedTextButton(
+                            text: text,
+                            selectChipOnce: false,
+                            isSelectedChip: controller.listSelectedBestFor.contains(text),
+                            onTap: () {
+                              if (controller.listSelectedBestFor.contains(text)) {
+                                controller.listSelectedBestFor.remove(text); // unselect
+                              } else {
+                                controller.listSelectedBestFor.add(text); // select
+                              }
+
+                              controller.update();
+                            },
+                          ),
+                        )
+                        .toList(),
               ).screenPadding(),
 
               SizedBox(height: 20),
@@ -210,7 +274,44 @@ class VoiceScreen extends StatelessWidget {
               Wrap(
                 spacing: 10,
                 runSpacing: 8,
-                children: [commonRoundedTextButton(text: CS.vYoung), commonRoundedTextButton(text: CS.vMiddleAged), commonRoundedTextButton(text: CS.vOld)],
+                children: [
+                  commonRoundedTextButton(
+                    text: CS.vYoung,
+                    selectedChip: controller.selectedAge,
+                    onTap: () {
+                      if (controller.selectedAge == CS.vYoung) {
+                        controller.selectedAge = "";
+                      } else {
+                        controller.selectedAge = CS.vYoung;
+                      }
+                      controller.update();
+                    },
+                  ),
+                  commonRoundedTextButton(
+                    text: CS.vMiddleAged,
+                    selectedChip: controller.selectedAge,
+                    onTap: () {
+                      if (controller.selectedAge == CS.vMiddleAged) {
+                        controller.selectedAge = "";
+                      } else {
+                        controller.selectedAge = CS.vMiddleAged;
+                      }
+                      controller.update();
+                    },
+                  ),
+                  commonRoundedTextButton(
+                    text: CS.vOld,
+                    selectedChip: controller.selectedAge,
+                    onTap: () {
+                      if (controller.selectedAge == CS.vOld) {
+                        controller.selectedAge = "";
+                      } else {
+                        controller.selectedAge = CS.vOld;
+                      }
+                      controller.update();
+                    },
+                  ),
+                ],
               ).screenPadding(),
               SizedBox(height: 20),
               Text(CS.vGender, style: AppTextStyles.heading4).screenPadding(),
@@ -218,7 +319,44 @@ class VoiceScreen extends StatelessWidget {
               Wrap(
                 spacing: 10,
                 runSpacing: 8,
-                children: [commonRoundedTextButton(text: CS.vMale), commonRoundedTextButton(text: CS.vFemale), commonRoundedTextButton(text: CS.vNeutral)],
+                children: [
+                  commonRoundedTextButton(
+                    text: CS.vMale,
+                    selectedChip: controller.selectedGender,
+                    onTap: () {
+                      if (controller.selectedGender == CS.vMale) {
+                        controller.selectedGender = "";
+                      } else {
+                        controller.selectedGender = CS.vMale;
+                      }
+                      controller.update();
+                    },
+                  ),
+                  commonRoundedTextButton(
+                    text: CS.vFemale,
+                    selectedChip: controller.selectedGender,
+                    onTap: () {
+                      if (controller.selectedGender == CS.vFemale) {
+                        controller.selectedGender = "";
+                      } else {
+                        controller.selectedGender = CS.vFemale;
+                      }
+                      controller.update();
+                    },
+                  ),
+                  commonRoundedTextButton(
+                    text: CS.vNeutral,
+                    selectedChip: controller.selectedGender,
+                    onTap: () {
+                      if (controller.selectedGender == CS.vNeutral) {
+                        controller.selectedGender = "";
+                      } else {
+                        controller.selectedGender = CS.vNeutral;
+                      }
+                      controller.update();
+                    },
+                  ),
+                ],
               ).screenPadding(),
               SizedBox(height: 50),
               Row(
@@ -242,19 +380,24 @@ class VoiceScreen extends StatelessWidget {
 
   Widget commonRoundedTextButton({
     required String text,
+    String? selectedChip,
     VoidCallback? onTap,
     double horizontal = 15,
     double vertical = 6,
     double radius = 20,
+    bool selectChipOnce = true,
+    bool isSelectedChip = false,
     Color bgColor = const Color(0x1AFFFFFF), // AppColors.colorBgWhite10
     TextStyle? textStyle,
   }) {
+    final bool isSelected = (selectChipOnce ? selectedChip == text : isSelectedChip);
+
     return GestureDetector(
       onTap: onTap ?? () {},
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
-        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(radius)),
-        child: Text(text, style: textStyle ?? AppTextStyles.bodyMediumWhite16),
+        decoration: BoxDecoration(color: isSelected ? AppColors.colorWhite : bgColor, borderRadius: BorderRadius.circular(radius)),
+        child: Text(text, style: textStyle ?? (isSelected ? AppTextStyles.buttonTextBlack : AppTextStyles.bodyLarge)),
       ),
     );
   }

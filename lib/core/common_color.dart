@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color colorWhite = Colors.white;
-  static const Color colorRed = Colors.red;
-  static const Color colorBgWhite02 = Color(0xff303030);
-  static const Color colorBgWhite05 = Color(0x0DFFFFFF);
+  static const Color colorRed = Color(0xffFF2E2E);
+  static const Color colorBgGray02 = Color(0xff292929);
+  static const Color colorBgChipContainer = Color(0xff222222);
+  static const Color colorDialogHeaderGray = Color(0xff111111);
+  static const Color colorBgDialog = Color(0xff3d3d3d);
+  static const Color colorBgGray05 = Color(0x0DFFFFFF);
   static const Color colorBgWhite10 = Color(0x1AFFFFFF);
   static const Color colorBlack = Colors.black;
   static const Color colorGrey = Colors.grey;

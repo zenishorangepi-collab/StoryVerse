@@ -81,10 +81,10 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          buildActionBox(Icons.edit, CS.vWriteText),
-                          buildActionBox(Icons.upload_file, CS.vUploadFile),
-                          buildActionBox(Icons.document_scanner, CS.vScanText),
-                          buildActionBox(Icons.link, CS.vPasteLink),
+                          buildActionBox(icon: Icons.edit, label: CS.vWriteText),
+                          buildActionBox(icon: Icons.upload_file, label: CS.vUploadFile),
+                          buildActionBox(icon: Icons.document_scanner, label: CS.vScanText),
+                          buildActionBox(icon: Icons.link, label: CS.vPasteLink),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -102,24 +102,6 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget buildActionBox(IconData icon, String label) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(color: AppColors.colorBgWhite02, borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 26, color: Colors.white),
-            const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: AppTextStyles.bodySmall),
-          ],
-        ),
-      ),
     );
   }
 
