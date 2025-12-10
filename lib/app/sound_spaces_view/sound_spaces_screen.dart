@@ -29,7 +29,7 @@ class SoundSpacesScreen extends StatelessWidget {
                     children: [
                       Text(CS.vSoundScapes, style: AppTextStyles.heading2),
 
-                      GestureDetector(onTap: () => Get.back(), child: const Icon(Icons.cancel, color: Colors.white, size: 28)),
+                      commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                     ],
                   ),
                   SizedBox(height: 20),
@@ -40,7 +40,7 @@ class SoundSpacesScreen extends StatelessWidget {
                       children: List.generate(controller.listChipName.length, (index) {
                         return Chip(
                           label: Text(controller.listChipName[index], style: AppTextStyles.bodyMedium),
-                          color: WidgetStatePropertyAll(AppColors.colorBgWhite02),
+                          color: WidgetStatePropertyAll(AppColors.colorBgGray02),
 
                           side: BorderSide.none,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
@@ -59,7 +59,7 @@ class SoundSpacesScreen extends StatelessWidget {
                     max: 100,
                     value: controller.sliderPosition,
                     activeColor: AppColors.colorWhite,
-                    inactiveColor: AppColors.colorBgWhite02,
+                    inactiveColor: AppColors.colorBgGray02,
                     // overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
                     onChanged: (value) {
                       controller.sliderPosition = value;
@@ -100,7 +100,7 @@ class SoundSpacesScreen extends StatelessWidget {
                     spacing: 15,
                     children: [
                       Expanded(
-                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgWhite02, textStyle: AppTextStyles.buttonTextWhite),
+                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgGray02, textStyle: AppTextStyles.buttonTextWhite),
                       ),
                       Expanded(child: CommonElevatedButton(title: CS.vSave)),
                     ],

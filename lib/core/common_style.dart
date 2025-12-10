@@ -11,6 +11,8 @@ class AppTextStyles {
   static TextStyle heading3 = GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.colorWhite);
 
   static TextStyle heading4 = GoogleFonts.roboto(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.colorWhite);
+  static TextStyle heading4Normal18White = GoogleFonts.roboto(fontSize: 18, fontWeight: FontWeight.normal, color: AppColors.colorWhite);
+
   static TextStyle errorText18 = GoogleFonts.roboto(
     fontSize: 18,
     // fontWeight: FontWeight.w600,
@@ -18,12 +20,14 @@ class AppTextStyles {
   );
 
   /// BODY TEXT
-  static TextStyle bodyLarge = GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.normal, color: AppColors.colorWhite);
+  static TextStyle bodyLarge = GoogleFonts.roboto(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
+  static TextStyle bodyLargeWhite16 = GoogleFonts.roboto(fontSize: 16, color: AppColors.colorWhite);
+  static TextStyle bodyLargeRed6 = GoogleFonts.roboto(fontSize: 16, color: AppColors.colorRed);
 
   static TextStyle bodyMedium = GoogleFonts.roboto(fontSize: 14, color: AppColors.colorWhite);
+  static TextStyle bodyMedium500 = GoogleFonts.roboto(fontSize: 14, color: AppColors.colorWhite, fontWeight: FontWeight.w500);
   static TextStyle bodyMediumGrey = GoogleFonts.roboto(fontSize: 14, color: AppColors.colorGrey);
   static TextStyle bodyMediumGrey16 = GoogleFonts.roboto(fontSize: 16, color: AppColors.colorGrey);
-  static TextStyle bodyMediumWhite16 = GoogleFonts.roboto(fontSize: 16, color: AppColors.colorWhite, fontWeight: FontWeight.bold);
 
   static TextStyle bodySmall = GoogleFonts.roboto(fontSize: 12, color: AppColors.colorWhite);
 
