@@ -26,6 +26,7 @@ class CommonElevatedButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
+        overlayColor: AppColors.colorTransparent,
 
         padding: padding,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),

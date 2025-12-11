@@ -23,12 +23,11 @@ class VoiceScreen extends StatelessWidget {
       init: VoiceController(),
       builder: (controller) {
         return Scaffold(
-          backgroundColor: AppColors.colorBgGray02,
           body:
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 45),
+                  SizedBox(height: 50),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -38,28 +37,28 @@ class VoiceScreen extends StatelessWidget {
                       Row(
                         spacing: 10,
                         children: [
-                          commonCircleButton(onTap: () {}, iconPath: CS.icSearch),
+                          commonCircleButton(onTap: () {}, iconPath: CS.icSearch, iconSize: 22, padding: 11),
                           commonCircleButton(
+                            iconSize: 20,
+                            padding: 12,
                             onTap: () {
                               _openSettingSheet(context);
                             },
                             iconPath: CS.icSettings,
                           ),
-                          commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+
+                          commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 16, padding: 14),
                         ],
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        buildChip(icon: Icons.access_time_filled, label: CS.vRecents),
-                        buildChip(icon: Icons.favorite, label: CS.vFavorites),
-                        buildChip(icon: Icons.explore, label: CS.vExplore),
-                      ],
-                    ),
+                  SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Expanded(child: buildChip(icon: Icons.access_time_filled, label: CS.vRecents)),
+                      Expanded(child: buildChip(icon: Icons.favorite, label: CS.vFavorites)),
+                      Expanded(child: buildChip(icon: Icons.explore, label: CS.vExplore)),
+                    ],
                   ),
                   SizedBox(height: 10),
                   Expanded(
@@ -79,7 +78,7 @@ class VoiceScreen extends StatelessWidget {
                               backgroundColor: Colors.white24,
                               child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 40, width: 40)),
                             ),
-                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyLarge),
+                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyMediumBold, maxLines: 2, overflow: TextOverflow.ellipsis),
                             subtitle: Text("subtitle", style: AppTextStyles.bodyMediumGrey),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min, // REQUIRED
@@ -99,12 +98,16 @@ class VoiceScreen extends StatelessWidget {
                     spacing: 15,
                     children: [
                       Expanded(
-                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgGray02, textStyle: AppTextStyles.buttonTextWhite),
+                        child: CommonElevatedButton(
+                          title: CS.vReset,
+                          backgroundColor: AppColors.colorBgChipContainer,
+                          textStyle: AppTextStyles.buttonTextWhite,
+                        ),
                       ),
                       Expanded(child: CommonElevatedButton(title: CS.vSave)),
                     ],
                   ),
-                  SizedBox(height: 45),
+                  SizedBox(height: 60),
                 ],
               ).screenPadding(),
         );
@@ -137,6 +140,7 @@ class VoiceScreen extends StatelessWidget {
   Widget _settingUI(VoiceController controller, BuildContext context) {
     return SafeArea(
       child: Container(
+        height: MediaQuery.of(context).size.height * 0.92,
         decoration: BoxDecoration(
           color: AppColors.colorBgGray02,
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
@@ -164,213 +168,226 @@ class VoiceScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 20),
-              Text(CS.vShortBy, style: AppTextStyles.heading4).screenPadding(),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children: [
-                  commonRoundedTextButton(
-                    text: CS.vTrending,
-                    onTap: () {
-                      if (controller.selectedShortBy == CS.vTrending) {
-                        controller.selectedShortBy = "";
-                      } else {
-                        controller.selectedShortBy = CS.vTrending;
-                      }
-                      controller.update();
-                    },
-                    selectedChip: controller.selectedShortBy,
-                  ),
-                  commonRoundedTextButton(
-                    text: CS.vLatest,
-                    onTap: () {
-                      if (controller.selectedShortBy == CS.vLatest) {
-                        controller.selectedShortBy = "";
-                      } else {
-                        controller.selectedShortBy = CS.vLatest;
-                      }
-                      controller.update();
-                    },
-                    selectedChip: controller.selectedShortBy,
-                  ),
-                  commonRoundedTextButton(
-                    text: CS.vMostPopular,
-                    onTap: () {
-                      if (controller.selectedShortBy == CS.vMostPopular) {
-                        controller.selectedShortBy = "";
-                      } else {
-                        controller.selectedShortBy = CS.vMostPopular;
-                      }
-                      controller.update();
-                    },
-                    selectedChip: controller.selectedShortBy,
-                  ),
-                ],
-              ).screenPadding(),
-              SizedBox(height: 20),
-              Text(CS.vLanguage, style: AppTextStyles.heading4).screenPadding(),
-              SizedBox(height: 10),
-              GestureDetector(
-                onTap: () async {
-                  final result = await showLanguageBottomSheet(context, selectedLanguage: controller.selectedLang);
-
-                  if (result != null) {
-                    controller.selectedLang = result["name"]!;
-                    controller.selectedFlag = result["flag"]!;
-
-                    controller.update();
-                  }
-                },
-                child:
-                    Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(10), border: Border.all(color: AppColors.colorWhite)),
-                      child: ListTile(
-                        leading:
-                            controller.selectedFlag == null
-                                ? Icon(Icons.language, color: AppColors.colorWhite)
-                                : Text(controller.selectedFlag ?? "", style: AppTextStyles.heading3),
-                        title: Text(controller.selectedLang ?? CS.vFilterLanguage, style: AppTextStyles.bodyLarge),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-
-                          children: [Text("32", style: AppTextStyles.bodyMediumGrey), Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey)],
-                        ),
-                      ),
-                    ).screenPadding(),
-              ),
-              SizedBox(height: 20),
-              Text(CS.vBestFor, style: AppTextStyles.heading4).screenPadding(),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children:
-                    controller.listBestForItems
-                        .map(
-                          (text) => commonRoundedTextButton(
-                            text: text,
-                            selectChipOnce: false,
-                            isSelectedChip: controller.listSelectedBestFor.contains(text),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 20),
+                      Text(CS.vShortBy, style: AppTextStyles.bodyLarge).screenPadding(),
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          commonRoundedTextButton(
+                            text: CS.vTrending,
                             onTap: () {
-                              if (controller.listSelectedBestFor.contains(text)) {
-                                controller.listSelectedBestFor.remove(text); // unselect
+                              if (controller.selectedShortBy == CS.vTrending) {
+                                controller.selectedShortBy = "";
                               } else {
-                                controller.listSelectedBestFor.add(text); // select
+                                controller.selectedShortBy = CS.vTrending;
                               }
+                              controller.update();
+                            },
+                            selectedChip: controller.selectedShortBy,
+                          ),
+                          commonRoundedTextButton(
+                            text: CS.vLatest,
+                            onTap: () {
+                              if (controller.selectedShortBy == CS.vLatest) {
+                                controller.selectedShortBy = "";
+                              } else {
+                                controller.selectedShortBy = CS.vLatest;
+                              }
+                              controller.update();
+                            },
+                            selectedChip: controller.selectedShortBy,
+                          ),
+                          commonRoundedTextButton(
+                            text: CS.vMostPopular,
+                            onTap: () {
+                              if (controller.selectedShortBy == CS.vMostPopular) {
+                                controller.selectedShortBy = "";
+                              } else {
+                                controller.selectedShortBy = CS.vMostPopular;
+                              }
+                              controller.update();
+                            },
+                            selectedChip: controller.selectedShortBy,
+                          ),
+                        ],
+                      ).screenPadding(),
+                      SizedBox(height: 20),
+                      Text(CS.vLanguage, style: AppTextStyles.bodyLarge).screenPadding(),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () async {
+                          final result = await showLanguageBottomSheet(context, selectedLanguage: controller.selectedLang);
 
+                          if (result != null) {
+                            controller.selectedLang = result["name"]!;
+                            controller.selectedFlag = result["flag"]!;
+
+                            controller.update();
+                          }
+                        },
+                        child:
+                            Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(10), border: Border.all(color: AppColors.colorWhite)),
+                              child: ListTile(
+                                leading:
+                                    controller.selectedFlag == null
+                                        ? Icon(Icons.language, color: AppColors.colorWhite)
+                                        : Text(controller.selectedFlag ?? "", style: AppTextStyles.heading3),
+                                title: Text(controller.selectedLang ?? CS.vFilterLanguage, style: AppTextStyles.bodyLarge),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+
+                                  children: [Text("32", style: AppTextStyles.bodyMediumGrey), Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey)],
+                                ),
+                              ),
+                            ).screenPadding(),
+                      ),
+                      SizedBox(height: 20),
+                      Text(CS.vBestFor, style: AppTextStyles.bodyLarge).screenPadding(),
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children:
+                            controller.listBestForItems
+                                .map(
+                                  (text) => commonRoundedTextButton(
+                                    text: text,
+                                    selectChipOnce: false,
+                                    isSelectedChip: controller.listSelectedBestFor.contains(text),
+                                    onTap: () {
+                                      if (controller.listSelectedBestFor.contains(text)) {
+                                        controller.listSelectedBestFor.remove(text); // unselect
+                                      } else {
+                                        controller.listSelectedBestFor.add(text); // select
+                                      }
+
+                                      controller.update();
+                                    },
+                                  ),
+                                )
+                                .toList(),
+                      ).screenPadding(),
+
+                      SizedBox(height: 20),
+                      Text(CS.vAge, style: AppTextStyles.bodyLarge).screenPadding(),
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          commonRoundedTextButton(
+                            text: CS.vYoung,
+                            selectedChip: controller.selectedAge,
+                            onTap: () {
+                              if (controller.selectedAge == CS.vYoung) {
+                                controller.selectedAge = "";
+                              } else {
+                                controller.selectedAge = CS.vYoung;
+                              }
                               controller.update();
                             },
                           ),
-                        )
-                        .toList(),
-              ).screenPadding(),
+                          commonRoundedTextButton(
+                            text: CS.vMiddleAged,
+                            selectedChip: controller.selectedAge,
+                            onTap: () {
+                              if (controller.selectedAge == CS.vMiddleAged) {
+                                controller.selectedAge = "";
+                              } else {
+                                controller.selectedAge = CS.vMiddleAged;
+                              }
+                              controller.update();
+                            },
+                          ),
+                          commonRoundedTextButton(
+                            text: CS.vOld,
+                            selectedChip: controller.selectedAge,
+                            onTap: () {
+                              if (controller.selectedAge == CS.vOld) {
+                                controller.selectedAge = "";
+                              } else {
+                                controller.selectedAge = CS.vOld;
+                              }
+                              controller.update();
+                            },
+                          ),
+                        ],
+                      ).screenPadding(),
+                      SizedBox(height: 20),
+                      Text(CS.vGender, style: AppTextStyles.bodyLarge).screenPadding(),
+                      SizedBox(height: 10),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          commonRoundedTextButton(
+                            text: CS.vMale,
+                            selectedChip: controller.selectedGender,
+                            onTap: () {
+                              if (controller.selectedGender == CS.vMale) {
+                                controller.selectedGender = "";
+                              } else {
+                                controller.selectedGender = CS.vMale;
+                              }
+                              controller.update();
+                            },
+                          ),
+                          commonRoundedTextButton(
+                            text: CS.vFemale,
+                            selectedChip: controller.selectedGender,
+                            onTap: () {
+                              if (controller.selectedGender == CS.vFemale) {
+                                controller.selectedGender = "";
+                              } else {
+                                controller.selectedGender = CS.vFemale;
+                              }
+                              controller.update();
+                            },
+                          ),
+                          commonRoundedTextButton(
+                            text: CS.vNeutral,
+                            selectedChip: controller.selectedGender,
+                            onTap: () {
+                              if (controller.selectedGender == CS.vNeutral) {
+                                controller.selectedGender = "";
+                              } else {
+                                controller.selectedGender = CS.vNeutral;
+                              }
+                              controller.update();
+                            },
+                          ),
+                        ],
+                      ).screenPadding(),
+                      SizedBox(height: 50),
+                      Row(
+                        spacing: 10,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: CommonElevatedButton(
+                              title: CS.vReset,
+                              backgroundColor: AppColors.colorBgChipContainer,
+                              textStyle: AppTextStyles.buttonTextWhite,
+                            ),
+                          ),
+                          Expanded(flex: 2, child: CommonElevatedButton(title: CS.vSaveSettings)),
+                        ],
+                      ).screenPadding(),
 
-              SizedBox(height: 20),
-              Text(CS.vAge, style: AppTextStyles.heading4).screenPadding(),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children: [
-                  commonRoundedTextButton(
-                    text: CS.vYoung,
-                    selectedChip: controller.selectedAge,
-                    onTap: () {
-                      if (controller.selectedAge == CS.vYoung) {
-                        controller.selectedAge = "";
-                      } else {
-                        controller.selectedAge = CS.vYoung;
-                      }
-                      controller.update();
-                    },
+                      const SizedBox(height: 35),
+                    ],
                   ),
-                  commonRoundedTextButton(
-                    text: CS.vMiddleAged,
-                    selectedChip: controller.selectedAge,
-                    onTap: () {
-                      if (controller.selectedAge == CS.vMiddleAged) {
-                        controller.selectedAge = "";
-                      } else {
-                        controller.selectedAge = CS.vMiddleAged;
-                      }
-                      controller.update();
-                    },
-                  ),
-                  commonRoundedTextButton(
-                    text: CS.vOld,
-                    selectedChip: controller.selectedAge,
-                    onTap: () {
-                      if (controller.selectedAge == CS.vOld) {
-                        controller.selectedAge = "";
-                      } else {
-                        controller.selectedAge = CS.vOld;
-                      }
-                      controller.update();
-                    },
-                  ),
-                ],
-              ).screenPadding(),
-              SizedBox(height: 20),
-              Text(CS.vGender, style: AppTextStyles.heading4).screenPadding(),
-              SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children: [
-                  commonRoundedTextButton(
-                    text: CS.vMale,
-                    selectedChip: controller.selectedGender,
-                    onTap: () {
-                      if (controller.selectedGender == CS.vMale) {
-                        controller.selectedGender = "";
-                      } else {
-                        controller.selectedGender = CS.vMale;
-                      }
-                      controller.update();
-                    },
-                  ),
-                  commonRoundedTextButton(
-                    text: CS.vFemale,
-                    selectedChip: controller.selectedGender,
-                    onTap: () {
-                      if (controller.selectedGender == CS.vFemale) {
-                        controller.selectedGender = "";
-                      } else {
-                        controller.selectedGender = CS.vFemale;
-                      }
-                      controller.update();
-                    },
-                  ),
-                  commonRoundedTextButton(
-                    text: CS.vNeutral,
-                    selectedChip: controller.selectedGender,
-                    onTap: () {
-                      if (controller.selectedGender == CS.vNeutral) {
-                        controller.selectedGender = "";
-                      } else {
-                        controller.selectedGender = CS.vNeutral;
-                      }
-                      controller.update();
-                    },
-                  ),
-                ],
-              ).screenPadding(),
-              SizedBox(height: 50),
-              Row(
-                spacing: 10,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgWhite10, textStyle: AppTextStyles.buttonTextWhite),
-                  ),
-                  Expanded(flex: 2, child: CommonElevatedButton(title: CS.vSaveSettings)),
-                ],
-              ).screenPadding(),
-
-              const SizedBox(height: 35),
+                ),
+              ),
             ],
           ),
         ),
@@ -397,7 +414,7 @@ class VoiceScreen extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
         decoration: BoxDecoration(color: isSelected ? AppColors.colorWhite : bgColor, borderRadius: BorderRadius.circular(radius)),
-        child: Text(text, style: textStyle ?? (isSelected ? AppTextStyles.buttonTextBlack : AppTextStyles.bodyLarge)),
+        child: Text(text, style: textStyle ?? (isSelected ? AppTextStyles.buttonTextBlack14 : AppTextStyles.bodyMediumBold)),
       ),
     );
   }

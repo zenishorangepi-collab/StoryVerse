@@ -19,57 +19,52 @@ class SoundSpacesScreen extends StatelessWidget {
       init: SoundSpacesController(),
       builder: (controller) {
         return Scaffold(
-          body:
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 45),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SizedBox(height: 45),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(CS.vSoundScapes, style: AppTextStyles.heading2),
+                  Text(CS.vSoundScapes, style: AppTextStyles.heading2),
 
-                      commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      spacing: 10,
-                      children: List.generate(controller.listChipName.length, (index) {
-                        return Chip(
-                          label: Text(controller.listChipName[index], style: AppTextStyles.bodyMedium),
-                          color: WidgetStatePropertyAll(AppColors.colorBgGray02),
+                  commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                ],
+              ).screenPadding(),
+              SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(controller.listChipName.length, (index) {
+                    return buildChip(label: controller.listChipName[index]).paddingOnly(left: index == 0 ? 18 : 0);
+                  }),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(CS.vSoundscapeVolume, style: AppTextStyles.bodyLargeGray).screenPadding(),
+              SizedBox(height: 20),
 
-                          side: BorderSide.none,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        );
-                      }),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(CS.vSoundscapeVolume, style: AppTextStyles.bodyMediumGrey16),
-                  SizedBox(height: 20),
+              Slider(
+                min: 0,
+                padding: EdgeInsets.all(5),
+                max: 100,
+                value: controller.sliderPosition,
+                activeColor: AppColors.colorWhite,
+                inactiveColor: AppColors.colorBgWhite10,
 
-                  Slider(
-                    min: 0,
-                    padding: EdgeInsets.all(5),
-                    max: 100,
-                    value: controller.sliderPosition,
-                    activeColor: AppColors.colorWhite,
-                    inactiveColor: AppColors.colorBgGray02,
-                    // overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
-                    onChanged: (value) {
-                      controller.sliderPosition = value;
-                      controller.update();
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  Text(CS.vAllSoundscape, style: AppTextStyles.bodyMediumGrey16),
-                  Expanded(
-                    child: ListView.builder(
+                // overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
+                onChanged: (value) {
+                  controller.sliderPosition = value;
+                  controller.update();
+                },
+              ).screenPadding(),
+              SizedBox(height: 25),
+              Text(CS.vAllSoundscape, style: AppTextStyles.bodyLargeGray).screenPadding(),
+              SizedBox(height: 10),
+              Expanded(
+                child:
+                    ListView.builder(
+                      padding: EdgeInsets.zero,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
@@ -88,26 +83,26 @@ class SoundSpacesScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(25), // rounded
                               ),
                             ),
-                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyLarge),
+                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyMediumBold),
                             trailing: controller.selectedTile == index ? Icon(Icons.check_circle_rounded, color: AppColors.colorWhite) : null,
                           ).paddingOnly(bottom: 6),
                         );
                       },
-                    ),
+                    ).screenPadding(),
+              ),
+              SizedBox(height: 10),
+              Row(
+                spacing: 15,
+                children: [
+                  Expanded(
+                    child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgChipContainer, textStyle: AppTextStyles.buttonTextWhite),
                   ),
-                  SizedBox(height: 10),
-                  Row(
-                    spacing: 15,
-                    children: [
-                      Expanded(
-                        child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgGray02, textStyle: AppTextStyles.buttonTextWhite),
-                      ),
-                      Expanded(child: CommonElevatedButton(title: CS.vSave)),
-                    ],
-                  ),
-                  SizedBox(height: 45),
+                  Expanded(child: CommonElevatedButton(title: CS.vSave)),
                 ],
               ).screenPadding(),
+              SizedBox(height: 60),
+            ],
+          ),
         );
       },
     );

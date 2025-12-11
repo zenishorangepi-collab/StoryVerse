@@ -47,9 +47,9 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
     return Container(
       key: widget.widgetKey,
       padding: const EdgeInsets.all(6),
-      margin: EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: 5),
       decoration: BoxDecoration(color: widget.isCurrentParagraph ? AppColors.colorBlue200 : Colors.transparent, borderRadius: BorderRadius.circular(8)),
-      child: Wrap(spacing: 6, runSpacing: 4, children: _buildWordWidgets(isDark)),
+      child: Wrap(spacing: 3, runSpacing: 3, children: _buildWordWidgets(isDark)),
     );
   }
 
@@ -70,7 +70,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
             decoration: BoxDecoration(color: isCurrentWord ? AppColors.colorBlue500 : Colors.transparent, borderRadius: BorderRadius.circular(4)),
-            child: Text(word.word, style: AppTextStyles.heading4Normal18White),
+            child: Text(word.word, style: AppTextStyles.bodyLargeWhite16),
           ),
         ),
       );

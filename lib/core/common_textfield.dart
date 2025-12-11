@@ -12,6 +12,7 @@ class CommonTextFormField extends StatelessWidget {
   final int maxLines;
   final int minLines;
   final bool enabled;
+  final Color? fillColor;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final void Function()? onTap;
@@ -31,6 +32,7 @@ class CommonTextFormField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.onTap,
+    this.fillColor,
   });
 
   @override
@@ -57,22 +59,13 @@ class CommonTextFormField extends StatelessWidget {
         suffixIcon: suffix,
 
         filled: true,
-        fillColor: AppColors.colorTransparent,
+        fillColor: fillColor ?? AppColors.colorTransparent,
 
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.colorBgWhite10),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.colorBgWhite10),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.colorRed),
-        ),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.colorBgWhite10)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.colorBgWhite10)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.colorRed)),
       ),
     );
   }

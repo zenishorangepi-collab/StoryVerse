@@ -32,15 +32,19 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Auto-scroll / UI
   // ------------------------------------------------------------
-  bool _isAutoScrolling = false;
-  bool userScrolling = false;
+  final bool _isAutoScrolling = false;
+
+  bool isHideText = false;
 
   int currentWordIndex = -1;
   int currentParagraphIndex = -1;
 
   bool isCollapsed = false;
+  bool isScrolling = false;
   bool isAnimateAppBarText = false;
   bool suppressAutoScroll = false;
+
+  Timer? scrollStopTimer;
 
   Timer? debounceTimer;
   Timer? userScrollTimer;
@@ -200,6 +204,14 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   void _onCollapseScroll() {
     if (!scrollController.hasClients) return;
+
+    // if (scrollController.position.isScrollingNotifier.value) {
+    //   isScrolling = true;
+    //   update();
+    // } else {
+    //   isScrolling = false;
+    //   update();
+    // }
 
     final px = scrollController.position.pixels;
     if (px > 40 && !isCollapsed) {
@@ -404,44 +416,53 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Playback Controls
   // ------------------------------------------------------------
-  Future<void> play() async {
+  Future<void> play({bool isPositionScrollOnly = false}) async {
+    isScrolling = false;
+    update();
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
     if (_isPlaying) return;
 
-    _operationInProgress = true;
-
-    try {
-      // If audio ended → reset position
-      if (_position >= _duration - 100) {
-        _position = 0;
-        _hasPlayedOnce = false;
-      }
-
-      // 🔥 IMPORTANT → Call seek() here (preserved logic)
+    if (isPositionScrollOnly) {
       if (_position > 0) {
         _operationInProgress = false;
         await seek(_position, isPlay: true);
       }
+    } else {
+      _operationInProgress = true;
 
-      // First-time play
-      if (!_hasPlayedOnce) {
-        await audioPlayer.play(AssetSource(_audioUrl!));
-        _hasPlayedOnce = true;
+      try {
+        // If audio ended → reset position
+        if (_position >= _duration - 100) {
+          _position = 0;
+          _hasPlayedOnce = false;
+        }
+
+        // 🔥 IMPORTANT → Call seek() here (preserved logic)
+        if (_position > 0) {
+          _operationInProgress = false;
+          await seek(_position, isPlay: true);
+        }
+
+        // First-time play
+        if (!_hasPlayedOnce) {
+          await audioPlayer.play(AssetSource(_audioUrl!));
+          _hasPlayedOnce = true;
+        }
+        // Resume
+        else {
+          await audioPlayer.resume();
+        }
+
+        _isPlaying = true;
+        _lastDriftCheck = DateTime.now();
+
+        update();
+      } catch (e) {
+        _error = 'Playback error: $e';
+        update();
+      } finally {
+        _operationInProgress = false;
       }
-      // Resume
-      else {
-        await audioPlayer.resume();
-      }
-
-      _isPlaying = true;
-      _lastDriftCheck = DateTime.now();
-
-      update();
-    } catch (e) {
-      _error = 'Playback error: $e';
-      update();
-    } finally {
-      _operationInProgress = false;
     }
   }
 
@@ -465,10 +486,11 @@ class AudioTextController extends GetxController {
   }
 
   Future<void> togglePlayPause() async {
-    if (_isPlaying)
+    if (_isPlaying) {
       await pause();
-    else
+    } else {
       await play();
+    }
   }
 
   // ------------------------------------------------------------
@@ -495,7 +517,7 @@ class AudioTextController extends GetxController {
         currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
         currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
 
-        if (!userScrolling && wordKeys.isNotEmpty) {
+        if (wordKeys.isNotEmpty) {
           if (isPlay) {
             safeScrollToParagraph(currentParagraphIndex);
           } else {
@@ -622,6 +644,7 @@ class AudioTextController extends GetxController {
 
     debounceTimer?.cancel();
     userScrollTimer?.cancel();
+    scrollStopTimer?.cancel();
 
     // safe dispose of scrollController
     try {
