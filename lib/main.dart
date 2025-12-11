@@ -5,10 +5,12 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
+import 'firebase_options.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const AudioHighlighterApp());
 }
 
@@ -20,6 +22,7 @@ class AudioHighlighterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    analytics.logScreenView(screenName: AppRoutes.splashScreen, screenClass: AppRoutes.splashScreen);
     return GetMaterialApp(
       navigatorObservers: [observer],
       title: 'Audio Text Synchronizer',
