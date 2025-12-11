@@ -24,7 +24,6 @@ class AudioTextScreen extends StatelessWidget {
         if (controller.hasError) {
           return SafeArea(
             child: Scaffold(
-              backgroundColor: AppColors.colorBg,
               appBar: AppBar(
                 backgroundColor: AppColors.colorBlack,
                 foregroundColor: AppColors.colorWhite,
@@ -44,7 +43,7 @@ class AudioTextScreen extends StatelessWidget {
                 curve: Curves.easeInOut,
                 height: 70,
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.only(right: 10, left: 16),
                 decoration: BoxDecoration(
                   color: AppColors.colorBlack,
                   boxShadow: [
@@ -57,18 +56,16 @@ class AudioTextScreen extends StatelessWidget {
                   ],
                 ),
 
-                child: Stack(
-                  alignment: Alignment.center,
+                child: Row(
+                  spacing: 16,
+                  // alignment: Alignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     /// --- TOP ROW (Back + Icons) ---
-                    Positioned(
-                      left: 0,
-                      child: GestureDetector(onTap: () => Get.back(), child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite)),
-                    ),
-                    AnimatedPositioned(
-                      duration: Duration(milliseconds: 300),
-                      left: 40,
-                      top: controller.isCollapsed ? 12 : 40,
+                    GestureDetector(onTap: () => Get.back(), child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite)),
+
+                    Expanded(
                       child: AnimatedOpacity(
                         duration: Duration(milliseconds: 400),
                         opacity: controller.isCollapsed ? 1 : 0,
@@ -76,39 +73,38 @@ class AudioTextScreen extends StatelessWidget {
                           duration: Duration(milliseconds: 400),
                           curve: Curves.easeOut,
                           offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
-
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(CS.vAudioTextSynchronizer, style: AppTextStyles.heading4),
-                              Text("Subtitle text", style: AppTextStyles.bodyMediumGrey),
-                            ],
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(CS.vAudioTextSynchronizer, style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis),
+                                Text("Subtitle text", style: AppTextStyles.bodyMediumGrey, overflow: TextOverflow.ellipsis),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
 
-                    Positioned(
-                      right: 0,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.file_upload_outlined),
-                            color: AppColors.colorWhite,
-                            onPressed: () {
-                              openShareSheet(context);
-                            },
-                          ),
-                          SizedBox(width: 12),
-                          IconButton(
-                            icon: Icon(Icons.more_horiz),
-                            color: AppColors.colorWhite,
-                            onPressed: () {
-                              openAudioTextSettingSheet(context);
-                            },
-                          ),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.file_upload_outlined),
+                          color: AppColors.colorWhite,
+                          onPressed: () {
+                            openShareSheet(context);
+                          },
+                        ),
+
+                        IconButton(
+                          icon: Icon(Icons.more_horiz),
+                          color: AppColors.colorWhite,
+                          onPressed: () {
+                            openAudioTextSettingSheet(context);
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -241,7 +237,7 @@ class AudioTextScreen extends StatelessWidget {
         children: [
           /// Slider
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Slider(
               min: 0,
               allowedInteraction: SliderInteraction.slideOnly,
@@ -263,9 +259,9 @@ class AudioTextScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
             child: Row(
               children: [
-                Text(controller.formatTime(controller.position), style: AppTextStyles.bodyMediumGrey),
+                Text(controller.formatTime(controller.position), style: AppTextStyles.bodySmallGrey),
                 const Spacer(),
-                Text(controller.formatTime(controller.duration), style: AppTextStyles.bodyMediumGrey),
+                Text(controller.formatTime(controller.duration), style: AppTextStyles.bodySmallGrey),
               ],
             ),
           ),
@@ -309,7 +305,7 @@ class AudioTextScreen extends StatelessWidget {
                   onTap: () {
                     openSpeedControlSheet(context);
                   },
-                  child: Text("${formatSpeed(controller.currentSpeed)}x", style: AppTextStyles.bodyLarge),
+                  child: Text("${formatSpeed(controller.currentSpeed)}x", style: AppTextStyles.bodyLargeWhite16),
                 ),
                 const SizedBox(width: 16),
               ],
@@ -377,6 +373,7 @@ class AudioTextScreen extends StatelessWidget {
   Widget _contentsSheetUI(AudioTextController controller, BuildContext context) {
     return SafeArea(
       child: Container(
+        height: MediaQuery.of(context).size.height * 0.45,
         decoration: BoxDecoration(
           color: AppColors.colorBgGray02,
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
@@ -407,7 +404,7 @@ class AudioTextScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(CS.vContents, style: AppTextStyles.heading3),
+          Text(CS.vContents, style: AppTextStyles.heading4500White18),
           commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
         ],
       ),
@@ -418,18 +415,23 @@ class AudioTextScreen extends StatelessWidget {
   // CONTENT ITEMS
   // ==========================================================
   Widget _contentsItems() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Chapter 1: The Peace", style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 20),
-        const SizedBox(height: 25),
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Chapter 1: The Peace", style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
+            const SizedBox(height: 25),
 
-        Text("Chapter 2: The Night", style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 20),
-        const SizedBox(height: 25),
+            Text("Chapter 2: The Night", style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
+            const SizedBox(height: 25),
 
-        Text("Chapter 3: The Morning", style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 20),
-        const SizedBox(height: 25),
-      ],
+            Text("Chapter 3: The Morning", style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
+
+            const SizedBox(height: 25),
+          ],
+        ),
+      ),
     );
   }
 
@@ -648,7 +650,7 @@ class AudioTextScreen extends StatelessWidget {
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 decoration: BoxDecoration(
-                  color: AppColors.colorBgDialog,
+                  color: AppColors.colorBgChipContainer,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 4))],
                 ),
@@ -746,7 +748,7 @@ class AudioTextScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // ---------------- SAVE BUTTON ----------------
-              SizedBox(width: double.infinity, child: CommonElevatedButton(title: CS.vSaveSettings)).paddingSymmetric(horizontal: 25),
+              SizedBox(width: double.infinity, child: CommonElevatedButton(title: CS.vSaveNotes)).paddingSymmetric(horizontal: 25),
 
               const SizedBox(height: 35),
             ],
@@ -793,7 +795,7 @@ class AudioTextScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text("dummy When khushal returned", style: AppTextStyles.heading4),
-                                Text("dummy Saraban", style: AppTextStyles.bodyMediumGrey),
+                                Text("dummy Saraban", style: AppTextStyles.heading4Grey18),
                               ],
                             ),
                           ),
@@ -801,8 +803,8 @@ class AudioTextScreen extends StatelessWidget {
                         ],
                       ).paddingSymmetric(vertical: 20),
                       Divider(color: AppColors.colorBgWhite10),
-                      ListTile(leading: Image.asset(CS.icShareLink, height: 22), title: Text(CS.vShareLink, style: AppTextStyles.heading4Normal18White)),
-                      ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading4Normal18White)),
+                      ListTile(leading: Image.asset(CS.icShareLink, height: 22), title: Text(CS.vShareLink, style: AppTextStyles.heading4500White18)),
+                      ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading4500White18)),
                     ],
                   ),
                 ),
@@ -868,9 +870,9 @@ class AudioTextScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                buildActionBox(assetPath: CS.icChat, label: CS.vVoiceChat),
-                                buildActionBox(assetPath: CS.icContents, label: CS.vContents),
-                                buildActionBox(assetPath: CS.icSleepTimer, label: CS.vSleepTimer),
+                                buildActionBox(assetPath: CS.icChat, label: CS.vVoiceChat, iconSize: 20),
+                                buildActionBox(assetPath: CS.icContents, label: CS.vContents, iconSize: 20),
+                                buildActionBox(assetPath: CS.icSleepTimer, label: CS.vSleepTimer, iconSize: 20),
                               ],
                             ),
                             SizedBox(height: 20),
@@ -889,7 +891,7 @@ class AudioTextScreen extends StatelessWidget {
                             commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
                             commonListTile(
                               assetPath: CS.icDelete,
-                              style: AppTextStyles.bodyLargeRed6,
+                              style: AppTextStyles.bodyMediumRed,
                               title: CS.vDelete,
                               iconColor: AppColors.colorRed,
                               onTap: () {
@@ -936,6 +938,7 @@ class AudioTextScreen extends StatelessWidget {
 
       builder: (context) {
         return AlertDialog(
+          insetPadding: EdgeInsets.zero,
           backgroundColor: AppColors.colorBgGray02,
           contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -947,7 +950,7 @@ class AudioTextScreen extends StatelessWidget {
             TextButton(
               style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
               onPressed: () => Navigator.pop(context),
-              child: Text(CS.vDismiss, style: AppTextStyles.bodyLargeWhite16),
+              child: Text(CS.vDismiss, style: AppTextStyles.bodyLarge),
             ),
             TextButton(
               style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
@@ -955,7 +958,7 @@ class AudioTextScreen extends StatelessWidget {
                 Navigator.pop(context);
                 onConfirm();
               },
-              child: Text(CS.vConfirm, style: AppTextStyles.bodyLargeRed6),
+              child: Text(CS.vConfirm, style: AppTextStyles.bodyMediumRedBold),
             ),
           ],
         );

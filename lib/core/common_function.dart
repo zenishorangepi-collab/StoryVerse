@@ -6,7 +6,7 @@ import 'package:utsav_interview/core/common_style.dart';
 
 extension CommonPaddingHorizontal on Widget {
   Widget screenPadding() {
-    return paddingOnly(left: 16, right: 16);
+    return paddingOnly(left: 20, right: 20);
   }
 }
 
@@ -17,23 +17,24 @@ Widget commonHeadingText(String text) {
 Widget buildChip({IconData? icon, String? label, Function()? onTap}) {
   return Padding(
     padding: const EdgeInsets.only(right: 8.0),
+
     child: GestureDetector(
       onTap: onTap ?? () {},
       child: Chip(
-        avatar: Icon(icon, size: 18, color: AppColors.colorWhite),
+        avatar: icon == null ? null : Icon(icon, size: 18, color: AppColors.colorWhite).paddingOnly(left: 5),
 
-        label: Text(label ?? "", style: AppTextStyles.bodyMedium),
-        color: WidgetStatePropertyAll(AppColors.colorBgGray02),
+        label: Text(label ?? "", style: AppTextStyles.bodyMedium500, overflow: TextOverflow.ellipsis),
+        color: WidgetStatePropertyAll(AppColors.colorBgChipContainer),
 
         side: BorderSide.none,
         shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       ),
     ),
   );
 }
 
-Widget buildActionBox({IconData? icon, String? assetPath, required String label}) {
+Widget buildActionBox({IconData? icon, String? assetPath, required String label, double? iconSize}) {
   return Expanded(
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -43,7 +44,7 @@ Widget buildActionBox({IconData? icon, String? assetPath, required String label}
         mainAxisSize: MainAxisSize.min,
         children: [
           // If asset exists → show Image else show Icon
-          assetPath != null ? Image.asset(assetPath, height: 26, width: 26) : Icon(icon, size: 26, color: Colors.white),
+          assetPath != null ? Image.asset(assetPath, height: iconSize ?? 26, width: iconSize ?? 26) : Icon(icon, size: 26, color: Colors.white),
 
           const SizedBox(height: 8),
 

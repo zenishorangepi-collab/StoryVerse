@@ -22,13 +22,12 @@ class AudioHighlighterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    analytics.logScreenView(screenName: AppRoutes.splashScreen, screenClass: AppRoutes.splashScreen);
     return GetMaterialApp(
       navigatorObservers: [observer],
       title: 'Audio Text Synchronizer',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(scaffoldBackgroundColor: AppColors.colorBg, primarySwatch: Colors.blue, useMaterial3: true, brightness: Brightness.light),
-      darkTheme: ThemeData(scaffoldBackgroundColor: AppColors.colorBg, primarySwatch: Colors.blue, useMaterial3: true, brightness: Brightness.dark),
+      theme: ThemeData(scaffoldBackgroundColor: AppColors.colorBgGray02, primarySwatch: Colors.blue, useMaterial3: true, brightness: Brightness.light),
+      darkTheme: ThemeData(scaffoldBackgroundColor: AppColors.colorBgGray02, primarySwatch: Colors.blue, useMaterial3: true, brightness: Brightness.dark),
       // home: const AudioHighlighterScreen(),
       initialRoute: AppRoutes.splashScreen,
       getPages: AppRoutes.page,

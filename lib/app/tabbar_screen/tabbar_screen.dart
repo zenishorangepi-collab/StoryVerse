@@ -10,13 +10,7 @@ import 'package:utsav_interview/routes/app_routes.dart';
 class TabBarScreen extends StatelessWidget {
   TabBarScreen({super.key});
 
-  final List<Widget> screens = const [
-    HomeScreen(),
-    ExploreScreen(),
-    SizedBox.shrink(),
-    ExploreScreen(),
-    ExploreScreen(),
-  ];
+  final List<Widget> screens = const [HomeScreen(), ExploreScreen(), SizedBox.shrink(), ExploreScreen(), ExploreScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +20,10 @@ class TabBarScreen extends StatelessWidget {
         return Scaffold(
           body: screens[controller.currentIndex],
 
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
           bottomNavigationBar: BottomAppBar(
-            color: AppColors.colorBg,
+            color: AppColors.colorBgGray02,
             shape: const CircularNotchedRectangle(),
             shadowColor: AppColors.colorWhite,
             notchMargin: 7,
@@ -43,27 +36,16 @@ class TabBarScreen extends StatelessWidget {
                   _buildNavItem(controller, Icons.explore, "Explore", 1),
                   FloatingActionButton(
                     mini: true,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.circular(50),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(50)),
                     onPressed: () {
                       Get.toNamed(AppRoutes.audioTextScreen);
                     },
                     backgroundColor: Colors.white,
-                    child: const Icon(
-                      Icons.add,
-                      size: 25,
-                      color: AppColors.colorBlack,
-                    ),
+                    child: const Icon(Icons.add, size: 25, color: AppColors.colorBlack),
                   ),
 
                   _buildNavItem(controller, Icons.library_books, "Library", 3),
-                  _buildNavItem(
-                    controller,
-                    Icons.record_voice_over,
-                    "Voices",
-                    4,
-                  ),
+                  _buildNavItem(controller, Icons.record_voice_over, "Voices", 4),
                 ],
               ),
             ),
@@ -73,12 +55,7 @@ class TabBarScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(
-    TabBarScreenController controller,
-    IconData icon,
-    String label,
-    int index,
-  ) {
+  Widget _buildNavItem(TabBarScreenController controller, IconData icon, String label, int index) {
     final bool isSelected = controller.currentIndex == index;
 
     final Color color = isSelected ? AppColors.colorWhite : AppColors.colorGrey;
@@ -90,16 +67,7 @@ class TabBarScreen extends StatelessWidget {
         child: Column(
           spacing: 3,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color),
-            Text(
-              label,
-              style:
-                  isSelected
-                      ? AppTextStyles.tabTextSelectedWhite
-                      : AppTextStyles.tabTextSelectedGrey,
-            ),
-          ],
+          children: [Icon(icon, color: color), Text(label, style: isSelected ? AppTextStyles.tabTextSelectedWhite : AppTextStyles.tabTextSelectedGrey)],
         ),
       ),
     );

@@ -108,14 +108,19 @@ class _LanguageBottomSheetState extends State<_LanguageBottomSheet> {
               ),
             ),
 
-            SizedBox(height: 10),
+            // SizedBox(height: 10),
 
             /// SEARCH BAR
-            CommonTextFormField(
-              controller: searchController,
-              hint: CS.vSearchDot,
-              prefix: Image.asset(CS.icSearch, scale: 25, color: AppColors.colorWhite),
-            ).paddingSymmetric(horizontal: 20),
+            Container(
+              color: AppColors.colorBgGray02,
+              padding: EdgeInsets.only(top: 10),
+              child: CommonTextFormField(
+                controller: searchController,
+                hint: CS.vSearchDot,
+                fillColor: AppColors.colorBgGray02,
+                prefix: Image.asset(CS.icSearch, scale: 25, color: AppColors.colorWhite),
+              ).paddingSymmetric(horizontal: 20),
+            ),
 
             SizedBox(height: 10),
 
@@ -129,7 +134,7 @@ class _LanguageBottomSheetState extends State<_LanguageBottomSheet> {
 
                   return ListTile(
                     contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    shape: Border(bottom: BorderSide(color: AppColors.colorWhite, width: 0.5)),
+                    shape: Border(bottom: BorderSide(color: AppColors.colorBgWhite10, width: 0.5)),
                     leading: Text(lang["flag"]!, style: TextStyle(fontSize: 22)),
                     title: Text(lang["name"]!, style: AppTextStyles.bodyLarge),
                     trailing: isSelected ? Icon(Icons.check_circle, color: AppColors.colorWhite) : null,

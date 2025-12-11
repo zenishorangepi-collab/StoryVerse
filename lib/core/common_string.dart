@@ -22,6 +22,7 @@ class CS {
   static const String vShareLink = "Share link";
   static const String vShareCurrentClip = "Share current clip";
   static const String vSaveSettings = "Save settings";
+  static const String vSaveNotes = "Save notes";
   static const String vReadingSpeed = "Reading speed";
   static const String vContents = "Contents";
   static const String vYoung = "Young";

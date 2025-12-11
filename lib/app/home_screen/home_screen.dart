@@ -19,14 +19,14 @@ class HomeScreen extends StatelessWidget {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 70,
+                expandedHeight: 60,
                 floating: true,
                 // shows AppBar when scrolling down
                 snap: true,
                 // smooth animation
                 pinned: false,
                 // disappears when scrolling up
-                backgroundColor: AppColors.colorBg,
+                backgroundColor: AppColors.colorBgGray02,
                 elevation: 0,
                 actions: [
                   Padding(
