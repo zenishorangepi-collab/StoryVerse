@@ -46,6 +46,7 @@ class CS {
   static const String vAllSoundscape = "All Soundscape";
   static const String vAddNote = "Add a note";
   static const String vHideText = "Hide text";
+  static const String vShowText = "Show text";
   static const String vPreferences = "Preferences";
   static const String vVoices = "Voices";
   static const String vPronunciations = "Pronunciations";
@@ -85,6 +86,7 @@ class CS {
   static String icChat = "assets/icons/chat-bubble.png";
   static String icContents = "assets/icons/list_contents.png";
   static String icHeadphone = "assets/icons/headphone.png";
+  static String icShowList = "assets/icons/show_list.png";
   static String icPreferences = "assets/icons/pallete_preferences.png";
   static String icVoiceScapes = "assets/icons/sound-on.png";
   static String icPronunciation = "assets/icons/pronunciation.png";
@@ -94,6 +96,9 @@ class CS {
   static String icDownloads = "assets/icons/downloads.png";
   static String icDelete = "assets/icons/delete.png";
   static String icReport = "assets/icons/report-issue.png";
+  static String icLeftArrow = "assets/icons/left_arrow.png";
+  static String icList = "assets/icons/list.png";
+  static String icAiChat = "assets/icons/chat-ai.png";
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

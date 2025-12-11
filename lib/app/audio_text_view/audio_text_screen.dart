@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -48,10 +49,10 @@ class AudioTextScreen extends StatelessWidget {
                   color: AppColors.colorBlack,
                   boxShadow: [
                     BoxShadow(
-                      color: controller.isCollapsed ? AppColors.colorBlack800 : AppColors.colorTransparent,
-                      blurRadius: 25,
-                      spreadRadius: 5,
-                      offset: Offset(0, 15),
+                      color: controller.isCollapsed ? AppColors.colorBlack : AppColors.colorTransparent,
+                      blurRadius: 50,
+                      spreadRadius: 20,
+                      offset: Offset(0, 30),
                     ),
                   ],
                 ),
@@ -111,22 +112,69 @@ class AudioTextScreen extends StatelessWidget {
               ),
             ),
 
-            body: Column(
+            body: Stack(
               children: [
-                if (controller.isLoading) const LinearProgressIndicator(),
+                Column(
+                  children: [
+                    if (controller.isLoading) const LinearProgressIndicator(),
 
-                if (controller.error != null)
-                  Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
+                    if (controller.error != null)
+                      Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
 
-                /// -------------------------
-                /// 🔵 Transcript List (Slivers)
-                /// -------------------------
-                Expanded(child: _buildTranscriptView(controller)),
+                    /// -------------------------
+                    /// 🔵 Transcript List (Slivers)
+                    /// -------------------------
+                    Expanded(child: _buildTranscriptView(controller)),
 
-                /// -------------------------
-                /// 🔵 slider, play button, other settings
-                /// -------------------------
-                _buildControlPanel(context, controller),
+                    /// -------------------------
+                    /// 🔵 slider, play button, other settings
+                    /// -------------------------
+                    _buildControlPanel(context, controller),
+                  ],
+                ),
+
+                if (controller.isScrolling)
+                  Positioned(
+                    right: 16,
+                    bottom: MediaQuery.of(context).size.height * 0.27,
+                    child: GestureDetector(
+                      onTap: () async {
+                        controller.isScrolling = false;
+                        await controller.play(isPositionScrollOnly: true);
+                        controller.update();
+                      },
+                      child: AnimatedOpacity(
+                        duration: Duration(milliseconds: 400),
+                        opacity: controller.isCollapsed ? 1 : 0,
+                        child: AnimatedSlide(
+                          duration: Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                          offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.5),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                            decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(CS.icList, color: AppColors.colorBlack, width: 12, height: 12),
+                                Image.asset(CS.icLeftArrow, color: AppColors.colorBlack, width: 4, height: 4),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                Positioned(
+                  right: 10,
+                  bottom: MediaQuery.of(context).size.height * 0.21,
+                  child: Container(
+                    padding: EdgeInsets.all(14),
+                    decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+                    child: Image.asset(CS.icAiChat, color: AppColors.colorBlack, width: 18, height: 18),
+                  ),
+                ),
               ],
             ),
           ),
@@ -170,55 +218,78 @@ class AudioTextScreen extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return CustomScrollView(
-      controller: controller.scrollController,
-      slivers: [
-        SliverAppBar(
-          pinned: false,
-          expandedHeight: 50,
-          backgroundColor: AppColors.colorBlack,
-          automaticallyImplyLeading: false,
-          flexibleSpace: FlexibleSpaceBar(
-            // title: const Text("Audio Text Synchronizer"),
-            background: Container(
-              padding: const EdgeInsets.only(left: 25, bottom: 5),
-              alignment: Alignment.bottomLeft,
-              child: Text(CS.vAudioTextSynchronizer, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final paragraph = paragraphs[index];
-
-              final isCurrentParagraph = index == controller.currentParagraphIndex;
-              final wordIndexInParagraph =
-                  isCurrentParagraph && controller.syncEngine != null
-                      ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, index)
-                      : null;
-
-              int globalWordStartIndex = 0;
-              for (int p = 0; p < index; p++) {
-                globalWordStartIndex += paragraphs[p].words.length;
+    return controller.isHideText
+        ? Container(color: AppColors.colorGrey)
+        : NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            // When user scrolls
+            if (notification is ScrollUpdateNotification) {
+              if (!controller.isScrolling) {
+                controller.isScrolling = true;
+                controller.update();
               }
 
-              return ParagraphWidget(
-                paragraph: paragraph,
-                paragraphIndex: index,
-                currentWordIndex: wordIndexInParagraph,
-                isCurrentParagraph: isCurrentParagraph,
-                onWordTap: (start) => controller.seek(start),
-                widgetKey: controller.paragraphKeys[index],
-                controller: controller,
-                globalWordStartIndex: globalWordStartIndex, // NEW
-              );
-            }, childCount: paragraphs.length),
+              // Reset timer on every scroll event
+              // controller.scrollStopTimer?.cancel();
+              // controller.scrollStopTimer = Timer(const Duration(milliseconds: 120), () {
+              //   controller.isScrolling = false;
+              //   controller.update();
+              // });
+            }
+
+            return false;
+          },
+
+          child: CustomScrollView(
+            controller: controller.scrollController,
+            slivers: [
+              SliverAppBar(
+                pinned: false,
+                expandedHeight: 50,
+                backgroundColor: AppColors.colorBlack,
+                automaticallyImplyLeading: false,
+                flexibleSpace: FlexibleSpaceBar(
+                  // title: const Text("Audio Text Synchronizer"),
+                  background: Container(
+                    padding: const EdgeInsets.only(left: 25, bottom: 5),
+                    alignment: Alignment.bottomLeft,
+                    child: Text(CS.vAudioTextSynchronizer, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 70),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final paragraph = paragraphs[index];
+
+                    final isCurrentParagraph = index == controller.currentParagraphIndex;
+                    final wordIndexInParagraph =
+                        isCurrentParagraph && controller.syncEngine != null
+                            ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, index)
+                            : null;
+
+                    int globalWordStartIndex = 0;
+                    for (int p = 0; p < index; p++) {
+                      globalWordStartIndex += paragraphs[p].words.length;
+                    }
+
+                    return ParagraphWidget(
+                      paragraph: paragraph,
+                      paragraphIndex: index,
+                      currentWordIndex: wordIndexInParagraph,
+                      isCurrentParagraph: isCurrentParagraph,
+                      onWordTap: (start) => controller.seek(start),
+                      widgetKey: controller.paragraphKeys[index],
+                      controller: controller,
+                      globalWordStartIndex: globalWordStartIndex, // NEW
+                    );
+                  }, childCount: paragraphs.length),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
-    );
+        );
   }
 
   /// new
@@ -230,7 +301,8 @@ class AudioTextScreen extends StatelessWidget {
 
       decoration: BoxDecoration(
         color: AppColors.colorBlack,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, -2))],
+        boxShadow: [BoxShadow(color: AppColors.colorBlack, blurRadius: 45, spreadRadius: 10, offset: Offset(0, -50))],
+        // boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, -2))],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -323,7 +395,7 @@ class AudioTextScreen extends StatelessWidget {
                   onTap: () {
                     Get.toNamed(AppRoutes.voiceScreen);
                   },
-                  child: Icon(Icons.person_outline, color: AppColors.colorGrey, size: 30),
+                  child: Icon(Icons.keyboard_voice_outlined, color: AppColors.colorGrey, size: 30),
                 ),
                 GestureDetector(
                   onTap: () {
@@ -831,7 +903,6 @@ class AudioTextScreen extends StatelessWidget {
             return SafeArea(
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.92,
-
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: AppColors.colorDialogHeaderGray,
@@ -876,17 +947,46 @@ class AudioTextScreen extends StatelessWidget {
                               ],
                             ),
                             SizedBox(height: 20),
-                            commonListTile(assetPath: CS.icHeadphone, title: CS.vHideText, onTap: () {}),
+                            commonListTile(
+                              assetPath: controller.isHideText ? CS.icShowList : CS.icHeadphone,
+                              title: controller.isHideText ? CS.vShowText : CS.vHideText,
+                              onTap: () {
+                                Get.back();
+                                controller.isHideText = !controller.isHideText;
+                                controller.update();
+                              },
+                            ),
                             commonListTile(assetPath: CS.icPreferences, title: CS.vPreferences, onTap: () {}),
-                            commonListTile(icon: Icons.keyboard_voice, title: CS.vVoices, onTap: () {}),
-                            commonListTile(assetPath: CS.icVoiceScapes, title: CS.vSoundScapes, onTap: () {}),
+                            commonListTile(
+                              icon: Icons.keyboard_voice,
+                              title: CS.vVoices,
+                              onTap: () {
+                                Get.back();
+                                Get.toNamed(AppRoutes.voiceScreen);
+                              },
+                            ),
+                            commonListTile(
+                              assetPath: CS.icVoiceScapes,
+                              title: CS.vSoundScapes,
+                              onTap: () {
+                                Get.back();
+                                Get.toNamed(AppRoutes.soundSpacesScreen);
+                              },
+                            ),
                             commonListTile(assetPath: CS.icPronunciation, title: CS.vPronunciations, onTap: () {}),
-                            Divider(color: AppColors.colorGrey900),
-                            commonListTile(assetPath: CS.icContents, title: CS.vContents, onTap: () {}),
+                            Divider(color: AppColors.colorGreyDivider),
+                            commonListTile(
+                              assetPath: CS.icContents,
+                              title: CS.vContents,
+                              onTap: () {
+                                Get.back();
+                                openContentsSheet(context);
+                              },
+                            ),
                             commonListTile(assetPath: CS.icBookmark, title: CS.vBookmarks, onTap: () {}),
                             commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
                             commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
-                            Divider(color: AppColors.colorGrey900),
+                            Divider(color: AppColors.colorGreyDivider),
                             commonListTile(assetPath: CS.icPlus, title: CS.vAddToCollection, onTap: () {}, imageHeight: 18),
                             commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
                             commonListTile(
@@ -898,7 +998,7 @@ class AudioTextScreen extends StatelessWidget {
                                 showDeleteDialog(context, onConfirm: () {});
                               },
                             ),
-                            Divider(color: AppColors.colorGrey900),
+                            Divider(color: AppColors.colorGreyDivider),
                             commonListTile(assetPath: CS.icReport, title: CS.vReportIssue, onTap: () {}),
                           ],
                         ),
