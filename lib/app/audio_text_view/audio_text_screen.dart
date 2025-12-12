@@ -133,42 +133,49 @@ class AudioTextScreen extends StatelessWidget {
                   ],
                 ),
 
-                if (controller.isScrolling)
-                  Positioned(
-                    right: 16,
-                    bottom: MediaQuery.of(context).size.height * 0.27,
-                    child: GestureDetector(
-                      onTap: () async {
-                        controller.isScrolling = false;
-                        await controller.play(isPositionScrollOnly: true);
-                        controller.update();
-                      },
-                      child: AnimatedOpacity(
-                        duration: Duration(milliseconds: 400),
-                        opacity: controller.isCollapsed ? 1 : 0,
-                        child: AnimatedSlide(
-                          duration: Duration(milliseconds: 400),
-                          curve: Curves.easeOut,
-                          offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.5),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                            decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset(CS.icList, color: AppColors.colorBlack, width: 12, height: 12),
-                                Image.asset(CS.icLeftArrow, color: AppColors.colorBlack, width: 4, height: 4),
-                              ],
+                if (controller.isScrolling && (controller.currentParagraphIndex != -1))
+                  GetBuilder<AudioTextController>(
+                    id: "scrollButton",
+                    builder: (controller) {
+                      return Positioned(
+                        right: 18,
+                        bottom: MediaQuery.of(context).size.height * 0.28,
+                        child: GestureDetector(
+                          onTap: () async {
+                            controller.isScrolling = false;
+                            controller.update(["scrollButton"]);
+                            await controller.play(isPositionScrollOnly: true);
+                          },
+                          child: AnimatedOpacity(
+                            duration: Duration(milliseconds: 400),
+                            opacity: controller.showScrollButton ? 1 : 0,
+                            child: AnimatedSlide(
+                              duration: Duration(milliseconds: 400),
+                              curve: Curves.easeOut,
+                              offset:
+                                  controller.showScrollButton
+                                      ? Offset(0, 0) // slides UP (visible)
+                                      : Offset(0, 0.5), // slides DOWN (hidden)
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                                decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+                                child: Row(
+                                  children: [
+                                    Image.asset(CS.icList, color: Colors.black, width: 12),
+                                    Image.asset(CS.icLeftArrow, color: Colors.black, width: 4),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
 
                 Positioned(
-                  right: 10,
-                  bottom: MediaQuery.of(context).size.height * 0.21,
+                  right: 14,
+                  bottom: MediaQuery.of(context).size.height * 0.22,
                   child: Container(
                     padding: EdgeInsets.all(14),
                     decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
@@ -224,11 +231,17 @@ class AudioTextScreen extends StatelessWidget {
           onNotification: (notification) {
             // When user scrolls
             if (notification is ScrollUpdateNotification) {
-              if (!controller.isScrolling) {
+              // if (!controller.isScrolling) {
+              //   controller.isScrolling = true;
+              //   controller.update();
+              // }
+              if (controller.scrollController.position.isScrollingNotifier.value) {
                 controller.isScrolling = true;
                 controller.update();
+              } else {
+                controller.isScrolling = false;
+                controller.update();
               }
-
               // Reset timer on every scroll event
               // controller.scrollStopTimer?.cancel();
               // controller.scrollStopTimer = Timer(const Duration(milliseconds: 120), () {
@@ -282,7 +295,10 @@ class AudioTextScreen extends StatelessWidget {
                       onWordTap: (start) => controller.seek(start),
                       widgetKey: controller.paragraphKeys[index],
                       controller: controller,
-                      globalWordStartIndex: globalWordStartIndex, // NEW
+                      globalWordStartIndex: globalWordStartIndex,
+                      // NEW
+                      colorAudioTextBg: controller.colorAudioTextBg,
+                      colorAudioTextParagraphBg: controller.colorAudioTextParagraphBg,
                     );
                   }, childCount: paragraphs.length),
                 ),
@@ -956,7 +972,14 @@ class AudioTextScreen extends StatelessWidget {
                                 controller.update();
                               },
                             ),
-                            commonListTile(assetPath: CS.icPreferences, title: CS.vPreferences, onTap: () {}),
+                            commonListTile(
+                              assetPath: CS.icPreferences,
+                              title: CS.vPreferences,
+                              onTap: () {
+                                Get.back();
+                                openPreferencesSheet(context);
+                              },
+                            ),
                             commonListTile(
                               icon: Icons.keyboard_voice,
                               title: CS.vVoices,
@@ -1017,17 +1040,28 @@ class AudioTextScreen extends StatelessWidget {
   Widget commonListTile({
     String? assetPath,
     required String title,
+    String? subtitle,
     VoidCallback? onTap,
     IconData? icon,
     double? imageHeight,
     TextStyle? style,
+    TextStyle? subtitleStyle,
     Color? iconColor,
+    bool isLeading = true,
+    Widget? trailing,
   }) {
     return ListTile(
       minTileHeight: 50,
-      leading: assetPath == null ? Icon(icon, color: AppColors.colorWhite) : Image.asset(assetPath ?? "", height: imageHeight ?? 22, color: iconColor),
+      leading:
+          !isLeading
+              ? null
+              : assetPath == null
+              ? Icon(icon, color: AppColors.colorWhite)
+              : Image.asset(assetPath ?? "", height: imageHeight ?? 22, color: iconColor),
       title: Text(title, style: style ?? AppTextStyles.bodyLargeWhite16),
+      subtitle: subtitle == null ? null : Text(subtitle ?? "", style: subtitleStyle ?? AppTextStyles.bodyMediumGrey),
       onTap: onTap,
+      trailing: trailing,
     );
   }
 
@@ -1061,6 +1095,263 @@ class AudioTextScreen extends StatelessWidget {
               child: Text(CS.vConfirm, style: AppTextStyles.bodyMediumRedBold),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void openPreferencesSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: Get.key.currentContext!,
+      backgroundColor: AppColors.colorBgGray02,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+      isScrollControlled: true,
+      builder: (_) {
+        return GetBuilder<AudioTextController>(
+          builder: (controller) {
+            return SafeArea(
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.92,
+                decoration: BoxDecoration(
+                  color: AppColors.colorBgGray02,
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                ),
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 250),
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(CS.vPreferences, style: AppTextStyles.heading3),
+                          commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                        ],
+                      ).screenPadding(),
+                      const SizedBox(height: 20),
+                      Text(CS.vFonts, style: AppTextStyles.bodyLarge).screenPadding(),
+                      const SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          openChooseFontsSheet(context);
+                        },
+                        child:
+                            Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(10), border: Border.all(color: AppColors.colorBgWhite10)),
+                              child: ListTile(
+                                // leading:
+                                //     controller.selectedFlag == null
+                                //         ? Icon(Icons.language, color: AppColors.colorWhite)
+                                //         : Text(controller.selectedFlag ?? "", style: AppTextStyles.heading3),
+                                title: Text(
+                                  controller.selectedFonts,
+                                  style:
+                                      controller.selectedFonts == CS.vInter
+                                          ? AppTextStyles.bodyLarge16white500
+                                          : controller.selectedFonts == CS.vLibreBaskerville
+                                          ? AppTextStyles.bodyLarge16white500LibreBaskerville
+                                          : AppTextStyles.bodyLarge16white500OpenSans,
+                                ),
+                                trailing: Icon(Icons.keyboard_arrow_right_outlined, color: AppColors.colorGrey),
+                              ),
+                            ).screenPadding(),
+                      ),
+                      const SizedBox(height: 10),
+                      Slider(
+                        min: 8,
+                        max: 40,
+                        thumbColor: AppColors.colorWhite,
+                        activeColor: AppColors.colorWhite,
+                        inactiveColor: AppColors.colorBgChipContainer,
+                        value: dTextSize,
+                        onChanged: (value) {
+                          dTextSize = value;
+                          controller.update();
+                        },
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(CS.vSmallest, style: AppTextStyles.bodySmallGrey),
+                          Text("${dTextSize.toStringAsFixed(0)}${CS.vPts}", style: AppTextStyles.bodySmallGrey),
+                          Text(CS.vLargest, style: AppTextStyles.bodySmallGrey),
+                        ],
+                      ).screenPadding(),
+                      const SizedBox(height: 30),
+                      Text(CS.vTheme, style: AppTextStyles.bodyLarge).screenPadding(),
+                      const SizedBox(height: 10),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List.generate(4, (index) {
+                            return GestureDetector(
+                              onTap: () {
+                                if (index == 0) {
+                                  controller.iThemeSelect = 0;
+                                  controller.colorAudioTextBg = AppColors.colorBlue;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
+                                  controller.update();
+                                } else if (index == 1) {
+                                  controller.iThemeSelect = 1;
+                                  controller.colorAudioTextBg = AppColors.colorBrown;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorBgBrown;
+                                  controller.update();
+                                } else if (index == 2) {
+                                  controller.iThemeSelect = 2;
+                                  controller.colorAudioTextBg = AppColors.colorYellow;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorGreyBg;
+                                  controller.update();
+                                } else {
+                                  controller.iThemeSelect = 3;
+                                  controller.colorAudioTextBg = AppColors.colorLight;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorLightBg;
+                                  controller.update();
+                                }
+                              },
+                              child: Container(
+                                width: 100,
+
+                                height: 100,
+                                margin: EdgeInsets.all(8),
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.colorBgChipContainer,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: controller.iThemeSelect == index ? AppColors.colorWhite : Colors.transparent),
+                                ),
+                                child: Image.asset(controller.listThemeImg[index]),
+                              ).paddingOnly(left: index == 0 ? 20 : 0),
+                            );
+                          }),
+                        ),
+                      ),
+                      Spacer(),
+                      Row(
+                        spacing: 15,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: CommonElevatedButton(
+                              title: CS.vReset,
+                              backgroundColor: AppColors.colorBgChipContainer,
+                              textStyle: AppTextStyles.buttonTextWhite,
+                              onTap: () {
+                                controller.selectedFonts = CS.vInter;
+                                controller.colorAudioTextBg = AppColors.colorBlue;
+                                controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
+                                controller.iThemeSelect = 0;
+                                dTextSize = 16;
+                                currentFont = AppFontType.inter;
+                                controller.update();
+                              },
+                            ),
+                          ),
+                          Expanded(flex: 2, child: CommonElevatedButton(title: CS.vSaveSettings)),
+                        ],
+                      ).screenPadding(),
+                      SizedBox(height: 50),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void openChooseFontsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: Get.key.currentContext!,
+      backgroundColor: AppColors.colorBgGray02,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+      isScrollControlled: true,
+      builder: (_) {
+        return GetBuilder<AudioTextController>(
+          builder: (controller) {
+            return SafeArea(
+              child: Container(
+                // height: MediaQuery.of(context).size.height * 0.92,
+                decoration: BoxDecoration(
+                  color: AppColors.colorBgGray02,
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                ),
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 250),
+                  padding: MediaQuery.of(context).viewInsets,
+                  child:
+                      Column(
+                        // spacing: 20,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(CS.vChooseFont, style: AppTextStyles.heading3),
+                              commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          commonListTile(
+                            title: CS.vInter,
+                            subtitle: CS.vDummyChooseFontText,
+                            style: AppTextStyles.bodyLarge16white500,
+                            subtitleStyle: AppTextStyles.bodyLarge16white300,
+                            onTap: () {
+                              Get.back();
+                              currentFont = AppFontType.inter;
+                              controller.selectedFonts = CS.vInter;
+                              controller.update();
+                            },
+                            isLeading: false,
+                            trailing: controller.selectedFonts == CS.vInter ? Icon(Icons.check_circle_rounded, color: AppColors.colorWhite) : SizedBox(),
+                          ),
+                          Divider(color: AppColors.colorBgWhite10),
+                          commonListTile(
+                            title: "${CS.vLibreBaskerville}\n${CS.vDummyChooseFontText}",
+                            style: AppTextStyles.bodyLarge16white500LibreBaskerville,
+                            subtitleStyle: AppTextStyles.bodyLarge16white300LibreBaskerville,
+                            onTap: () {
+                              Get.back();
+                              currentFont = AppFontType.libreBaskerville;
+
+                              controller.selectedFonts = CS.vLibreBaskerville;
+                              controller.update();
+                            },
+                            isLeading: false,
+                            trailing:
+                                controller.selectedFonts == CS.vLibreBaskerville ? Icon(Icons.check_circle_rounded, color: AppColors.colorWhite) : SizedBox(),
+                          ),
+
+                          Divider(color: AppColors.colorBgWhite10),
+                          commonListTile(
+                            title: "${CS.vOpenSans}\n${CS.vDummyChooseFontText}",
+                            style: AppTextStyles.bodyLarge16white500OpenSans,
+                            subtitleStyle: AppTextStyles.bodyLarge16white300OpenSans,
+                            onTap: () {
+                              Get.back();
+                              currentFont = AppFontType.openSans;
+
+                              controller.selectedFonts = CS.vOpenSans;
+                              controller.update();
+                            },
+                            isLeading: false,
+                            trailing: controller.selectedFonts == CS.vOpenSans ? Icon(Icons.check_circle_rounded, color: AppColors.colorWhite) : SizedBox(),
+                          ),
+
+                          SizedBox(height: 20),
+                        ],
+                      ).screenPadding(),
+                ),
+              ),
+            );
+          },
         );
       },
     );
