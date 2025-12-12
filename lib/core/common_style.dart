@@ -2,7 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:utsav_interview/core/common_color.dart';
 
+enum AppFontType { inter, openSans, libreBaskerville }
+
+AppFontType currentFont = AppFontType.inter;
+double dTextSize = 16;
+
 class AppTextStyles {
+  static TextStyle font({double? fontSize, FontWeight? fontWeight, Color? color, double height = 1.3}) {
+    switch (currentFont) {
+      case AppFontType.inter:
+        return GoogleFonts.inter(fontSize: dTextSize, fontWeight: fontWeight, color: color, height: height);
+
+      case AppFontType.openSans:
+        return GoogleFonts.openSans(fontSize: dTextSize, fontWeight: fontWeight, color: color, height: height);
+
+      case AppFontType.libreBaskerville:
+        return GoogleFonts.libreBaskerville(fontSize: dTextSize, fontWeight: fontWeight, color: color, height: height);
+    }
+  }
+
   /// HEADLINES
   static TextStyle heading1 = GoogleFonts.inter(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
 
@@ -24,6 +42,12 @@ class AppTextStyles {
   /// BODY TEXT
   static TextStyle bodyLarge = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
   static TextStyle bodyLarge16white500 = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorWhite);
+  static TextStyle bodyLarge16white300 = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w300, color: AppColors.colorWhite);
+  static TextStyle bodyLarge16white500LibreBaskerville = GoogleFonts.libreBaskerville(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorWhite);
+  static TextStyle bodyLarge12white500LibreBaskerville = GoogleFonts.libreBaskerville(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.colorWhite);
+  static TextStyle bodyLarge16white300LibreBaskerville = GoogleFonts.libreBaskerville(fontSize: 16, fontWeight: FontWeight.w300, color: AppColors.colorWhite);
+  static TextStyle bodyLarge16white500OpenSans = GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorWhite);
+  static TextStyle bodyLarge16white300OpenSans = GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.w300, color: AppColors.colorWhite);
   static TextStyle bodyLargeWhite16 = GoogleFonts.inter(fontSize: 16, color: AppColors.colorWhite);
 
   static TextStyle bodyMedium = GoogleFonts.inter(fontSize: 14, color: AppColors.colorWhite);

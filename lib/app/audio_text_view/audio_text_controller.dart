@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
+import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 
 class AudioTextController extends GetxController {
@@ -76,8 +77,14 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   double currentSpeed = 1.0;
   int currentIndex = 8;
+  String selectedFonts = CS.vInter;
+  Color colorAudioTextBg = AppColors.colorBlue;
+  Color colorAudioTextParagraphBg = AppColors.colorBlueBg;
 
   final List<double> presetSpeeds = [0.5, 0.75, 1, 1.5, 2];
+
+  final List listThemeImg = [CS.imgSky, CS.imgFall, CS.imgHighlight, CS.imgClassic];
+  int iThemeSelect = 0;
 
   final List<double> speedSteps = [
     0.25,
@@ -406,25 +413,29 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> play({bool isPositionScrollOnly = false}) async {
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
-    if (_isPlaying) return;
+    // if (_isPlaying) return;
 
     _operationInProgress = true;
 
     try {
+      // ⭐ NEW: If no paragraph is active → scroll to top
+      if (currentParagraphIndex == -1) {
+        await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
+      }
+
       // If audio ended → reset position
       if (_position >= _duration - 100) {
         _position = 0;
         _hasPlayedOnce = false;
       }
 
-      // 🔥 IMPORTANT → Call seek() here (preserved logic)
+      // IMPORTANT → seek logic (your original)
       if (_position > 0) {
         _operationInProgress = false;
         await seek(_position, isPlay: true);
       }
 
       // First-time play
-
       if (!_hasPlayedOnce) {
         await audioPlayer.play(AssetSource(_audioUrl!));
         _hasPlayedOnce = true;

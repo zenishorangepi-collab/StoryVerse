@@ -15,6 +15,9 @@ class CS {
   static const String vFilterLanguage = "Filter by language";
   static const String vBestFor = "Best For";
   static const String vAge = "Age";
+  static const String vPts = "pts";
+  static const String vSmallest = "Smallest";
+  static const String vLargest = "Largest";
   static const String vSearchDot = "Search...";
   static const String vGender = "Gender";
   static const String vExplore = "Explore";
@@ -48,6 +51,9 @@ class CS {
   static const String vHideText = "Hide text";
   static const String vShowText = "Show text";
   static const String vPreferences = "Preferences";
+  static const String vChooseFont = "Choose a Font";
+  static const String vFonts = "Fonts";
+  static const String vTheme = "Theme";
   static const String vVoices = "Voices";
   static const String vPronunciations = "Pronunciations";
   static const String vSearch = "Search";
@@ -72,6 +78,10 @@ class CS {
   static String vAudioTextSynchronizer = "Audio Text Synchronizer";
   static String vAnErrorOccurred = "An error occurred";
   static String vConfirmDeletion = "Confirm deletion?";
+  static String vOpenSans = "OpenSans";
+  static String vInter = "Inter";
+  static String vLibreBaskerville = "Libre Baskerville";
+  static String vDummyChooseFontText = "The quick brown fox jumps over the lazy dog";
   static String vYouWillNoLonger = "You will no longer have this item in your library.";
   static String vYouCanAccessYourBookmark = "You can access your bookmark from this read's setting menu";
 
@@ -99,6 +109,10 @@ class CS {
   static String icLeftArrow = "assets/icons/left_arrow.png";
   static String icList = "assets/icons/list.png";
   static String icAiChat = "assets/icons/chat-ai.png";
+  static String imgSky = "assets/images/blue_theme.png";
+  static String imgFall = "assets/images/brown_theme.png";
+  static String imgHighlight = "assets/images/grey_theme.png";
+  static String imgClassic = "assets/images/light_theme.png";
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";
