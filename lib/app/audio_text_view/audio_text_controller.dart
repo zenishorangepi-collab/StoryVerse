@@ -29,11 +29,6 @@ class AudioTextController extends GetxController {
 
   List<ParagraphData> paragraphs = [];
 
-  // ------------------------------------------------------------
-  // Auto-scroll / UI
-  // ------------------------------------------------------------
-  final bool _isAutoScrolling = false;
-
   bool isHideText = false;
 
   int currentWordIndex = -1;
@@ -43,14 +38,6 @@ class AudioTextController extends GetxController {
   bool isScrolling = false;
   bool isAnimateAppBarText = false;
   bool suppressAutoScroll = false;
-
-  Timer? scrollStopTimer;
-
-  Timer? debounceTimer;
-  Timer? userScrollTimer;
-
-  // paragraph pixel offsets cache
-  final Map<int, double> paragraphOffsets = {};
 
   // ------------------------------------------------------------
   // Audio properties
@@ -204,42 +191,43 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   void _onCollapseScroll() {
     if (!scrollController.hasClients) return;
+    if (scrollController.position.isScrollingNotifier.value) {
+      isScrolling = true;
+      suppressAutoScroll = true;
 
-    // if (scrollController.position.isScrollingNotifier.value) {
-    //   isScrolling = true;
-    //   update();
-    // } else {
-    //   isScrolling = false;
-    //   update();
-    // }
+      // If you need collapse logic
+      isCollapsed = scrollController.offset > 60;
 
+      update(["scrollButton"]); // update only button
+    }
     final px = scrollController.position.pixels;
     if (px > 40 && !isCollapsed) {
       isCollapsed = true;
       update();
     } else if (px <= 40 && isCollapsed) {
       isCollapsed = false;
+
       update();
     }
   }
+
+  bool get showScrollButton => isScrolling && suppressAutoScroll;
 
   // ------------------------------------------------------------
   // Detect manual scroll
   // ------------------------------------------------------------
   void _onUserScroll() {
-    if (_isAutoScrolling || !scrollController.hasClients) return;
+    if (!scrollController.hasClients) return;
 
     // capture original behaviour: userScrollDirection used to decide debounce
     final direction = scrollController.position.userScrollDirection;
 
     if (direction != ScrollDirection.idle) {
       suppressAutoScroll = true;
-      userScrollTimer?.cancel();
-
-      userScrollTimer = Timer(Duration(milliseconds: direction == ScrollDirection.reverse ? 200 : 400), () {
-        suppressAutoScroll = false;
-        update();
-      });
+      update();
+    } else {
+      suppressAutoScroll = false;
+      update();
     }
   }
 
@@ -292,7 +280,7 @@ class AudioTextController extends GetxController {
       final offset = box.localToGlobal(Offset.zero).dy;
 
       scrollController.animateTo(
-        scrollController.offset + offset - 200, // Adjust padding as original
+        scrollController.offset, // Adjust padding as original
         duration: const Duration(milliseconds: 350),
         curve: Curves.easeInOut,
       );
@@ -417,52 +405,44 @@ class AudioTextController extends GetxController {
   // Playback Controls
   // ------------------------------------------------------------
   Future<void> play({bool isPositionScrollOnly = false}) async {
-    isScrolling = false;
-    update();
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
     if (_isPlaying) return;
 
-    if (isPositionScrollOnly) {
+    _operationInProgress = true;
+
+    try {
+      // If audio ended → reset position
+      if (_position >= _duration - 100) {
+        _position = 0;
+        _hasPlayedOnce = false;
+      }
+
+      // 🔥 IMPORTANT → Call seek() here (preserved logic)
       if (_position > 0) {
         _operationInProgress = false;
         await seek(_position, isPlay: true);
       }
-    } else {
-      _operationInProgress = true;
 
-      try {
-        // If audio ended → reset position
-        if (_position >= _duration - 100) {
-          _position = 0;
-          _hasPlayedOnce = false;
-        }
+      // First-time play
 
-        // 🔥 IMPORTANT → Call seek() here (preserved logic)
-        if (_position > 0) {
-          _operationInProgress = false;
-          await seek(_position, isPlay: true);
-        }
-
-        // First-time play
-        if (!_hasPlayedOnce) {
-          await audioPlayer.play(AssetSource(_audioUrl!));
-          _hasPlayedOnce = true;
-        }
-        // Resume
-        else {
-          await audioPlayer.resume();
-        }
-
-        _isPlaying = true;
-        _lastDriftCheck = DateTime.now();
-
-        update();
-      } catch (e) {
-        _error = 'Playback error: $e';
-        update();
-      } finally {
-        _operationInProgress = false;
+      if (!_hasPlayedOnce) {
+        await audioPlayer.play(AssetSource(_audioUrl!));
+        _hasPlayedOnce = true;
       }
+      // Resume
+      else {
+        await audioPlayer.resume();
+      }
+
+      _isPlaying = true;
+      _lastDriftCheck = DateTime.now();
+
+      update();
+    } catch (e) {
+      _error = 'Playback error: $e';
+      update();
+    } finally {
+      _operationInProgress = false;
     }
   }
 
@@ -502,7 +482,7 @@ class AudioTextController extends GetxController {
     _operationInProgress = true;
     _isSeeking = true;
 
-    suppressAutoScroll = true;
+    // suppressAutoScroll = true;
 
     try {
       _position = positionMs.clamp(0, _duration);
@@ -550,6 +530,7 @@ class AudioTextController extends GetxController {
     }
 
     _lastScrollTime = now;
+
     scrollToCurrentParagraph(index);
   }
 
@@ -641,10 +622,6 @@ class AudioTextController extends GetxController {
     _positionSubscription?.cancel();
     _stateSubscription?.cancel();
     _completionSubscription?.cancel();
-
-    debounceTimer?.cancel();
-    userScrollTimer?.cancel();
-    scrollStopTimer?.cancel();
 
     // safe dispose of scrollController
     try {

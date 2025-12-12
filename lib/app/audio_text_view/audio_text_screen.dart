@@ -133,37 +133,44 @@ class AudioTextScreen extends StatelessWidget {
                   ],
                 ),
 
-                if (controller.isScrolling)
-                  Positioned(
-                    right: 16,
-                    bottom: MediaQuery.of(context).size.height * 0.27,
-                    child: GestureDetector(
-                      onTap: () async {
-                        controller.isScrolling = false;
-                        await controller.play(isPositionScrollOnly: true);
-                        controller.update();
-                      },
-                      child: AnimatedOpacity(
-                        duration: Duration(milliseconds: 400),
-                        opacity: controller.isCollapsed ? 1 : 0,
-                        child: AnimatedSlide(
-                          duration: Duration(milliseconds: 400),
-                          curve: Curves.easeOut,
-                          offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.5),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                            decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Image.asset(CS.icList, color: AppColors.colorBlack, width: 12, height: 12),
-                                Image.asset(CS.icLeftArrow, color: AppColors.colorBlack, width: 4, height: 4),
-                              ],
+                if (controller.isScrolling && (controller.currentParagraphIndex != -1))
+                  GetBuilder<AudioTextController>(
+                    id: "scrollButton",
+                    builder: (controller) {
+                      return Positioned(
+                        right: 16,
+                        bottom: MediaQuery.of(context).size.height * 0.27,
+                        child: GestureDetector(
+                          onTap: () async {
+                            controller.isScrolling = false;
+                            controller.update(["scrollButton"]);
+                            await controller.play(isPositionScrollOnly: true);
+                          },
+                          child: AnimatedOpacity(
+                            duration: Duration(milliseconds: 400),
+                            opacity: controller.showScrollButton ? 1 : 0,
+                            child: AnimatedSlide(
+                              duration: Duration(milliseconds: 400),
+                              curve: Curves.easeOut,
+                              offset:
+                                  controller.showScrollButton
+                                      ? Offset(0, 0) // slides UP (visible)
+                                      : Offset(0, 0.5), // slides DOWN (hidden)
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                                decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+                                child: Row(
+                                  children: [
+                                    Image.asset(CS.icList, color: Colors.black, width: 12),
+                                    Image.asset(CS.icLeftArrow, color: Colors.black, width: 4),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
 
                 Positioned(
@@ -224,11 +231,17 @@ class AudioTextScreen extends StatelessWidget {
           onNotification: (notification) {
             // When user scrolls
             if (notification is ScrollUpdateNotification) {
-              if (!controller.isScrolling) {
+              // if (!controller.isScrolling) {
+              //   controller.isScrolling = true;
+              //   controller.update();
+              // }
+              if (controller.scrollController.position.isScrollingNotifier.value) {
                 controller.isScrolling = true;
                 controller.update();
+              } else {
+                controller.isScrolling = false;
+                controller.update();
               }
-
               // Reset timer on every scroll event
               // controller.scrollStopTimer?.cancel();
               // controller.scrollStopTimer = Timer(const Duration(milliseconds: 120), () {
