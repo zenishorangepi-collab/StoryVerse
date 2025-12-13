@@ -1,5 +1,6 @@
 class CS {
   /// String
+  static String vAppName = "Tera Novel";
   static String vPlay = "Play";
   static String vPause = "Pause";
   static String vSkip = "Skip";
@@ -80,16 +81,37 @@ class CS {
   static String vConfirmDeletion = "Confirm deletion?";
   static String vOpenSans = "OpenSans";
   static String vInter = "Inter";
+  static String vLogin = "Login";
+  static String vEmail = "Email";
+  static String vEnterYourEmail = "Enter your email";
+  static String vEmailIsRequired = "Email is required";
+  static String vEnterValidEmail = "Enter a valid email";
+  static String vPassword = "Password";
+  static String vGetStarted = "Get Started";
+  static String vNext = "Next";
+  static String vForgotPassword = "Forgot password?";
+  static String vPasswordRequired = "Password is required";
+  static String vEnterYourPassword = "Enter your password";
+  static String vContinueGuest = "Continue as Guest";
   static String vLibreBaskerville = "Libre Baskerville";
+  static String vContinueWithGoogle = "Continue with Google";
+  static String vContinueWithApple = "Continue with Apple";
+  static String vSignUpWithEmail = "Sign up with Email";
+  static String vLoginWithEmail = "Login with Email";
   static String vDummyChooseFontText = "The quick brown fox jumps over the lazy dog";
   static String vYouWillNoLonger = "You will no longer have this item in your library.";
   static String vYouCanAccessYourBookmark = "You can access your bookmark from this read's setting menu";
+  static String vAuthText = "Discover the perfect voice for every story. Listen to your favorite books, articles, and PDFs with stunningly natural voice AI.";
 
   /// images path
   static String imgSplashLogo = "assets/images/audio-waves.png";
   static String icSettings = "assets/icons/settings.png";
   static String icSearch = "assets/icons/search.png";
   static String icClose = "assets/icons/close.png";
+  static String icProfile = "assets/icons/profile.png";
+  static String icGoogle = "assets/icons/ic_google.png";
+  static String icAppleLogo = "assets/icons/apple-logo.png";
+  static String icMail = "assets/icons/mail.png";
   static String icShareLink = "assets/icons/share_link.png";
   static String icMusic = "assets/icons/music.png";
   static String icSleepTimer = "assets/icons/sleep_timer.png";

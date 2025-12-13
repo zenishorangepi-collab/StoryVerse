@@ -58,7 +58,7 @@ Widget buildActionBox({IconData? icon, String? assetPath, required String label,
 Widget commonCircleButton({
   required VoidCallback onTap,
 
-  required String iconPath,
+  String? iconPath,
   double iconSize = 15,
   double padding = 10,
   Color bgColor = AppColors.colorBgChipContainer,
@@ -69,7 +69,7 @@ Widget commonCircleButton({
     child: Container(
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(shape: BoxShape.circle, color: bgColor),
-      child: Image.asset(iconPath, height: iconSize, color: iconColor),
+      child: iconPath == null ? Icon(Icons.arrow_back_ios) : Image.asset(iconPath, height: iconSize, color: iconColor),
     ),
   );
 }
