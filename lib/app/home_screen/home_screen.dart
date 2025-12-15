@@ -6,6 +6,7 @@ import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
+import 'package:utsav_interview/routes/app_routes.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -62,46 +63,52 @@ class HomeScreen extends StatelessWidget {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            buildChip(icon: Icons.star, label: CS.vForYou),
-                            buildChip(icon: Icons.people, label: CS.vFollowing),
-                            buildChip(icon: Icons.history, label: CS.vRecents),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-                      commonHeadingText(CS.vUploadAndListen),
-                      const SizedBox(height: 14),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          buildActionBox(icon: Icons.edit, label: CS.vWriteText),
-                          buildActionBox(icon: Icons.upload_file, label: CS.vUploadFile),
-                          buildActionBox(icon: Icons.document_scanner, label: CS.vScanText),
-                          buildActionBox(icon: Icons.link, label: CS.vPasteLink),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      commonHeadingText(CS.vRecommendedCollection),
-                      const SizedBox(height: 14),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(children: controller.dummyCategoryList.map((item) => categoryCard(item)).toList()),
-                      ),
-                    ],
-                  ).screenPadding();
+                    children: List.generate(3, (index) {
+                      return bookHorizontalSection(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.bookDetailsScreen);
+                        },
+                        title: index == 1 ? "Love" : "Action",
+                        image: index == 1 ? CS.imgBookCover2 : CS.imgBookCover,
+                      );
+                    }),
+                  );
                 }, childCount: 1),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget bookHorizontalSection({required String title, required String image, int itemCount = 5, void Function()? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 25),
+          commonHeadingText(title).screenPadding(),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 250,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: itemCount,
+              separatorBuilder: (_, __) => const SizedBox(width: 20),
+              itemBuilder: (context, index) {
+                return Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [Image.asset(image), Text("A Million To One", style: AppTextStyles.bodyLargeGray14Bold)],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -83,12 +83,19 @@ class CS {
   static String vInter = "Inter";
   static String vLogin = "Login";
   static String vEmail = "Email";
+  static String vHome = "Home";
+  static String vLibrary = "Library";
+
   static String vEnterYourEmail = "Enter your email";
   static String vEmailIsRequired = "Email is required";
   static String vEnterValidEmail = "Enter a valid email";
   static String vPassword = "Password";
   static String vGetStarted = "Get Started";
   static String vNext = "Next";
+  static String vLength = "Length";
+  static String vSummary = "Summary";
+  static String vDetails = "Details";
+  static String vPublished = "Published";
   static String vForgotPassword = "Forgot password?";
   static String vPasswordRequired = "Password is required";
   static String vEnterYourPassword = "Enter your password";
@@ -135,6 +142,12 @@ class CS {
   static String imgFall = "assets/images/brown_theme.png";
   static String imgHighlight = "assets/images/grey_theme.png";
   static String imgClassic = "assets/images/light_theme.png";
+  static String imgBookCover = "assets/images/book_cover_img.png";
+  static String imgBookCover2 = "assets/images/bookcover2.png";
+
+  /// Pref Strings
+  static String keyIsLoginIn = "isLoggedIn";
+  static String keyUserData = "userData";
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

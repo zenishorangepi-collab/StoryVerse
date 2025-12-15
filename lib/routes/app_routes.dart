@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_binding.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_screen.dart';
 import 'package:utsav_interview/app/auth_options_view/authoptions_screen.dart';
+import 'package:utsav_interview/app/book_details_view/book_details_binding.dart';
+import 'package:utsav_interview/app/book_details_view/book_details_screen.dart';
 import 'package:utsav_interview/app/explor_view/explore_binding.dart';
 import 'package:utsav_interview/app/explor_view/explore_screen.dart';
 import 'package:utsav_interview/app/home_screen/home_binding.dart';
@@ -32,6 +34,7 @@ class AppRoutes {
   static String authOptionsScreen = "/authOptionsScreen";
   static String loginScreen = "/loginScreen";
   static String onboardingScreen = "/onboardingScreen";
+  static String bookDetailsScreen = "/bookDetailsScreen";
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
@@ -41,6 +44,7 @@ class AppRoutes {
     GetPage(name: authOptionsScreen, page: () => AuthOptionsScreen(), binding: AudioTextBinding()),
     GetPage(name: loginScreen, page: () => LoginScreen(), binding: LoginBinding()),
     GetPage(name: onboardingScreen, page: () => OnboardingScreen(), binding: OnboardingBinding()),
+    GetPage(name: bookDetailsScreen, page: () => BookDetailsScreen(), binding: BookDetailsBinding()),
 
     GetPage(
       name: voiceScreen,

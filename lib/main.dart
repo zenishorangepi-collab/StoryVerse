@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/pref.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
 import 'firebase_options.dart';
@@ -14,7 +15,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  await AppPrefs.init();
   runApp(const AudioHighlighterApp());
 }
 

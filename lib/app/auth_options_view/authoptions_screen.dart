@@ -9,7 +9,6 @@ import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
-import 'package:utsav_interview/routes/app_routes.dart';
 
 class AuthOptionsScreen extends StatelessWidget {
   const AuthOptionsScreen({super.key});
@@ -41,7 +40,7 @@ class AuthOptionsScreen extends StatelessWidget {
                 icon: Image.asset(CS.icGoogle, height: 20),
                 label: Text(CS.vContinueWithGoogle, style: AppTextStyles.bodyLarge),
                 onPressed: () async {
-                  await GoogleSignInService.signInWithGoogle();
+                  await GoogleSignInService.signInWithGoogle(context);
                 },
                 // onPressed: () => controller.signInWithGoogle(),
               ),
@@ -69,7 +68,7 @@ class AuthOptionsScreen extends StatelessWidget {
                 icon: Image.asset(CS.icProfile, height: 20),
                 label: Text(CS.vContinueGuest, style: AppTextStyles.bodyLarge),
                 onPressed: () async {
-                  await controller.signInAsGuest();
+                  await controller.signInAsGuest(context);
                 },
                 // onPressed: () => controller.signInWithGoogle(),
               ),
