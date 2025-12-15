@@ -58,6 +58,8 @@ class AppTextStyles {
 
   // grey
   static TextStyle bodyLargeGray = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorGrey);
+  static TextStyle bodyLargeGray500 = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorGrey);
+  static TextStyle bodyLargeGray14Bold = GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.colorGrey);
   static TextStyle bodyMediumGrey = GoogleFonts.inter(fontSize: 14, color: AppColors.colorGrey);
   static TextStyle bodySmallGrey = GoogleFonts.inter(fontSize: 12, color: AppColors.colorGrey);
 
@@ -68,6 +70,7 @@ class AppTextStyles {
   /// BUTTON TEXT
   static TextStyle buttonTextWhite = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
   static TextStyle buttonTextBlack = GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
+  static TextStyle buttonTextBlack18 = GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
   static TextStyle buttonTextBlack14 = GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
 
   /// TabBar Text

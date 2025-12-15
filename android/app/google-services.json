@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "307426584956",
+    "firebase_url": "https://storyverse-db8a5-default-rtdb.firebaseio.com",
+    "project_id": "storyverse-db8a5",
+    "storage_bucket": "storyverse-db8a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:307426584956:android:6a79375ea790781f6d5cf9",
+        "android_client_info": {
+          "package_name": "com.storyverse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "307426584956-kjuk1k5d10e5tob7qljoiqighej5h8uc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.storyverse",
+            "certificate_hash": "8325d3d57d552d3710de5d0c4457e8561cf77164"
+          }
+        },
+        {
+          "client_id": "307426584956-1d2nnjnjndnfo76b07l536t8e5h6rfcv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCecUzz1Xi86xemWjur1Kwbf8W1pvP6d4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "307426584956-1d2nnjnjndnfo76b07l536t8e5h6rfcv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "307426584956-p7b0i32sq36dom6h4dgmsc9r3hm65m1k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.storyverse"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

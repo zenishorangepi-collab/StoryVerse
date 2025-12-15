@@ -11,7 +11,7 @@ extension CommonPaddingHorizontal on Widget {
 }
 
 Widget commonHeadingText(String text) {
-  return Text(text, style: AppTextStyles.heading4);
+  return Text(text, style: AppTextStyles.heading3);
 }
 
 Widget buildChip({IconData? icon, String? label, Function()? onTap}) {
@@ -58,9 +58,11 @@ Widget buildActionBox({IconData? icon, String? assetPath, required String label,
 Widget commonCircleButton({
   required VoidCallback onTap,
 
-  required String iconPath,
+  String? iconPath,
   double iconSize = 15,
   double padding = 10,
+  bool isBackButton = true,
+  Widget? icon,
   Color bgColor = AppColors.colorBgChipContainer,
   Color iconColor = AppColors.colorWhite,
 }) {
@@ -69,7 +71,12 @@ Widget commonCircleButton({
     child: Container(
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(shape: BoxShape.circle, color: bgColor),
-      child: Image.asset(iconPath, height: iconSize, color: iconColor),
+      child:
+          iconPath == null
+              ? isBackButton
+                  ? Icon(Icons.arrow_back_ios, color: iconColor).paddingOnly(left: 8)
+                  : icon
+              : Image.asset(iconPath, height: iconSize, color: iconColor),
     ),
   );
 }

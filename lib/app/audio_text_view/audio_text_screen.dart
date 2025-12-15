@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -124,7 +125,7 @@ class AudioTextScreen extends StatelessWidget {
                     /// -------------------------
                     /// 🔵 Transcript List (Slivers)
                     /// -------------------------
-                    Expanded(child: _buildTranscriptView(controller)),
+                    Expanded(child: _buildTranscriptView(context, controller)),
 
                     /// -------------------------
                     /// 🔵 slider, play button, other settings
@@ -218,7 +219,7 @@ class AudioTextScreen extends StatelessWidget {
   }
 
   /// new
-  Widget _buildTranscriptView(AudioTextController controller) {
+  Widget _buildTranscriptView(context, AudioTextController controller) {
     final paragraphs = controller.transcript?.paragraphs;
 
     if (paragraphs == null) {
@@ -226,7 +227,28 @@ class AudioTextScreen extends StatelessWidget {
     }
 
     return controller.isHideText
-        ? Container(color: AppColors.colorGrey)
+        ? Column(
+          children: [
+            Column(
+              children: [
+                Image.asset(
+                  height: MediaQuery.of(context).size.height / 1.8,
+                  width: MediaQuery.of(context).size.width,
+                  CS.imgBookCover2, // your image
+                  fit: BoxFit.cover,
+                ),
+              ],
+            ),
+
+            /// 🔹 Blur Effect
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                color: AppColors.colorBgGray02.withOpacity(0.4), // dark overlay
+              ),
+            ),
+          ],
+        )
         : NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             // When user scrolls
