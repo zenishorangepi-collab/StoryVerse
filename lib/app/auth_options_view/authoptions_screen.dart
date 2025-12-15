@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/auth_options_view/authoptions_controller.dart';
+import 'package:utsav_interview/app/auth_options_view/service/auth_service.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -40,7 +41,7 @@ class AuthOptionsScreen extends StatelessWidget {
                 icon: Image.asset(CS.icGoogle, height: 20),
                 label: Text(CS.vContinueWithGoogle, style: AppTextStyles.bodyLarge),
                 onPressed: () async {
-                  await AuthService().signInWithGoogleFirebase();
+                  await GoogleSignInService.signInWithGoogle();
                 },
                 // onPressed: () => controller.signInWithGoogle(),
               ),
@@ -72,23 +73,23 @@ class AuthOptionsScreen extends StatelessWidget {
                 },
                 // onPressed: () => controller.signInWithGoogle(),
               ),
-              ElevatedButton(
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 52),
-                  elevation: 0,
-                  overlayColor: AppColors.colorTransparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-
-                  backgroundColor: AppColors.colorBgChipContainer,
-                ),
-
-                onPressed: () {
-                  Get.toNamed(AppRoutes.loginScreen);
-                },
-                child: Text(CS.vLogin, style: AppTextStyles.buttonTextWhite),
-
-                // onPressed: () => controller.signInWithGoogle(),
-              ),
+              // ElevatedButton(
+              //   style: OutlinedButton.styleFrom(
+              //     minimumSize: const Size(double.infinity, 52),
+              //     elevation: 0,
+              //     overlayColor: AppColors.colorTransparent,
+              //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              //
+              //     backgroundColor: AppColors.colorBgChipContainer,
+              //   ),
+              //
+              //   onPressed: () {
+              //     Get.toNamed(AppRoutes.loginScreen);
+              //   },
+              //   child: Text(CS.vLogin, style: AppTextStyles.buttonTextWhite),
+              //
+              //   // onPressed: () => controller.signInWithGoogle(),
+              // ),
             ],
           ).screenPadding();
         },
