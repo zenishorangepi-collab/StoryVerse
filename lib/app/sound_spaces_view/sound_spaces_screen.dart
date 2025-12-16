@@ -26,7 +26,7 @@ class SoundSpacesScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(CS.vSoundScapes, style: AppTextStyles.heading2),
+                  Text(CS.vSoundScapes, style: AppTextStyles.heading24WhiteMedium),
 
                   commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                 ],
@@ -41,7 +41,7 @@ class SoundSpacesScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              Text(CS.vSoundscapeVolume, style: AppTextStyles.bodyLargeGray).screenPadding(),
+              Text(CS.vSoundscapeVolume, style: AppTextStyles.body16GreyBold).screenPadding(),
               SizedBox(height: 20),
 
               Slider(
@@ -59,7 +59,7 @@ class SoundSpacesScreen extends StatelessWidget {
                 },
               ).screenPadding(),
               SizedBox(height: 25),
-              Text(CS.vAllSoundscape, style: AppTextStyles.bodyLargeGray).screenPadding(),
+              Text(CS.vAllSoundscape, style: AppTextStyles.body16GreyBold).screenPadding(),
               SizedBox(height: 10),
               Expanded(
                 child:
@@ -83,7 +83,7 @@ class SoundSpacesScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(25), // rounded
                               ),
                             ),
-                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyMediumBold),
+                            title: Text("Turn off soundscapces", style: AppTextStyles.body14WhiteBold),
                             trailing: controller.selectedTile == index ? Icon(Icons.check_circle_rounded, color: AppColors.colorWhite) : null,
                           ).paddingOnly(bottom: 6),
                         );
@@ -95,7 +95,7 @@ class SoundSpacesScreen extends StatelessWidget {
                 spacing: 15,
                 children: [
                   Expanded(
-                    child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorBgChipContainer, textStyle: AppTextStyles.buttonTextWhite),
+                    child: CommonElevatedButton(title: CS.vReset, backgroundColor: AppColors.colorChipBackground, textStyle: AppTextStyles.button16WhiteBold),
                   ),
                   Expanded(child: CommonElevatedButton(title: CS.vSave)),
                 ],

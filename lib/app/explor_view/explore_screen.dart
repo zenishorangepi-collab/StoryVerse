@@ -8,10 +8,6 @@ class ExploreScreen extends GetView<ExploreScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text("Coming Soon...", style: AppTextStyles.heading1),
-      ),
-    );
+    return Scaffold(body: Center(child: Text("Coming Soon...", style: AppTextStyles.heading28WhiteBold)));
   }
 }

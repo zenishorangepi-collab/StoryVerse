@@ -1,8 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/tabbar_screen/user_data_model.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
+
+UserModel? userData;
 
 class TabBarScreenController extends GetxController {
   int currentIndex = 0;
@@ -14,19 +18,24 @@ class TabBarScreenController extends GetxController {
     update();
   }
 
-  Map<String, dynamic>? getUserFromPrefs() {
-    final userJson = AppPrefs.getString(CS.keyUserData);
+  UserModel? getUserFromPrefs() {
+    final String? userJson = AppPrefs.getString(CS.keyUserData);
 
-    if (userJson.isEmpty) return null;
+    if (userJson == null || userJson.isEmpty) return null;
 
-    return jsonDecode(userJson) as Map<String, dynamic>;
+    try {
+      return UserModel.fromMap(jsonDecode(userJson));
+    } catch (e) {
+      debugPrint('User parse error: $e');
+      return null;
+    }
   }
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    final auth = getUserFromPrefs();
-    print(auth);
+    userData = getUserFromPrefs();
+    print(userData);
   }
 }

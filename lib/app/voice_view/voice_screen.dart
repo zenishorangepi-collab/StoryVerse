@@ -32,7 +32,7 @@ class VoiceScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: Text(CS.vSelectVoice, style: AppTextStyles.heading2)),
+                      Expanded(child: Text(CS.vSelectVoice, style: AppTextStyles.heading24WhiteMedium)),
 
                       Row(
                         spacing: 10,
@@ -78,8 +78,8 @@ class VoiceScreen extends StatelessWidget {
                               backgroundColor: Colors.white24,
                               child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 40, width: 40)),
                             ),
-                            title: Text("Turn off soundscapces", style: AppTextStyles.bodyMediumBold, maxLines: 2, overflow: TextOverflow.ellipsis),
-                            subtitle: Text("subtitle", style: AppTextStyles.bodyMediumGrey),
+                            title: Text("Turn off soundscapces", style: AppTextStyles.body14WhiteBold, maxLines: 2, overflow: TextOverflow.ellipsis),
+                            subtitle: Text("subtitle", style: AppTextStyles.body14GreyRegular),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min, // REQUIRED
                               children: const [
@@ -100,8 +100,8 @@ class VoiceScreen extends StatelessWidget {
                       Expanded(
                         child: CommonElevatedButton(
                           title: CS.vReset,
-                          backgroundColor: AppColors.colorBgChipContainer,
-                          textStyle: AppTextStyles.buttonTextWhite,
+                          backgroundColor: AppColors.colorChipBackground,
+                          textStyle: AppTextStyles.button16WhiteBold,
                         ),
                       ),
                       Expanded(child: CommonElevatedButton(title: CS.vSave)),
@@ -156,13 +156,13 @@ class VoiceScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.colorDialogHeaderGray,
+                  color: AppColors.colorDialogHeader,
                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(CS.vFilters, style: AppTextStyles.heading3),
+                    Text(CS.vFilters, style: AppTextStyles.heading20WhiteSemiBold),
                     commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                   ],
                 ),
@@ -174,7 +174,7 @@ class VoiceScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 20),
-                      Text(CS.vShortBy, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vShortBy, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       SizedBox(height: 10),
                       Wrap(
                         spacing: 10,
@@ -219,7 +219,7 @@ class VoiceScreen extends StatelessWidget {
                         ],
                       ).screenPadding(),
                       SizedBox(height: 20),
-                      Text(CS.vLanguage, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vLanguage, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       SizedBox(height: 10),
                       GestureDetector(
                         onTap: () async {
@@ -239,19 +239,19 @@ class VoiceScreen extends StatelessWidget {
                                 leading:
                                     controller.selectedFlag == null
                                         ? Icon(Icons.language, color: AppColors.colorWhite)
-                                        : Text(controller.selectedFlag ?? "", style: AppTextStyles.heading3),
-                                title: Text(controller.selectedLang ?? CS.vFilterLanguage, style: AppTextStyles.bodyLarge),
+                                        : Text(controller.selectedFlag ?? "", style: AppTextStyles.heading20WhiteSemiBold),
+                                title: Text(controller.selectedLang ?? CS.vFilterLanguage, style: AppTextStyles.body16WhiteBold),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.center,
 
-                                  children: [Text("32", style: AppTextStyles.bodyMediumGrey), Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey)],
+                                  children: [Text("32", style: AppTextStyles.body14GreyRegular), Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey)],
                                 ),
                               ),
                             ).screenPadding(),
                       ),
                       SizedBox(height: 20),
-                      Text(CS.vBestFor, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vBestFor, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       SizedBox(height: 10),
                       Wrap(
                         spacing: 10,
@@ -278,7 +278,7 @@ class VoiceScreen extends StatelessWidget {
                       ).screenPadding(),
 
                       SizedBox(height: 20),
-                      Text(CS.vAge, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vAge, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       SizedBox(height: 10),
                       Wrap(
                         spacing: 10,
@@ -323,7 +323,7 @@ class VoiceScreen extends StatelessWidget {
                         ],
                       ).screenPadding(),
                       SizedBox(height: 20),
-                      Text(CS.vGender, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vGender, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       SizedBox(height: 10),
                       Wrap(
                         spacing: 10,
@@ -375,8 +375,8 @@ class VoiceScreen extends StatelessWidget {
                             flex: 1,
                             child: CommonElevatedButton(
                               title: CS.vReset,
-                              backgroundColor: AppColors.colorBgChipContainer,
-                              textStyle: AppTextStyles.buttonTextWhite,
+                              backgroundColor: AppColors.colorChipBackground,
+                              textStyle: AppTextStyles.button16WhiteBold,
                             ),
                           ),
                           Expanded(flex: 2, child: CommonElevatedButton(title: CS.vSaveSettings)),
@@ -414,7 +414,7 @@ class VoiceScreen extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
         decoration: BoxDecoration(color: isSelected ? AppColors.colorWhite : bgColor, borderRadius: BorderRadius.circular(radius)),
-        child: Text(text, style: textStyle ?? (isSelected ? AppTextStyles.buttonTextBlack14 : AppTextStyles.bodyMediumBold)),
+        child: Text(text, style: textStyle ?? (isSelected ? AppTextStyles.button14BlackBold : AppTextStyles.body14WhiteBold)),
       ),
     );
   }

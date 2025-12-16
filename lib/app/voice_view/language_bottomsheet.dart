@@ -96,13 +96,13 @@ class _LanguageBottomSheetState extends State<_LanguageBottomSheet> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.colorDialogHeaderGray,
+                color: AppColors.colorDialogHeader,
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(CS.vFilters, style: AppTextStyles.heading3),
+                  Text(CS.vFilters, style: AppTextStyles.heading20WhiteSemiBold),
                   commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                 ],
               ),
@@ -136,7 +136,7 @@ class _LanguageBottomSheetState extends State<_LanguageBottomSheet> {
                     contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     shape: Border(bottom: BorderSide(color: AppColors.colorBgWhite10, width: 0.5)),
                     leading: Text(lang["flag"]!, style: TextStyle(fontSize: 22)),
-                    title: Text(lang["name"]!, style: AppTextStyles.bodyLarge),
+                    title: Text(lang["name"]!, style: AppTextStyles.body16WhiteBold),
                     trailing: isSelected ? Icon(Icons.check_circle, color: AppColors.colorWhite) : null,
                     onTap: () {
                       Navigator.pop(context, {"name": lang["name"]!, "flag": lang["flag"]!});

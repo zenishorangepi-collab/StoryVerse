@@ -64,53 +64,58 @@ class BookDetailsScreen extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
-                      Center(child: Text('Princess of Amazon', style: AppTextStyles.heading3)),
+                      Center(child: Text('Princess of Amazon', style: AppTextStyles.heading20WhiteSemiBold)),
 
                       const SizedBox(height: 4),
 
-                      Center(child: Text('by Alan Mitchell', style: AppTextStyles.bodyLarge)),
+                      Center(child: Text('by Alan Mitchell', style: AppTextStyles.body16WhiteBold)),
                       const SizedBox(height: 30),
                       Container(
                         padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: AppColors.colorBgChipContainer),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: AppColors.colorChipBackground),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Expanded(
-                              child: Column(children: [Text(CS.vLength, style: AppTextStyles.bodyLargeGray500), Text("22m", style: AppTextStyles.bodyLarge)]),
+                              child: Column(
+                                children: [Text(CS.vLength, style: AppTextStyles.body16GreyMedium), Text("22m", style: AppTextStyles.body16WhiteBold)],
+                              ),
                             ),
                             Container(color: AppColors.colorBgWhite10, height: 50, width: 2),
                             Expanded(
                               child: Column(
-                                children: [Text(CS.vPublished, style: AppTextStyles.bodyLargeGray500), Text("Oct 28,2025", style: AppTextStyles.bodyLarge)],
+                                children: [
+                                  Text(CS.vPublished, style: AppTextStyles.body16GreyMedium),
+                                  Text("Oct 28,2025", style: AppTextStyles.body16WhiteBold),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text(CS.vSummary, style: AppTextStyles.bodyLarge),
+                      Text(CS.vSummary, style: AppTextStyles.body16WhiteBold),
                       const SizedBox(height: 5),
-                      Text("er dgdjfbiv djufh bhdifh bidhfibh diojkfhb dhfijkbh dfbhdoubfhi dhfibh dikohfbiodio", style: AppTextStyles.bodySmallGrey),
+                      Text("er dgdjfbiv djufh bhdifh bidhfibh diojkfhb dhfijkbh dfbhdoubfhi dhfibh dikohfbiodio", style: AppTextStyles.body12GreyRegular),
                       const SizedBox(height: 20),
-                      Text(CS.vDetails, style: AppTextStyles.bodyLarge),
+                      Text(CS.vDetails, style: AppTextStyles.body16WhiteBold),
                       const SizedBox(height: 5),
                       Row(
                         children: [
-                          Expanded(child: Text(CS.vLength, style: AppTextStyles.bodyMediumGrey)),
-                          Expanded(flex: 2, child: Text("2 mins", style: AppTextStyles.bodyMediumBold)),
+                          Expanded(child: Text(CS.vLength, style: AppTextStyles.body14GreyRegular)),
+                          Expanded(flex: 2, child: Text("2 mins", style: AppTextStyles.body14WhiteBold)),
                         ],
                       ),
                       Row(
                         children: [
-                          Expanded(child: Text(CS.vPublished, style: AppTextStyles.bodyMediumGrey)),
-                          Expanded(flex: 2, child: Text("Oct 28, 2025", style: AppTextStyles.bodyMediumBold)),
+                          Expanded(child: Text(CS.vPublished, style: AppTextStyles.body14GreyRegular)),
+                          Expanded(flex: 2, child: Text("Oct 28, 2025", style: AppTextStyles.body14WhiteBold)),
                         ],
                       ),
                       Row(
                         children: [
-                          Expanded(child: Text(CS.vLanguage, style: AppTextStyles.bodyMediumGrey)),
-                          Expanded(flex: 2, child: Text("English", style: AppTextStyles.bodyMediumBold)),
+                          Expanded(child: Text(CS.vLanguage, style: AppTextStyles.body14GreyRegular)),
+                          Expanded(flex: 2, child: Text("English", style: AppTextStyles.body14WhiteBold)),
                         ],
                       ),
                     ],
@@ -126,7 +131,9 @@ class BookDetailsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 commonCircleButton(
-                  onTap: () {},
+                  onTap: () {
+                    Get.back();
+                  },
                   padding: 8,
                   icon: Icon(Icons.arrow_back_ios, color: AppColors.colorWhite, size: 18).paddingOnly(left: 6),
                   isBackButton: false,

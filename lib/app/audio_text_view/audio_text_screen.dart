@@ -35,156 +35,157 @@ class AudioTextScreen extends StatelessWidget {
             ),
           );
         }
-        return SafeArea(
-          child: Scaffold(
-            backgroundColor: AppColors.colorBlack,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(80),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                height: 70,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.only(right: 10, left: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.colorBlack,
-                  boxShadow: [
-                    BoxShadow(
-                      color: controller.isCollapsed ? AppColors.colorBlack : AppColors.colorTransparent,
-                      blurRadius: 50,
-                      spreadRadius: 20,
-                      offset: Offset(0, 30),
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  spacing: 16,
-                  // alignment: Alignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    /// --- TOP ROW (Back + Icons) ---
-                    GestureDetector(onTap: () => Get.back(), child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite)),
-
-                    Expanded(
-                      child: AnimatedOpacity(
-                        duration: Duration(milliseconds: 400),
-                        opacity: controller.isCollapsed ? 1 : 0,
-                        child: AnimatedSlide(
-                          duration: Duration(milliseconds: 400),
-                          curve: Curves.easeOut,
-                          offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 14),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(CS.vAudioTextSynchronizer, style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis),
-                                Text("Subtitle text", style: AppTextStyles.bodyMediumGrey, overflow: TextOverflow.ellipsis),
-                              ],
-                            ),
+        return Scaffold(
+          backgroundColor: AppColors.colorBlack,
+          appBar:
+              controller.isHideText
+                  ? null
+                  : PreferredSize(
+                    preferredSize: const Size.fromHeight(80),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      height: 85,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.only(right: 10, left: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.colorBlack,
+                        boxShadow: [
+                          BoxShadow(
+                            color: controller.isCollapsed ? AppColors.colorBlack : AppColors.colorTransparent,
+                            blurRadius: 50,
+                            spreadRadius: 20,
+                            offset: Offset(0, 30),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
 
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.file_upload_outlined),
-                          color: AppColors.colorWhite,
-                          onPressed: () {
-                            openShareSheet(context);
-                          },
-                        ),
+                      child: Row(
+                        spacing: 16,
+                        // alignment: Alignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          /// --- TOP ROW (Back + Icons) ---
+                          GestureDetector(
+                            onTap: () => Get.back(),
+                            child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite),
+                          ).paddingOnly(bottom: 15),
 
-                        IconButton(
-                          icon: Icon(Icons.more_horiz),
-                          color: AppColors.colorWhite,
-                          onPressed: () {
-                            openAudioTextSettingSheet(context);
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            body: Stack(
-              children: [
-                Column(
-                  children: [
-                    if (controller.isLoading) const LinearProgressIndicator(),
-
-                    if (controller.error != null)
-                      Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
-
-                    /// -------------------------
-                    /// 🔵 Transcript List (Slivers)
-                    /// -------------------------
-                    Expanded(child: _buildTranscriptView(context, controller)),
-
-                    /// -------------------------
-                    /// 🔵 slider, play button, other settings
-                    /// -------------------------
-                    _buildControlPanel(context, controller),
-                  ],
-                ),
-
-                if (controller.isScrolling && (controller.currentParagraphIndex != -1))
-                  GetBuilder<AudioTextController>(
-                    id: "scrollButton",
-                    builder: (controller) {
-                      return Positioned(
-                        right: 18,
-                        bottom: MediaQuery.of(context).size.height * 0.28,
-                        child: GestureDetector(
-                          onTap: () async {
-                            controller.isScrolling = false;
-                            controller.update(["scrollButton"]);
-                            await controller.play(isPositionScrollOnly: true);
-                          },
-                          child: AnimatedOpacity(
-                            duration: Duration(milliseconds: 400),
-                            opacity: controller.showScrollButton ? 1 : 0,
-                            child: AnimatedSlide(
+                          Expanded(
+                            child: AnimatedOpacity(
                               duration: Duration(milliseconds: 400),
-                              curve: Curves.easeOut,
-                              offset:
-                                  controller.showScrollButton
-                                      ? Offset(0, 0) // slides UP (visible)
-                                      : Offset(0, 0.5), // slides DOWN (hidden)
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                                decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
-                                child: Row(
-                                  children: [
-                                    Image.asset(CS.icList, color: Colors.black, width: 12),
-                                    Image.asset(CS.icLeftArrow, color: Colors.black, width: 4),
-                                  ],
+                              opacity: controller.isCollapsed ? 1 : 0,
+                              child: AnimatedSlide(
+                                duration: Duration(milliseconds: 400),
+                                curve: Curves.easeOut,
+                                offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 35),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(CS.vAudioTextSynchronizer, style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis),
+                                      Text("Subtitle text", style: AppTextStyles.body14GreyRegular, overflow: TextOverflow.ellipsis),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.file_upload_outlined),
+                                color: AppColors.colorWhite,
+                                onPressed: () {
+                                  openShareSheet(context);
+                                },
+                              ),
+
+                              IconButton(
+                                icon: Icon(Icons.more_horiz),
+                                color: AppColors.colorWhite,
+                                onPressed: () {
+                                  openAudioTextSettingSheet(context);
+                                },
+                              ),
+                            ],
+                          ).paddingOnly(bottom: 5),
+                        ],
+                      ),
+                    ),
                   ),
 
-                Positioned(
-                  right: 14,
-                  bottom: MediaQuery.of(context).size.height * 0.22,
-                  child: Container(
-                    padding: EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
-                    child: Image.asset(CS.icAiChat, color: AppColors.colorBlack, width: 18, height: 18),
-                  ),
+          body: Stack(
+            children: [
+              Column(
+                children: [
+                  if (controller.isLoading) const LinearProgressIndicator(),
+
+                  if (controller.error != null)
+                    Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
+
+                  /// -------------------------
+                  /// 🔵 Transcript List (Slivers)
+                  /// -------------------------
+                  Expanded(child: _buildTranscriptView(context, controller)),
+
+                  /// -------------------------
+                  /// 🔵 slider, play button, other settings
+                  /// -------------------------
+                  _buildControlPanel(context, controller),
+                ],
+              ),
+
+              if (controller.isScrolling && (controller.currentParagraphIndex != -1))
+                GetBuilder<AudioTextController>(
+                  id: "scrollButton",
+                  builder: (controller) {
+                    return Positioned(
+                      right: 18,
+                      bottom: MediaQuery.of(context).size.height * 0.28,
+                      child: GestureDetector(
+                        onTap: () async {
+                          controller.isScrolling = false;
+                          controller.update(["scrollButton"]);
+                          await controller.play(isPositionScrollOnly: true);
+                        },
+                        child: AnimatedOpacity(
+                          duration: Duration(milliseconds: 400),
+                          opacity: controller.showScrollButton ? 1 : 0,
+                          child: AnimatedSlide(
+                            duration: Duration(milliseconds: 400),
+                            curve: Curves.easeOut,
+                            offset:
+                                controller.showScrollButton
+                                    ? Offset(0, 0) // slides UP (visible)
+                                    : Offset(0, 0.5), // slides DOWN (hidden)
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                              decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+                              child: Row(
+                                children: [Image.asset(CS.icList, color: Colors.black, width: 12), Image.asset(CS.icLeftArrow, color: Colors.black, width: 4)],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+
+              Positioned(
+                right: 14,
+                bottom: MediaQuery.of(context).size.height * 0.22,
+                child: Container(
+                  padding: EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+                  child: Image.asset(CS.icAiChat, color: AppColors.colorBlack, width: 18, height: 18),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -227,26 +228,53 @@ class AudioTextScreen extends StatelessWidget {
     }
 
     return controller.isHideText
-        ? Column(
+        ? Stack(
           children: [
-            Column(
-              children: [
-                Image.asset(
-                  height: MediaQuery.of(context).size.height / 1.8,
-                  width: MediaQuery.of(context).size.width,
-                  CS.imgBookCover2, // your image
-                  fit: BoxFit.cover,
-                ),
-              ],
-            ),
-
             /// 🔹 Blur Effect
+            Image.asset(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              CS.imgBookCover2, // your image
+              fit: BoxFit.cover,
+            ),
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
                 color: AppColors.colorBgGray02.withOpacity(0.4), // dark overlay
               ),
             ),
+
+            Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset(CS.imgBookCover2, height: 260))),
+            Row(
+              spacing: 16,
+              // alignment: Alignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                /// --- TOP ROW (Back + Icons) ---
+                GestureDetector(onTap: () => Get.back(), child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite)).screenPadding(),
+
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.file_upload_outlined),
+                      color: AppColors.colorWhite,
+                      onPressed: () {
+                        openShareSheet(context);
+                      },
+                    ),
+
+                    IconButton(
+                      icon: Icon(Icons.more_horiz),
+                      color: AppColors.colorWhite,
+                      onPressed: () {
+                        openAudioTextSettingSheet(context);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ).paddingOnly(right: 10, top: 35),
           ],
         )
         : NotificationListener<ScrollNotification>(
@@ -369,9 +397,9 @@ class AudioTextScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
             child: Row(
               children: [
-                Text(controller.formatTime(controller.position), style: AppTextStyles.bodySmallGrey),
+                Text(controller.formatTime(controller.position), style: AppTextStyles.body12GreyRegular),
                 const Spacer(),
-                Text(controller.formatTime(controller.duration), style: AppTextStyles.bodySmallGrey),
+                Text(controller.formatTime(controller.duration), style: AppTextStyles.body12GreyRegular),
               ],
             ),
           ),
@@ -415,7 +443,7 @@ class AudioTextScreen extends StatelessWidget {
                   onTap: () {
                     openSpeedControlSheet(context);
                   },
-                  child: Text("${formatSpeed(controller.currentSpeed)}x", style: AppTextStyles.bodyLargeWhite16),
+                  child: Text("${formatSpeed(controller.currentSpeed)}x", style: AppTextStyles.body16WhiteRegular),
                 ),
                 const SizedBox(width: 16),
               ],
@@ -514,7 +542,7 @@ class AudioTextScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(CS.vContents, style: AppTextStyles.heading4500White18),
+          Text(CS.vContents, style: AppTextStyles.heading18WhiteMedium),
           commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
         ],
       ),
@@ -530,13 +558,13 @@ class AudioTextScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Chapter 1: The Peace", style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
+            Text("Chapter 1: The Peace", style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
             const SizedBox(height: 25),
 
-            Text("Chapter 2: The Night", style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
+            Text("Chapter 2: The Night", style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
             const SizedBox(height: 25),
 
-            Text("Chapter 3: The Morning", style: AppTextStyles.bodyLarge16white500, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
+            Text("Chapter 3: The Morning", style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis).paddingSymmetric(horizontal: 20),
 
             const SizedBox(height: 25),
           ],
@@ -606,13 +634,13 @@ class AudioTextScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.colorDialogHeaderGray,
+        color: AppColors.colorDialogHeader,
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("${CS.vReadingSpeed} : ${formatSpeed(controller.currentSpeed)}x", style: AppTextStyles.heading4),
+          Text("${CS.vReadingSpeed} : ${formatSpeed(controller.currentSpeed)}x", style: AppTextStyles.heading18WhiteSemiBold),
           commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
         ],
       ),
@@ -658,10 +686,10 @@ class AudioTextScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("0.25x", style: AppTextStyles.bodyMedium),
-        Text("1.0x", style: AppTextStyles.bodyMedium),
-        Text("2.0x", style: AppTextStyles.bodyMedium),
-        Text("3.0x", style: AppTextStyles.bodyMedium),
+        Text("0.25x", style: AppTextStyles.body14Regular),
+        Text("1.0x", style: AppTextStyles.body14Regular),
+        Text("2.0x", style: AppTextStyles.body14Regular),
+        Text("3.0x", style: AppTextStyles.body14Regular),
       ],
     ).paddingSymmetric(horizontal: 25);
   }
@@ -721,7 +749,7 @@ class AudioTextScreen extends StatelessWidget {
         onPressed: () {
           Get.back();
         },
-        child: Text(CS.vSaveSettings, style: AppTextStyles.buttonTextBlack),
+        child: Text(CS.vSaveSettings, style: AppTextStyles.button16BlackBold),
       ),
     ).paddingSymmetric(horizontal: 25);
   }
@@ -760,7 +788,7 @@ class AudioTextScreen extends StatelessWidget {
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 decoration: BoxDecoration(
-                  color: AppColors.colorBgChipContainer,
+                  color: AppColors.colorChipBackground,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 4))],
                 ),
@@ -768,11 +796,11 @@ class AudioTextScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(CS.vBookmarkSaved, style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 16),
+                    Text(CS.vBookmarkSaved, style: AppTextStyles.body16WhiteBold).paddingSymmetric(horizontal: 16),
 
                     const SizedBox(height: 5),
 
-                    Text(CS.vYouCanAccessYourBookmark, style: AppTextStyles.bodyMediumGrey).paddingSymmetric(horizontal: 16),
+                    Text(CS.vYouCanAccessYourBookmark, style: AppTextStyles.body14GreyRegular).paddingSymmetric(horizontal: 16),
 
                     Divider(),
 
@@ -780,7 +808,7 @@ class AudioTextScreen extends StatelessWidget {
                       onTap: () => _openAddNoteSheet(context),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Icon(Icons.edit_rounded, color: AppColors.colorWhite), Text(CS.vAddNote, style: AppTextStyles.bodyLarge)],
+                        children: [Icon(Icons.edit_rounded, color: AppColors.colorWhite), Text(CS.vAddNote, style: AppTextStyles.body16WhiteBold)],
                       ),
                     ),
                   ],
@@ -833,13 +861,13 @@ class AudioTextScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.colorDialogHeaderGray,
+                  color: AppColors.colorDialogHeader,
                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(CS.vAddNote, style: AppTextStyles.heading3),
+                    Text(CS.vAddNote, style: AppTextStyles.heading20WhiteSemiBold),
                     commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                   ],
                 ),
@@ -848,7 +876,7 @@ class AudioTextScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // ---------------- DESCRIPTION ----------------
-              Text("Level II is an intensive workshop for experienced writers...", style: AppTextStyles.bodyLarge).paddingSymmetric(horizontal: 20),
+              Text("Level II is an intensive workshop for experienced writers...", style: AppTextStyles.body16WhiteBold).paddingSymmetric(horizontal: 20),
 
               const SizedBox(height: 25),
 
@@ -904,8 +932,8 @@ class AudioTextScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("dummy When khushal returned", style: AppTextStyles.heading4),
-                                Text("dummy Saraban", style: AppTextStyles.heading4Grey18),
+                                Text("dummy When khushal returned", style: AppTextStyles.heading18WhiteSemiBold),
+                                Text("dummy Saraban", style: AppTextStyles.heading18GreyBold),
                               ],
                             ),
                           ),
@@ -913,8 +941,8 @@ class AudioTextScreen extends StatelessWidget {
                         ],
                       ).paddingSymmetric(vertical: 20),
                       Divider(color: AppColors.colorBgWhite10),
-                      ListTile(leading: Image.asset(CS.icShareLink, height: 22), title: Text(CS.vShareLink, style: AppTextStyles.heading4500White18)),
-                      ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading4500White18)),
+                      ListTile(leading: Image.asset(CS.icShareLink, height: 22), title: Text(CS.vShareLink, style: AppTextStyles.heading18WhiteMedium)),
+                      ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading18WhiteMedium)),
                     ],
                   ),
                 ),
@@ -932,7 +960,7 @@ class AudioTextScreen extends StatelessWidget {
   void openAudioTextSettingSheet(BuildContext context) {
     showModalBottomSheet(
       context: Get.key.currentContext!,
-      backgroundColor: AppColors.colorDialogHeaderGray,
+      backgroundColor: AppColors.colorDialogHeader,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (_) {
@@ -943,7 +971,7 @@ class AudioTextScreen extends StatelessWidget {
                 height: MediaQuery.of(context).size.height * 0.92,
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.colorDialogHeaderGray,
+                  color: AppColors.colorDialogHeader,
                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(40), topRight: Radius.circular(40)),
                 ),
                 child: AnimatedPadding(
@@ -963,8 +991,8 @@ class AudioTextScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("dummy When khushal returned", style: AppTextStyles.heading4Normal18White),
-                                Text("dummy Saraban", style: AppTextStyles.bodyMediumGrey),
+                                Text("dummy When khushal returned", style: AppTextStyles.heading18WhiteRegular),
+                                Text("dummy Saraban", style: AppTextStyles.body14GreyRegular),
                               ],
                             ),
                           ),
@@ -1036,7 +1064,7 @@ class AudioTextScreen extends StatelessWidget {
                             commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
                             commonListTile(
                               assetPath: CS.icDelete,
-                              style: AppTextStyles.bodyMediumRed,
+                              style: AppTextStyles.body14RedRegular,
                               title: CS.vDelete,
                               iconColor: AppColors.colorRed,
                               onTap: () {
@@ -1059,34 +1087,6 @@ class AudioTextScreen extends StatelessWidget {
     );
   }
 
-  Widget commonListTile({
-    String? assetPath,
-    required String title,
-    String? subtitle,
-    VoidCallback? onTap,
-    IconData? icon,
-    double? imageHeight,
-    TextStyle? style,
-    TextStyle? subtitleStyle,
-    Color? iconColor,
-    bool isLeading = true,
-    Widget? trailing,
-  }) {
-    return ListTile(
-      minTileHeight: 50,
-      leading:
-          !isLeading
-              ? null
-              : assetPath == null
-              ? Icon(icon, color: AppColors.colorWhite)
-              : Image.asset(assetPath ?? "", height: imageHeight ?? 22, color: iconColor),
-      title: Text(title, style: style ?? AppTextStyles.bodyLargeWhite16),
-      subtitle: subtitle == null ? null : Text(subtitle ?? "", style: subtitleStyle ?? AppTextStyles.bodyMediumGrey),
-      onTap: onTap,
-      trailing: trailing,
-    );
-  }
-
   Future<void> showDeleteDialog(BuildContext context, {required VoidCallback onConfirm}) {
     return showDialog(
       context: context,
@@ -1098,15 +1098,15 @@ class AudioTextScreen extends StatelessWidget {
           backgroundColor: AppColors.colorBgGray02,
           contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(CS.vConfirmDeletion, style: AppTextStyles.bodyLarge),
-          content: Text(CS.vYouWillNoLonger, style: AppTextStyles.bodyLargeWhite16),
+          title: Text(CS.vConfirmDeletion, style: AppTextStyles.body16WhiteBold),
+          content: Text(CS.vYouWillNoLonger, style: AppTextStyles.body16WhiteRegular),
           actionsAlignment: MainAxisAlignment.end,
           // right side buttons
           actions: [
             TextButton(
               style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
               onPressed: () => Navigator.pop(context),
-              child: Text(CS.vDismiss, style: AppTextStyles.bodyLarge),
+              child: Text(CS.vDismiss, style: AppTextStyles.body16WhiteBold),
             ),
             TextButton(
               style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
@@ -1114,7 +1114,7 @@ class AudioTextScreen extends StatelessWidget {
                 Navigator.pop(context);
                 onConfirm();
               },
-              child: Text(CS.vConfirm, style: AppTextStyles.bodyMediumRedBold),
+              child: Text(CS.vConfirm, style: AppTextStyles.body14RedBold),
             ),
           ],
         );
@@ -1149,12 +1149,12 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(CS.vPreferences, style: AppTextStyles.heading3),
+                          Text(CS.vPreferences, style: AppTextStyles.heading20WhiteSemiBold),
                           commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                         ],
                       ).screenPadding(),
                       const SizedBox(height: 20),
-                      Text(CS.vFonts, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vFonts, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: () {
@@ -1172,10 +1172,10 @@ class AudioTextScreen extends StatelessWidget {
                                   controller.selectedFonts,
                                   style:
                                       controller.selectedFonts == CS.vInter
-                                          ? AppTextStyles.bodyLarge16white500
+                                          ? AppTextStyles.body16WhiteMedium
                                           : controller.selectedFonts == CS.vLibreBaskerville
-                                          ? AppTextStyles.bodyLarge16white500LibreBaskerville
-                                          : AppTextStyles.bodyLarge16white500OpenSans,
+                                          ? AppTextStyles.body16WhiteMediumLibre
+                                          : AppTextStyles.body16WhiteMediumOpenSans,
                                 ),
                                 trailing: Icon(Icons.keyboard_arrow_right_outlined, color: AppColors.colorGrey),
                               ),
@@ -1187,23 +1187,23 @@ class AudioTextScreen extends StatelessWidget {
                         max: 40,
                         thumbColor: AppColors.colorWhite,
                         activeColor: AppColors.colorWhite,
-                        inactiveColor: AppColors.colorBgChipContainer,
-                        value: dTextSize,
+                        inactiveColor: AppColors.colorChipBackground,
+                        value: dCurrentAudioTextSize,
                         onChanged: (value) {
-                          dTextSize = value;
+                          dCurrentAudioTextSize = value;
                           controller.update();
                         },
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(CS.vSmallest, style: AppTextStyles.bodySmallGrey),
-                          Text("${dTextSize.toStringAsFixed(0)}${CS.vPts}", style: AppTextStyles.bodySmallGrey),
-                          Text(CS.vLargest, style: AppTextStyles.bodySmallGrey),
+                          Text(CS.vSmallest, style: AppTextStyles.body12GreyRegular),
+                          Text("${dCurrentAudioTextSize.toStringAsFixed(0)}${CS.vPts}", style: AppTextStyles.body12GreyRegular),
+                          Text(CS.vLargest, style: AppTextStyles.body12GreyRegular),
                         ],
                       ).screenPadding(),
                       const SizedBox(height: 30),
-                      Text(CS.vTheme, style: AppTextStyles.bodyLarge).screenPadding(),
+                      Text(CS.vTheme, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       const SizedBox(height: 10),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -1228,8 +1228,8 @@ class AudioTextScreen extends StatelessWidget {
                                   controller.update();
                                 } else {
                                   controller.iThemeSelect = 3;
-                                  controller.colorAudioTextBg = AppColors.colorLight;
-                                  controller.colorAudioTextParagraphBg = AppColors.colorLightBg;
+                                  controller.colorAudioTextBg = AppColors.colorGreen;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorGreenLightBg;
                                   controller.update();
                                 }
                               },
@@ -1240,7 +1240,7 @@ class AudioTextScreen extends StatelessWidget {
                                 margin: EdgeInsets.all(8),
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: AppColors.colorBgChipContainer,
+                                  color: AppColors.colorChipBackground,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(color: controller.iThemeSelect == index ? AppColors.colorWhite : Colors.transparent),
                                 ),
@@ -1258,15 +1258,15 @@ class AudioTextScreen extends StatelessWidget {
                             flex: 1,
                             child: CommonElevatedButton(
                               title: CS.vReset,
-                              backgroundColor: AppColors.colorBgChipContainer,
-                              textStyle: AppTextStyles.buttonTextWhite,
+                              backgroundColor: AppColors.colorChipBackground,
+                              textStyle: AppTextStyles.button16WhiteBold,
                               onTap: () {
                                 controller.selectedFonts = CS.vInter;
                                 controller.colorAudioTextBg = AppColors.colorBlue;
                                 controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
                                 controller.iThemeSelect = 0;
-                                dTextSize = 16;
-                                currentFont = AppFontType.inter;
+                                dCurrentAudioTextSize = 16;
+                                currentAudioTextFonts = AppFontType.inter;
                                 controller.update();
                               },
                             ),
@@ -1315,7 +1315,7 @@ class AudioTextScreen extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(CS.vChooseFont, style: AppTextStyles.heading3),
+                              Text(CS.vChooseFont, style: AppTextStyles.heading20WhiteSemiBold),
                               commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
                             ],
                           ),
@@ -1323,11 +1323,11 @@ class AudioTextScreen extends StatelessWidget {
                           commonListTile(
                             title: CS.vInter,
                             subtitle: CS.vDummyChooseFontText,
-                            style: AppTextStyles.bodyLarge16white500,
-                            subtitleStyle: AppTextStyles.bodyLarge16white300,
+                            style: AppTextStyles.body16WhiteMedium,
+                            subtitleStyle: AppTextStyles.body16WhiteLight,
                             onTap: () {
                               Get.back();
-                              currentFont = AppFontType.inter;
+                              currentAudioTextFonts = AppFontType.inter;
                               controller.selectedFonts = CS.vInter;
                               controller.update();
                             },
@@ -1337,11 +1337,11 @@ class AudioTextScreen extends StatelessWidget {
                           Divider(color: AppColors.colorBgWhite10),
                           commonListTile(
                             title: "${CS.vLibreBaskerville}\n${CS.vDummyChooseFontText}",
-                            style: AppTextStyles.bodyLarge16white500LibreBaskerville,
-                            subtitleStyle: AppTextStyles.bodyLarge16white300LibreBaskerville,
+                            style: AppTextStyles.body16WhiteMediumLibre,
+                            subtitleStyle: AppTextStyles.body16WhiteLightLibre,
                             onTap: () {
                               Get.back();
-                              currentFont = AppFontType.libreBaskerville;
+                              currentAudioTextFonts = AppFontType.libreBaskerville;
 
                               controller.selectedFonts = CS.vLibreBaskerville;
                               controller.update();
@@ -1354,11 +1354,11 @@ class AudioTextScreen extends StatelessWidget {
                           Divider(color: AppColors.colorBgWhite10),
                           commonListTile(
                             title: "${CS.vOpenSans}\n${CS.vDummyChooseFontText}",
-                            style: AppTextStyles.bodyLarge16white500OpenSans,
-                            subtitleStyle: AppTextStyles.bodyLarge16white300OpenSans,
+                            style: AppTextStyles.body16WhiteMediumOpenSans,
+                            subtitleStyle: AppTextStyles.body16WhiteLightOpenSans,
                             onTap: () {
                               Get.back();
-                              currentFont = AppFontType.openSans;
+                              currentAudioTextFonts = AppFontType.openSans;
 
                               controller.selectedFonts = CS.vOpenSans;
                               controller.update();

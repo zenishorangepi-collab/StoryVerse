@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/auth_options_view/authoptions_controller.dart';
@@ -16,6 +17,7 @@ class AuthOptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.colorWhite,
       body: GetBuilder<AuthOptionsController>(
         init: AuthOptionsController(),
         builder: (controller) {
@@ -26,51 +28,77 @@ class AuthOptionsScreen extends StatelessWidget {
               Row(
                 // mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 12,
-                children: [Image.asset(CS.imgSplashLogo, color: AppColors.colorWhite, height: 40, width: 40), Text(CS.vAppName, style: AppTextStyles.heading1)],
+                children: [Image.asset(CS.imgSplashLogo, height: 40, width: 40), Text(CS.vAppName, style: AppTextStyles.heading28BlackBold)],
               ),
-              Text(CS.vAuthText, style: AppTextStyles.bodyLargeGray14Bold),
+              Text(CS.vAuthText, style: AppTextStyles.body14GreyBold),
               SizedBox(height: 20),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  overlayColor: AppColors.colorTransparent,
-                  minimumSize: const Size(double.infinity, 52),
-                  side: const BorderSide(color: AppColors.colorBgWhite10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: Image.asset(CS.icGoogle, height: 20),
-                label: Text(CS.vContinueWithGoogle, style: AppTextStyles.bodyLarge),
-                onPressed: () async {
-                  await GoogleSignInService.signInWithGoogle(context);
-                },
-                // onPressed: () => controller.signInWithGoogle(),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      overlayColor: AppColors.colorTransparent,
+                      minimumSize: const Size(double.infinity, 52),
+                      side: const BorderSide(color: AppColors.colorGrey),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: controller.isGoogleLogin && controller.isLoading ? null : Image.asset(CS.icGoogle, height: 20),
+                    label:
+                        controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueWithGoogle, style: AppTextStyles.heading18BlackMedium),
+                    onPressed: () {
+                      showTermsDialog(
+                        onAgree: () async {
+                          showGoogleSignInPermissionDialog(
+                            onContinue: () async {
+                              await GoogleSignInService.signInWithGoogle(context);
+                            },
+                          );
+                        },
+                      );
+                    },
+                    // onPressed: () => controller.signInWithGoogle(),
+                  ),
+                  controller.isGoogleLogin && controller.isLoading
+                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorBlack)))
+                      : SizedBox(),
+                ],
               ),
               if (Platform.isIOS)
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     overlayColor: AppColors.colorTransparent,
                     minimumSize: const Size(double.infinity, 52),
-                    side: const BorderSide(color: AppColors.colorBgWhite10),
+                    side: const BorderSide(color: AppColors.colorGrey),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  icon: Image.asset(CS.icAppleLogo, height: 20),
-                  label: Text(CS.vContinueWithApple, style: AppTextStyles.bodyLarge),
+                  icon: Image.asset(CS.icAppleLogo, height: 20, color: AppColors.colorBlack),
+                  label: Text(CS.vContinueWithApple, style: AppTextStyles.heading18BlackMedium),
                   onPressed: () {},
                   // onPressed: () => controller.signInWithGoogle(),
                 ),
 
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  overlayColor: AppColors.colorTransparent,
-                  minimumSize: const Size(double.infinity, 52),
-                  side: const BorderSide(color: AppColors.colorBgWhite10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: Image.asset(CS.icProfile, height: 20),
-                label: Text(CS.vContinueGuest, style: AppTextStyles.bodyLarge),
-                onPressed: () async {
-                  await controller.signInAsGuest(context);
-                },
-                // onPressed: () => controller.signInWithGoogle(),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      overlayColor: AppColors.colorTransparent,
+                      minimumSize: const Size(double.infinity, 52),
+                      side: const BorderSide(color: AppColors.colorGrey),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: !controller.isGoogleLogin && controller.isLoading ? null : Image.asset(CS.icProfile, height: 22, color: AppColors.colorBlack),
+
+                    label: !controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueGuest, style: AppTextStyles.heading18BlackMedium),
+                    onPressed: () async {
+                      await controller.signInAsGuest(context);
+                    },
+                    // onPressed: () => controller.signInWithGoogle(),
+                  ),
+                  !controller.isGoogleLogin && controller.isLoading
+                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorBlack)))
+                      : SizedBox(),
+                ],
               ),
               // ElevatedButton(
               //   style: OutlinedButton.styleFrom(
@@ -95,4 +123,74 @@ class AuthOptionsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void showTermsDialog({required VoidCallback onAgree}) {
+  Get.dialog(
+    AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      title: Text(CS.vTermsTitle, textAlign: TextAlign.center, style: AppTextStyles.heading20BlackBold),
+      content: Text(CS.vTermsDesc, textAlign: TextAlign.center, style: AppTextStyles.body14BlackRegular),
+      actionsPadding: EdgeInsets.zero,
+      actions: [
+        Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                onTap: () => Get.back(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12), right: BorderSide(color: Colors.black12))),
+                  alignment: Alignment.center,
+                  child: Text(CS.vCancel, style: AppTextStyles.button16BlueBold),
+                ),
+              ),
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  Get.back();
+                  onAgree();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: Colors.black12))),
+                  alignment: Alignment.center,
+                  child: Text(CS.vAgree, style: AppTextStyles.button16BlueBold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.3), // overlay color
+  );
+}
+
+void showGoogleSignInPermissionDialog({required VoidCallback onContinue}) {
+  Get.dialog(
+    CupertinoTheme(
+      data: const CupertinoThemeData(brightness: Brightness.light, scaffoldBackgroundColor: AppColors.colorWhite, primaryColor: AppColors.colorBlack),
+      child: CupertinoAlertDialog(
+        title: Text(CS.vGoogleSignInTitle, style: AppTextStyles.button16BlackBold),
+        content: Padding(padding: const EdgeInsets.only(top: 8), child: Text(CS.vGoogleSignInDesc, style: AppTextStyles.body14BlackRegular)),
+        actions: [
+          CupertinoDialogAction(onPressed: () => Get.back(), child: Text(CS.vCancel, style: AppTextStyles.button16BlackBold)),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Get.back();
+              onContinue();
+            },
+            child: Text(CS.vContinue, style: AppTextStyles.button16BlackBold),
+          ),
+        ],
+      ),
+    ),
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.3), // overlay color
+  );
 }

@@ -66,7 +66,7 @@ class OnboardingScreen extends StatelessWidget {
                       style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
                       child: Text(
                         controller.currentIndex.value == controller.totalPages - 1 ? CS.vGetStarted : CS.vNext,
-                        style: AppTextStyles.buttonTextBlack18,
+                        style: AppTextStyles.button18BlackBold,
                       ),
                     ),
                   ),
@@ -101,9 +101,9 @@ class _OnboardingPage extends StatelessWidget {
         children: [
           const Icon(Icons.book, size: 120, color: AppColors.colorGrey),
           const SizedBox(height: 40),
-          Text(title, style: AppTextStyles.heading3),
+          Text(title, style: AppTextStyles.heading20WhiteSemiBold),
           const SizedBox(height: 6),
-          Text(description, textAlign: TextAlign.center, style: AppTextStyles.bodyLargeGray500),
+          Text(description, textAlign: TextAlign.center, style: AppTextStyles.body16GreyMedium),
         ],
       ),
     );

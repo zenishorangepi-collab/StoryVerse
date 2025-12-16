@@ -11,7 +11,7 @@ extension CommonPaddingHorizontal on Widget {
 }
 
 Widget commonHeadingText(String text) {
-  return Text(text, style: AppTextStyles.heading3);
+  return Text(text, style: AppTextStyles.heading20WhiteSemiBold);
 }
 
 Widget buildChip({IconData? icon, String? label, Function()? onTap}) {
@@ -23,8 +23,8 @@ Widget buildChip({IconData? icon, String? label, Function()? onTap}) {
       child: Chip(
         avatar: icon == null ? null : Icon(icon, size: 18, color: AppColors.colorWhite).paddingOnly(left: 5),
 
-        label: Text(label ?? "", style: AppTextStyles.bodyMedium500, overflow: TextOverflow.ellipsis),
-        color: WidgetStatePropertyAll(AppColors.colorBgChipContainer),
+        label: Text(label ?? "", style: AppTextStyles.body14WhiteMedium, overflow: TextOverflow.ellipsis),
+        color: WidgetStatePropertyAll(AppColors.colorChipBackground),
 
         side: BorderSide.none,
         shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(20)),
@@ -39,7 +39,7 @@ Widget buildActionBox({IconData? icon, String? assetPath, required String label,
     child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(color: AppColors.colorBgChipContainer, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(12)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -48,7 +48,7 @@ Widget buildActionBox({IconData? icon, String? assetPath, required String label,
 
           const SizedBox(height: 8),
 
-          Text(label, textAlign: TextAlign.center, style: AppTextStyles.bodyMedium500),
+          Text(label, textAlign: TextAlign.center, style: AppTextStyles.body14WhiteMedium),
         ],
       ),
     ),
@@ -63,7 +63,7 @@ Widget commonCircleButton({
   double padding = 10,
   bool isBackButton = true,
   Widget? icon,
-  Color bgColor = AppColors.colorBgChipContainer,
+  Color bgColor = AppColors.colorChipBackground,
   Color iconColor = AppColors.colorWhite,
 }) {
   return GestureDetector(
@@ -78,5 +78,37 @@ Widget commonCircleButton({
                   : icon
               : Image.asset(iconPath, height: iconSize, color: iconColor),
     ),
+  );
+}
+
+Widget commonListTile({
+  String? assetPath,
+  required String title,
+  String? subtitle,
+  VoidCallback? onTap,
+  IconData? icon,
+  double? imageHeight,
+  TextStyle? style,
+  TextStyle? subtitleStyle,
+  Color? iconColor,
+  bool isLeading = true,
+  Widget? trailing,
+  Color? tileColor,
+}) {
+  return ListTile(
+    tileColor: tileColor,
+    minTileHeight: 50,
+    splashColor: AppColors.colorTransparent,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+    leading:
+        !isLeading
+            ? null
+            : assetPath == null
+            ? Icon(icon, color: iconColor ?? AppColors.colorWhite)
+            : Image.asset(assetPath ?? "", height: imageHeight ?? 22, color: iconColor),
+    title: Text(title, style: style ?? AppTextStyles.body16WhiteRegular),
+    subtitle: subtitle == null ? null : Text(subtitle ?? "", style: subtitleStyle ?? AppTextStyles.body14GreyRegular),
+    onTap: onTap,
+    trailing: trailing,
   );
 }
