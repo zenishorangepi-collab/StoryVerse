@@ -13,6 +13,8 @@ import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_servic
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 
+bool isAudioPlay = false;
+
 class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Controllers / Services
@@ -143,10 +145,14 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // keep initialScrollOffset as in original code
+    updateAudioBoolean(true);
     scrollController = ScrollController(initialScrollOffset: -10);
     scrollController.addListener(_onCollapseScroll);
     initializeApp();
+  }
+
+  updateAudioBoolean(bool value) {
+    isAudioPlay = value;
   }
 
   // ------------------------------------------------------------

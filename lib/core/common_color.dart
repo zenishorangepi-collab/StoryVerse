@@ -24,7 +24,7 @@ class AppColors {
   static const Color colorBgGray02 = Color(0xff292929);
   static const Color colorBgGray03 = Color(0xff2B2B2B);
   static const Color colorBgGray04 = Color(0xff303030);
-  static const Color colorBgGray05 = Color(0x0DFFFFFF);
+  static const Color colorBgBlack900 = Color(0xff0A0A0A);
 
   // Background – Light overlays
   static const Color colorBgWhite10 = Color(0x1AFFFFFF);
