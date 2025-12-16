@@ -32,7 +32,7 @@ class HomeScreen extends StatelessWidget {
                 elevation: 0,
                 actions: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 20),
+                    padding: const EdgeInsets.only(right: 20, top: 10),
                     child: GestureDetector(
                       onTap: () {},
 
@@ -58,7 +58,7 @@ class HomeScreen extends StatelessWidget {
                   //   ),
                   // ),
                 ],
-                title: Text("${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}", style: AppTextStyles.heading24WhiteMedium),
+                title: Text("${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}", style: AppTextStyles.heading24WhiteMedium).paddingOnly(top: 10),
               ),
 
               SliverList(
@@ -85,15 +85,15 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget bookHorizontalSection({required String title, required String image, int itemCount = 5, void Function()? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 25),
-          commonHeadingText(title).screenPadding(),
-          const SizedBox(height: 10),
-          SizedBox(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 25),
+        commonHeadingText(title).screenPadding(),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: onTap,
+          child: SizedBox(
             height: 250,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
@@ -109,8 +109,8 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

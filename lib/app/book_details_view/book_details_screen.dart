@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
+import 'package:utsav_interview/app/auth_options_view/authoptions_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -21,11 +23,16 @@ class BookDetailsScreen extends StatelessWidget {
           /// 🔹 Background Image
           Column(
             children: [
-              Image.asset(
-                height: MediaQuery.of(context).size.height / 1.8,
-                width: MediaQuery.of(context).size.width,
-                CS.imgBookCover2, // your image
-                fit: BoxFit.cover,
+              GestureDetector(
+                onTap: () {
+                  Get.back();
+                },
+                child: Image.asset(
+                  height: MediaQuery.of(context).size.height / 1.8,
+                  width: MediaQuery.of(context).size.width,
+                  CS.imgBookCover2, // your image
+                  fit: BoxFit.cover,
+                ),
               ),
             ],
           ),
@@ -161,6 +168,37 @@ class BookDetailsScreen extends StatelessWidget {
               ],
             ),
           ).screenPadding(),
+
+          if (isAudioPlay)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(5),
+
+                decoration: BoxDecoration(color: AppColors.colorDialogHeader, borderRadius: BorderRadiusGeometry.circular(10)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+
+                  children: [
+                    SizedBox(width: 5),
+                    Image.asset(CS.imgBookCover, width: 50, height: 35),
+                    SizedBox(width: 10),
+                    Column(
+                      children: [
+                        Text("Author Name", style: AppTextStyles.body14GreyRegular, maxLines: 1),
+                        Text("Book Name", maxLines: 1, style: AppTextStyles.body16WhiteMedium),
+                      ],
+                    ),
+                    Spacer(),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.play_arrow_rounded, size: 40, color: AppColors.colorWhite)),
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.forward_10_rounded, size: 30, color: AppColors.colorWhite)),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
 
@@ -170,7 +208,7 @@ class BookDetailsScreen extends StatelessWidget {
         },
         title: CS.vPlay,
         icon: Icons.play_arrow_rounded,
-      ).paddingSymmetric(horizontal: 20, vertical: 50),
+      ).paddingSymmetric(horizontal: 20).paddingOnly(bottom: 50, top: 20),
     );
   }
 }
