@@ -33,11 +33,11 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 10),
 
                         // Title
-                        Text(CS.vLoginWithEmail, style: AppTextStyles.heading2),
+                        Text(CS.vLoginWithEmail, style: AppTextStyles.heading24WhiteMedium),
                         const SizedBox(height: 30),
 
                         // Email label
-                        Text(CS.vEmail, style: AppTextStyles.bodyLarge16white500),
+                        Text(CS.vEmail, style: AppTextStyles.body16WhiteMedium),
                         const SizedBox(height: 8),
 
                         // Email textfield
@@ -45,7 +45,7 @@ class LoginScreen extends StatelessWidget {
                           // controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           cursorColor: AppColors.colorWhite,
-                          style: AppTextStyles.bodyLarge16white500,
+                          style: AppTextStyles.body16WhiteMedium,
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.symmetric(horizontal: 10),
                             hintText: CS.vEnterYourEmail,
@@ -69,7 +69,7 @@ class LoginScreen extends StatelessWidget {
                         const SizedBox(height: 20),
 
                         // Password label
-                        Text(CS.vPassword, style: AppTextStyles.bodyLarge16white500),
+                        Text(CS.vPassword, style: AppTextStyles.body16WhiteMedium),
                         const SizedBox(height: 8),
 
                         // Password textfield
@@ -77,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                           controller: controller.passwordController,
                           obscureText: controller.obscurePassword,
                           cursorColor: AppColors.colorWhite,
-                          style: AppTextStyles.bodyLarge16white500,
+                          style: AppTextStyles.body16WhiteMedium,
                           decoration: InputDecoration(
                             hintText: CS.vEnterYourPassword,
                             contentPadding: EdgeInsets.symmetric(horizontal: 10),
@@ -121,7 +121,7 @@ class LoginScreen extends StatelessWidget {
                             onPressed: () {
                               if (controller.formKey.currentState!.validate()) {}
                             },
-                            child: Text(CS.vLogin, style: AppTextStyles.buttonTextBlack18),
+                            child: Text(CS.vLogin, style: AppTextStyles.button18BlackBold),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -133,7 +133,7 @@ class LoginScreen extends StatelessWidget {
                             onPressed: () {
                               // TODO: Forgot password action
                             },
-                            child: Text(CS.vForgotPassword, style: AppTextStyles.bodyLarge),
+                            child: Text(CS.vForgotPassword, style: AppTextStyles.body16WhiteBold),
                           ),
                         ),
                         const SizedBox(height: 10),

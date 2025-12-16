@@ -11,7 +11,7 @@ class SplashController extends GetxController {
     bool isLoggedIn = AppPrefs.getBool(CS.keyIsLoginIn);
     Future.delayed(const Duration(seconds: 2), () {
       isLoggedIn ? Get.offAllNamed(AppRoutes.tabBarScreen) : Get.offAllNamed(AppRoutes.onboardingScreen);
-      // Get.offAllNamed(AppRoutes.authOptionsScreen);
+      // Get.offAllNamed(AppRoutes.onboardingScreen);
     });
   }
 }

@@ -6,28 +6,30 @@ class CommonElevatedButton extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
 
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final double radius;
   final EdgeInsets padding;
   final TextStyle? textStyle;
   final IconData? icon;
+  final bool isDark;
 
   const CommonElevatedButton({
     super.key,
     required this.title,
     this.onTap,
-    this.backgroundColor = AppColors.colorWhite,
+    this.backgroundColor,
     this.radius = 8,
-    this.padding = const EdgeInsets.symmetric(vertical: 10),
+    this.padding = const EdgeInsets.symmetric(vertical: 12),
     this.textStyle,
     this.icon,
+    this.isDark = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
+        backgroundColor: backgroundColor ?? (isDark ? AppColors.colorBlack : AppColors.colorWhite),
         overlayColor: AppColors.colorTransparent,
 
         padding: padding,
@@ -36,7 +38,10 @@ class CommonElevatedButton extends StatelessWidget {
       onPressed: onTap ?? () {},
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [if (icon != null) Icon(icon, size: 30, color: AppColors.colorBlack), Text(title, style: textStyle ?? AppTextStyles.buttonTextBlack)],
+        children: [
+          if (icon != null) Icon(icon, size: 30, color: isDark ? AppColors.colorWhite : AppColors.colorBlack),
+          Text(title, style: textStyle ?? (isDark ? AppTextStyles.button16WhiteBold : AppTextStyles.button16BlackBold)),
+        ],
       ),
     );
   }

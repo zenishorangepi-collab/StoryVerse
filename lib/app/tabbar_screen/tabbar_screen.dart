@@ -46,7 +46,7 @@ class TabBarScreen extends StatelessWidget {
                   //   child: const Icon(Icons.add, size: 25, color: AppColors.colorBlack),
                   // ),
                   _buildNavItem(controller, Icons.library_books, CS.vLibrary, 1),
-                  _buildNavItem(controller, Icons.settings_rounded, CS.vVoices, 2),
+                  _buildNavItem(controller, Icons.settings_rounded, CS.vSettings, 2),
                 ],
               ),
             ),
@@ -67,10 +67,25 @@ class TabBarScreen extends StatelessWidget {
       onTap: () => controller.onTabTapped(index),
       child: SizedBox(
         width: 60,
+        // height: 56, // important: match bottom bar height
         child: Column(
-          spacing: 3,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [Icon(icon, color: color), Text(label, style: isSelected ? AppTextStyles.tabTextSelectedWhite : AppTextStyles.tabTextSelectedGrey)],
+          children: [
+            Icon(
+              icon,
+              color: color,
+              size: 22, // control icon size
+            ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              
+              maxLines: 1,
+              overflow: TextOverflow.fade,
+              textAlign: TextAlign.center,
+              style: isSelected ? AppTextStyles.tabTextSelectedWhite : AppTextStyles.tabTextSelectedGrey,
+            ),
+          ],
         ),
       ),
     );

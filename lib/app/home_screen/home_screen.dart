@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/home_model.dart';
+import 'package:utsav_interview/app/tabbar_screen/tabbar_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -31,32 +32,33 @@ class HomeScreen extends StatelessWidget {
                 elevation: 0,
                 actions: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.only(right: 20),
                     child: GestureDetector(
                       onTap: () {},
 
                       child: Container(
                         width: 34,
                         height: 34,
+                        padding: EdgeInsets.all(6),
                         decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
-                        child: const Icon(Icons.search, color: Colors.white, size: 20),
+                        child: Image.asset(CS.icSearch),
                       ),
                     ),
                   ),
 
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: CircleAvatar(
-                        radius: 17,
-                        backgroundColor: Colors.white24,
-                        child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 34, width: 34)),
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(right: 12),
+                  //   child: GestureDetector(
+                  //     onTap: () {},
+                  //     child: CircleAvatar(
+                  //       radius: 17,
+                  //       backgroundColor: Colors.white24,
+                  //       child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 34, width: 34)),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
-                title: Text("${CS.vWelcome} User", style: AppTextStyles.heading2),
+                title: Text("${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}", style: AppTextStyles.heading24WhiteMedium),
               ),
 
               SliverList(
@@ -102,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                 return Column(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Image.asset(image), Text("A Million To One", style: AppTextStyles.bodyLargeGray14Bold)],
+                  children: [Image.asset(image), Text("A Million To One", style: AppTextStyles.body14GreyBold)],
                 );
               },
             ),
@@ -130,11 +132,11 @@ class HomeScreen extends StatelessWidget {
 
           SizedBox(height: 12),
 
-          Text(item.title, style: AppTextStyles.bodyLarge),
+          Text(item.title, style: AppTextStyles.body16WhiteBold),
 
           SizedBox(height: 4),
 
-          Text(item.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTextStyles.bodyMediumGrey),
+          Text(item.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreyRegular),
         ],
       ),
     );
