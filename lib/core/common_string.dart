@@ -57,6 +57,7 @@ class CS {
   static const String vTheme = "Theme";
   static const String vVoices = "Voices";
   static const String vSettings = "Settings";
+  static const String vAccount = "Account";
   static const String vPronunciations = "Pronunciations";
   static const String vSearch = "Search";
   static const String vShare = "Share";
@@ -126,6 +127,7 @@ class CS {
   static const String vContinueGuest = "Continue as Guest";
   static const String vContinue = "Continue";
   static const String vUpgradeUltra = "Upgrade to ultra";
+  static const String vCancelGooglePlay = "Cancel anytime in Google Play";
   static const String vLibreBaskerville = "Libre Baskerville";
   static const String vContinueWithGoogle = "Continue with Google";
   static const String vContinueWithApple = "Continue with Apple";
@@ -134,14 +136,72 @@ class CS {
   static const String vTermsTitle = "Terms and Privacy Policy";
   static const String vCancel = "Cancel";
   static const String vAgree = "Agree";
+  static const String vGetMoreHours = "Get more hours";
+  static const String vReferAndSave = "Refer a friend & save";
+  static const String vContentPreferences = "Content preferences";
+  static const String vPurchases = "Purchases";
+  static const String vFeedback = "Give product feedback";
+  static const String vHelpSupport = "Help & Support";
+  static const String vReportCopyright = "Report Copyright/IP Issue";
+  static const String vFlagInappropriate = "Flag Inappropriate Content";
+  static const String vFAQ = "Frequently asked questions";
+  static const String vHelpCenter = "Help center";
+  static const String vTermsConditions = "Terms & Conditions";
+  static const String vTermsOfService = "Terms of Service";
+  static const String vPrivacyPolicy = "Privacy Policy";
+  static const String vOther = "Other";
+  static const String vOpenSourceLicenses = "Open-Source Library Licenses";
+  static const String vDangerZone = "Danger zone";
+  static const String vDeleteAccount = "Delete account";
+  static const String vResetPassword = "Reset password";
+  static const String vSignOut = "Sign out";
+  static const String vSubscription = "Subscription";
+  static const String vSignOutTitle = "Sign Out";
+  static const String vSignOutMessage = "Are you sure you want to sign out of your account?";
+  static const String vNoCancel = "No, Cancel";
+  static const String vYesSignOut = "Yes, Sign Out";
+  static const String vHoursListening = "Hours of listening remaining";
+
+  // Tabs
+  static const String vSaved = "Saved";
+  static const String vText = "Text";
+  static const String vCollections = "Collections";
+  static const String vArchive = "Archive";
+
+  // Sort
+  static const String vSortBy = "Sort by";
+  static const String vRecentlyAdded = "Recently added";
+  static const String vRecentlyListened = "Recently listened";
+  static const String vProgress = "Progress";
+
+  // Book
+  static const String vBookTitle = "Book01 Of Alaya The Brave";
+  static const String vAuthorName = "Shaheer J. Syed";
+  static const String vDuration = "2 hrs";
+
+  // Collections
+  static const String vCreateCollection = "Create a personal collection";
+  static const String vDownloaded = "Downloaded";
+  static const String vGenFm = "GenFM";
+  static const String vYourCollections = "Your collections";
+  static const String vByType = "By type";
+  static const String vImports = "Imports";
+  static const String vLinks = "Links";
+  static const String vArchivedItems = "Archived items";
   static String vTermsDesc =
       'By clicking "Continue with Google", I agree to the Terms of Service, '
       'acknowledge \'$vAppName\' Privacy Policy, and consent to receive updates, '
       'special offers, and promotional emails. I understand that I can opt out '
       'at any time.';
+  static const String vUpgradeToUltraTitle = "Upgrade to Ultra";
+  static const String vUpgradeToUltraSubtitle = "Unlock unlimited 24/7 listening, available offline, advanced imports, and more.";
+  static const String vUpgradeToUltraButton = "Upgrade to Ultra";
 
   static String vGoogleSignInTitle = '"$vAppName" Wants to Use "google.com" to Sign In';
-
+  static const String vDeleteAccountTitle = "Do you really want to delete your account?";
+  static const String vDeleteAccountHintText = "Please confirm the deletion of your account by typing in your email address below:";
+  static const String vDeleteAccountWarning = "The deletion is permanent and you will no longer be able to create account with this email.";
+  static const String vDeleteAccountButton = "Delete account";
   static const String vGoogleSignInDesc = 'This allows the app and website to share information about you.';
   static const String vDummyChooseFontText = "The quick brown fox jumps over the lazy dog";
   static const String vYouWillNoLonger = "You will no longer have this item in your library.";
@@ -201,9 +261,11 @@ class CS {
   static const String imgSky = "assets/images/blue_theme.png";
   static const String imgFall = "assets/images/brown_theme.png";
   static const String imgHighlight = "assets/images/grey_theme.png";
-  static const String imgClassic = "assets/images/light_theme.png";
+  static const String imgClassic = "assets/images/green_theme.png";
   static const String imgBookCover = "assets/images/book_cover_img.png";
   static const String imgBookCover2 = "assets/images/bookcover2.png";
+  static const String icArchive = "assets/icons/archiv.png";
+  static const String icCollections = "assets/icons/collections.png";
 
   /// Pref Strings
   static String keyIsLoginIn = "isLoggedIn";

@@ -36,7 +36,7 @@ class SoundSpacesScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: List.generate(controller.listChipName.length, (index) {
-                    return buildChip(label: controller.listChipName[index]).paddingOnly(left: index == 0 ? 18 : 0);
+                    return commonChip(label: controller.listChipName[index]).paddingOnly(left: index == 0 ? 18 : 0);
                   }),
                 ),
               ),

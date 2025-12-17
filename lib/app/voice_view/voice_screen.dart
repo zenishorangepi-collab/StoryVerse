@@ -55,9 +55,9 @@ class VoiceScreen extends StatelessWidget {
                   SizedBox(height: 30),
                   Row(
                     children: [
-                      Expanded(child: buildChip(icon: Icons.access_time_filled, label: CS.vRecents)),
-                      Expanded(child: buildChip(icon: Icons.favorite, label: CS.vFavorites)),
-                      Expanded(child: buildChip(icon: Icons.explore, label: CS.vExplore)),
+                      Expanded(child: commonChip(icon: Icons.access_time_filled, label: CS.vRecents)),
+                      Expanded(child: commonChip(icon: Icons.favorite, label: CS.vFavorites)),
+                      Expanded(child: commonChip(icon: Icons.explore, label: CS.vExplore)),
                     ],
                   ),
                   SizedBox(height: 10),

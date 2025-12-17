@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
@@ -160,7 +161,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> initializeApp() async {
     try {
-      transcript = await loadRealData();
+      transcript = await fetchJsonData();
       paragraphs = transcript?.paragraphs ?? [];
 
       paragraphKeys.clear();
@@ -323,7 +324,7 @@ class AudioTextController extends GetxController {
 
       if (_audioUrl != null) {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
-        await audioPlayer.setSourceAsset(_audioUrl!);
+        await audioPlayer.setSourceUrl(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
 
         _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
@@ -436,14 +437,14 @@ class AudioTextController extends GetxController {
       }
 
       // IMPORTANT → seek logic (your original)
-      if (_position > 0) {
+      if (_position > -1) {
         _operationInProgress = false;
         await seek(_position, isPlay: true);
       }
 
       // First-time play
       if (!_hasPlayedOnce) {
-        await audioPlayer.play(AssetSource(_audioUrl!));
+        await audioPlayer.play(UrlSource(_audioUrl!));
         _hasPlayedOnce = true;
       }
       // Resume
@@ -626,6 +627,30 @@ class AudioTextController extends GetxController {
       return TranscriptData.fromJson(jsonData);
     } catch (e) {
       throw Exception('Failed to load transcript: $e');
+    }
+  }
+
+  Future<TranscriptData> fetchJsonData() async {
+    try {
+      final url = Uri.parse(
+        'https://firebasestorage.googleapis.com/v0/b/storyverse-db8a5.firebasestorage.app/o/books%2Fjson%2F4VGE6wTtMokWjiCFeXIE%2Ftranscript.json?alt=media&token=1a134233-33af-4f87-b174-4b7fa82c7ae4',
+      );
+
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        jsonData['audioUrl'] =
+            'https://firebasestorage.googleapis.com/v0/b/storyverse-db8a5.firebasestorage.app/o/books%2Faudios%2F4VGE6wTtMokWjiCFeXIE%2FElevenLabs_2025-12-16T10_40_39_Ariana%20Grande_ivc_sp100_s50_sb75_se0_b_m2.mp3?alt=media&token=b83843c6-f124-450d-b731-ed336adf8cdf';
+
+        return TranscriptData.fromJson(jsonData);
+      } else {
+        print('Failed to fetch. Status: ${response.statusCode}');
+        throw Exception('Failed to fetch. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw Exception('Error: $e');
     }
   }
 

@@ -144,6 +144,7 @@ class BookDetailsScreen extends StatelessWidget {
                   padding: 8,
                   icon: Icon(Icons.arrow_back_ios, color: AppColors.colorWhite, size: 18).paddingOnly(left: 6),
                   isBackButton: false,
+
                   iconColor: AppColors.colorWhite,
                 ),
                 Row(

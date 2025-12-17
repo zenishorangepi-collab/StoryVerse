@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/subscription_view/subscription_controller.dart';
@@ -5,7 +6,6 @@ import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
-import 'package:utsav_interview/routes/app_routes.dart';
 import '../../core/common_string.dart';
 
 class SubscriptionScreen extends StatelessWidget {
@@ -13,78 +13,106 @@ class SubscriptionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isArguments = Get.arguments ?? false;
     return GetBuilder<SubscriptionController>(
       builder: (controller) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          // backgroundColor: Colors.white,
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 35),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 80),
 
-                  /// Top preview cards
-                  SizedBox(
-                    height: 140,
-                    child: ListView.builder(
-                      reverse: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 4,
+                      /// Top preview cards
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          height: 140,
+                          viewportFraction: 0.25,
+                          // show 3–4 items on row
+                          autoPlay: true,
+                          // autoPlayInterval: const Duration(seconds: 0),
+                          autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                          autoPlayCurve: Curves.linear,
+                          enableInfiniteScroll: true,
+                          scrollDirection: Axis.horizontal,
+                          enlargeCenterPage: false,
+                        ),
 
-                      itemBuilder: (_, index) => Image.asset(CS.imgBookCover).paddingOnly(left: index == 4 ? 0 : 20),
-                    ),
-                  ).paddingOnly(right: 15),
+                        items:
+                            [CS.imgBookCover, CS.imgBookCover2, CS.imgBookCover, CS.imgBookCover2].map((img) {
+                              return Builder(
+                                builder: (_) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(right: 10),
+                                    child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset(img, fit: BoxFit.cover)),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                      ),
 
-                  const SizedBox(height: 40),
-                  Text(CS.vUnlockUnlimited, style: AppTextStyles.body16BlackMedium).screenPadding(),
+                      if (!isArguments) const SizedBox(height: 40),
+                      if (!isArguments) Text(CS.vUnlockUnlimited, style: AppTextStyles.body16WhiteMedium).screenPadding(),
 
-                  const SizedBox(height: 16),
-                  const Text(CS.vUnlockEverything, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700)).screenPadding(),
+                      const SizedBox(height: 16),
+                      const Text(CS.vUnlockEverything, style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700)).screenPadding(),
 
-                  const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                  _feature(CS.vFeatureUnlimited).screenPadding(),
-                  _feature(CS.vFeatureVoices).screenPadding(),
-                  _feature(CS.vFeatureDownload).screenPadding(),
-                  _feature(CS.vFeatureSkip).screenPadding(),
+                      _feature(CS.vFeatureUnlimited).screenPadding(),
+                      _feature(CS.vFeatureVoices).screenPadding(),
+                      _feature(CS.vFeatureDownload).screenPadding(),
+                      _feature(CS.vFeatureSkip).screenPadding(),
 
-                  const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                  _planCard(
-                    title: CS.vUltraYearly,
-                    price: "₹9,900.00 / yr",
-                    subtitle: "Best value — ₹825.00/mo, paid annually.",
-                    isPopular: true,
-                    isSelected: controller.selectedPlan == SubscriptionPlan.yearly,
-                    onTap: () => controller.selectPlan(SubscriptionPlan.yearly),
-                  ).screenPadding(),
+                      _planCard(
+                        title: CS.vUltraYearly,
+                        price: "₹9,900.00 / yr",
+                        subtitle: "Best value — ₹825.00/mo, paid annually.",
+                        isPopular: true,
+                        isSelected: controller.selectedPlan == SubscriptionPlan.yearly,
+                        onTap: () => controller.selectPlan(SubscriptionPlan.yearly),
+                      ).screenPadding(),
 
-                  _planCard(
-                    title: CS.vUltraMonthly,
-                    price: "₹999.00 / mo",
-                    isSelected: controller.selectedPlan == SubscriptionPlan.monthly,
-                    onTap: () => controller.selectPlan(SubscriptionPlan.monthly),
-                  ).screenPadding(),
+                      _planCard(
+                        title: CS.vUltraMonthly,
+                        price: "₹999.00 / mo",
+                        isSelected: controller.selectedPlan == SubscriptionPlan.monthly,
+                        onTap: () => controller.selectPlan(SubscriptionPlan.monthly),
+                      ).screenPadding(),
 
-                  const SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
-                  Center(child: Text(CS.vWhyJoinUltra, style: AppTextStyles.heading20BlackBold).screenPadding()),
-                  const SizedBox(height: 6),
-                  Center(child: Text(CS.vWhyJoinDesc, style: AppTextStyles.body16BlackMedium).screenPadding()),
+                      Center(child: Text(CS.vWhyJoinUltra, style: AppTextStyles.heading20WhiteSemiBold).screenPadding()),
+                      const SizedBox(height: 6),
+                      Center(child: Text(CS.vWhyJoinDesc, style: AppTextStyles.body14GreyRegular).screenPadding()),
 
-                  const SizedBox(height: 25),
+                      const SizedBox(height: 25),
 
-                  _infoTile(Icons.emoji_events_outlined, CS.vAwarded, CS.vAwardedDesc).screenPadding(),
+                      _infoTile(Icons.emoji_events_outlined, CS.vAwarded, CS.vAwardedDesc).screenPadding(),
 
-                  const SizedBox(height: 25),
+                      const SizedBox(height: 25),
 
-                  _infoTile(Icons.headphones_outlined, CS.vUnlimited, CS.vUnlimitedDesc).screenPadding(),
+                      _infoTile(Icons.headphones_outlined, CS.vUnlimited, CS.vUnlimitedDesc).screenPadding(),
 
-                  const SizedBox(height: 40),
-                ],
-              ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+                if (isArguments)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(CS.imgSplashLogo, height: 30, color: AppColors.colorWhite),
+                      commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                    ],
+                  ).paddingSymmetric(horizontal: 25, vertical: 20),
+              ],
             ),
           ),
           bottomNavigationBar: Column(
@@ -95,22 +123,22 @@ class SubscriptionScreen extends StatelessWidget {
                 onTap: () {
                   controller.onUpgrade();
                 },
-                isDark: true,
 
                 title: CS.vUpgradeUltra,
               ).screenPadding(),
 
               const SizedBox(height: 12),
 
-              /// Continue Free
-              CommonElevatedButton(
-                onTap: () {
-                  controller.onContinueFree();
-                },
-                backgroundColor: AppColors.colorBgWhite10,
+              isArguments
+                  ? Text(CS.vCancelGooglePlay, style: AppTextStyles.body12GreyRegular)
+                  : CommonElevatedButton(
+                    onTap: () {
+                      controller.onContinueFree();
+                    },
+                    backgroundColor: AppColors.colorBgWhite10,
 
-                title: CS.vContinueFree,
-              ).screenPadding(),
+                    title: CS.vContinueFree,
+                  ).screenPadding(),
 
               const SizedBox(height: 40),
             ],
@@ -144,8 +172,8 @@ class SubscriptionScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: isSelected ? AppColors.colorDialogHeader : AppColors.colorGrey, width: isSelected ? 1.6 : 1),
-              color: isSelected ? AppColors.colorWhite : Colors.grey.shade100,
+              border: Border.all(color: isSelected ? AppColors.colorWhite : AppColors.colorTransparent, width: isSelected ? 1.6 : 1),
+              color: AppColors.colorBgWhite10,
             ),
             child: Row(
               children: [
@@ -153,15 +181,15 @@ class SubscriptionScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: AppTextStyles.button16BlackBold),
+                      Text(title, style: AppTextStyles.button16WhiteBold),
 
                       const SizedBox(height: 4),
-                      Text(price, style: AppTextStyles.button18BlackBold),
+                      Text(price, style: AppTextStyles.button18WhiteBold),
                       if (subtitle != null) Text(subtitle, style: AppTextStyles.body14GreyBold),
                     ],
                   ),
                 ),
-                if (isSelected) const Icon(Icons.check_circle, color: AppColors.colorBlack),
+                if (isSelected) const Icon(Icons.check_circle, color: AppColors.colorWhite),
               ],
             ),
           ),
@@ -171,8 +199,8 @@ class SubscriptionScreen extends StatelessWidget {
               top: -1,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(15)),
-                child: Text(CS.vMostPopular, style: AppTextStyles.body12Regular),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15)),
+                child: Text(CS.vMostPopular.toUpperCase(), style: AppTextStyles.body12BlackMedium),
               ),
             ),
         ],
@@ -186,7 +214,7 @@ class SubscriptionScreen extends StatelessWidget {
       children: [
         Icon(icon, size: 35),
         const SizedBox(height: 10),
-        Text(title, style: AppTextStyles.body16BlackMedium),
+        Text(title, style: AppTextStyles.body16WhiteMedium),
         const SizedBox(height: 4),
         Text(desc, style: AppTextStyles.body14GreyRegular, textAlign: TextAlign.center),
       ],
