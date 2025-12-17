@@ -35,7 +35,7 @@ class AudioHighlighterApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.colorBgGray02,
         primarySwatch: Colors.blue,
         useMaterial3: true,
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(), TargetPlatform.iOS: CupertinoPageTransitionsBuilder()},
         ),

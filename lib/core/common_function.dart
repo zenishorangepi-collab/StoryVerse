@@ -6,7 +6,7 @@ import 'package:utsav_interview/core/common_style.dart';
 
 extension CommonPaddingHorizontal on Widget {
   Widget screenPadding() {
-    return paddingOnly(left: 20, right: 20);
+    return paddingOnly(left: 25, right: 25);
   }
 }
 
@@ -14,7 +14,7 @@ Widget commonHeadingText(String text) {
   return Text(text, style: AppTextStyles.heading20WhiteSemiBold);
 }
 
-Widget buildChip({IconData? icon, String? label, Function()? onTap}) {
+Widget commonChip({IconData? icon, String? label, Function()? onTap}) {
   return Padding(
     padding: const EdgeInsets.only(right: 8.0),
 
@@ -56,14 +56,14 @@ Widget buildActionBox({IconData? icon, String? assetPath, required String label,
 }
 
 Widget commonCircleButton({
-  required VoidCallback onTap,
-
+  VoidCallback? onTap,
   String? iconPath,
   double iconSize = 15,
   double padding = 10,
+  double leftPadding = 8,
   bool isBackButton = true,
   Widget? icon,
-  Color bgColor = AppColors.colorChipBackground,
+  Color bgColor = AppColors.colorBgWhite10,
   Color iconColor = AppColors.colorWhite,
 }) {
   return GestureDetector(
@@ -74,7 +74,7 @@ Widget commonCircleButton({
       child:
           iconPath == null
               ? isBackButton
-                  ? Icon(Icons.arrow_back_ios, color: iconColor).paddingOnly(left: 8)
+                  ? Icon(Icons.arrow_back_ios, color: iconColor, size: iconSize).paddingOnly(left: leftPadding)
                   : icon
               : Image.asset(iconPath, height: iconSize, color: iconColor),
     ),
@@ -104,8 +104,8 @@ Widget commonListTile({
         !isLeading
             ? null
             : assetPath == null
-            ? Icon(icon, color: iconColor ?? AppColors.colorWhite)
-            : Image.asset(assetPath ?? "", height: imageHeight ?? 22, color: iconColor),
+            ? Icon(icon, color: iconColor ?? AppColors.colorWhite, size: imageHeight ?? 22)
+            : Image.asset(assetPath, height: imageHeight ?? 22, color: iconColor),
     title: Text(title, style: style ?? AppTextStyles.body16WhiteRegular),
     subtitle: subtitle == null ? null : Text(subtitle ?? "", style: subtitleStyle ?? AppTextStyles.body14GreyRegular),
     onTap: onTap,

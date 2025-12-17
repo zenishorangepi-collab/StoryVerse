@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/explor_view/explore_screen.dart';
+import 'package:utsav_interview/app/account_view/account_screen.dart';
 import 'package:utsav_interview/app/home_screen/home_screen.dart';
+import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
-import 'package:utsav_interview/routes/app_routes.dart';
 
 class TabBarScreen extends StatelessWidget {
   const TabBarScreen({super.key});
 
-  final List<Widget> screens = const [HomeScreen(), ExploreScreen(), ExploreScreen()];
+  final List<Widget> screens = const [HomeScreen(), LibraryScreen(), AccountScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class TabBarScreen extends StatelessWidget {
                   //   child: const Icon(Icons.add, size: 25, color: AppColors.colorBlack),
                   // ),
                   _buildNavItem(controller, Icons.library_books, CS.vLibrary, 1),
-                  _buildNavItem(controller, Icons.settings_rounded, CS.vSettings, 2),
+                  _buildNavItem(controller, Icons.person_pin, CS.vAccount, 2),
                 ],
               ),
             ),
@@ -79,7 +79,6 @@ class TabBarScreen extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               label,
-              
               maxLines: 1,
               overflow: TextOverflow.fade,
               textAlign: TextAlign.center,

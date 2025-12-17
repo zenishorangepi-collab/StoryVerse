@@ -12,6 +12,7 @@ class CommonElevatedButton extends StatelessWidget {
   final TextStyle? textStyle;
   final IconData? icon;
   final bool isDark;
+  final BorderSide side;
 
   const CommonElevatedButton({
     super.key,
@@ -22,6 +23,7 @@ class CommonElevatedButton extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(vertical: 12),
     this.textStyle,
     this.icon,
+    this.side = BorderSide.none,
     this.isDark = false,
   });
 
@@ -33,7 +35,7 @@ class CommonElevatedButton extends StatelessWidget {
         overlayColor: AppColors.colorTransparent,
 
         padding: padding,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius), side: side),
       ),
       onPressed: onTap ?? () {},
       child: Row(

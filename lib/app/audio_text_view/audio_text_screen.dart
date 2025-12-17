@@ -451,36 +451,36 @@ class AudioTextScreen extends StatelessWidget {
           ),
 
           /// settings
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                const SizedBox(width: 16),
-                GestureDetector(
-                  onTap: () {
-                    Get.toNamed(AppRoutes.voiceScreen);
-                  },
-                  child: Icon(Icons.keyboard_voice_outlined, color: AppColors.colorGrey, size: 30),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    openContentsSheet(context);
-                  },
-                  child: Image.asset(CS.icContents, height: 28, color: AppColors.colorGrey),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Get.toNamed(AppRoutes.soundSpacesScreen);
-                  },
-                  child: Image.asset(CS.icVoiceScapes, height: 28, color: AppColors.colorGrey),
-                ),
-
-                const SizedBox(width: 16),
-              ],
-            ),
-          ),
-          SizedBox(height: 10),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //     children: [
+          //       const SizedBox(width: 16),
+          //       GestureDetector(
+          //         onTap: () {
+          //           Get.toNamed(AppRoutes.voiceScreen);
+          //         },
+          //         child: Icon(Icons.keyboard_voice_outlined, color: AppColors.colorGrey, size: 30),
+          //       ),
+          //       GestureDetector(
+          //         onTap: () {
+          //           openContentsSheet(context);
+          //         },
+          //         child: Image.asset(CS.icContents, height: 28, color: AppColors.colorGrey),
+          //       ),
+          //       GestureDetector(
+          //         onTap: () {
+          //           Get.toNamed(AppRoutes.soundSpacesScreen);
+          //         },
+          //         child: Image.asset(CS.icVoiceScapes, height: 28, color: AppColors.colorGrey),
+          //       ),
+          //
+          //       const SizedBox(width: 16),
+          //     ],
+          //   ),
+          // ),
+          SizedBox(height: 30),
         ],
       ),
     );

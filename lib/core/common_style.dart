@@ -71,9 +71,11 @@ class AppTextStyles {
   static TextStyle body14Regular = wholeAppFont(fontSize: 14, color: AppColors.colorWhite);
   static TextStyle body14BlackRegular = wholeAppFont(fontSize: 14, color: AppColors.colorBlack);
   static TextStyle body14WhiteMedium = wholeAppFont(fontSize: 14, color: AppColors.colorWhite, fontWeight: FontWeight.w500);
+  static TextStyle body14BlackMedium = wholeAppFont(fontSize: 14, color: AppColors.colorBlack, fontWeight: FontWeight.w500);
   static TextStyle body14WhiteBold = wholeAppFont(fontSize: 14, color: AppColors.colorWhite, fontWeight: FontWeight.bold);
 
   static TextStyle body12Regular = wholeAppFont(fontSize: 12, color: AppColors.colorWhite);
+  static TextStyle body12BlackMedium = wholeAppFont(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.colorBlack);
 
   // grey 20
   static TextStyle body20GreyMedium = wholeAppFont(fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.colorGrey);
@@ -84,6 +86,8 @@ class AppTextStyles {
 
   //14
   static TextStyle body14GreyBold = wholeAppFont(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.colorGrey);
+  static TextStyle body14GreySemiBold = wholeAppFont(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.colorGrey);
+  static TextStyle body16GreySemiBold = wholeAppFont(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.colorGrey);
   static TextStyle body14GreyRegular = wholeAppFont(fontSize: 14, color: AppColors.colorGrey);
 
   //12
@@ -96,6 +100,7 @@ class AppTextStyles {
   /// BUTTON TEXT
   // 18
   static TextStyle button18BlackBold = wholeAppFont(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
+  static TextStyle button18WhiteBold = wholeAppFont(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
 
   //16
   static TextStyle button16WhiteBold = wholeAppFont(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
@@ -106,7 +111,6 @@ class AppTextStyles {
 
   // 14
   static TextStyle button14BlackBold = wholeAppFont(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
-  static final body14BlackMedium = wholeAppFont(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.colorBlack);
 
   /// TabBar Text
   static final tabTextSelectedWhite = wholeAppFont(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.colorWhite);
