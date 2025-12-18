@@ -31,10 +31,12 @@ class AudioHighlighterApp extends StatelessWidget {
       navigatorObservers: [observer],
       title: 'Audio Text Synchronizer',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
         scaffoldBackgroundColor: AppColors.colorBgGray02,
         primarySwatch: Colors.blue,
         useMaterial3: true,
+    
         brightness: Brightness.dark,
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {TargetPlatform.android: CupertinoPageTransitionsBuilder(), TargetPlatform.iOS: CupertinoPageTransitionsBuilder()},

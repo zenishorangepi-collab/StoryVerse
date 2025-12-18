@@ -56,31 +56,75 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.isCurrentParagraph ? widget.colorAudioTextParagraphBg : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Wrap(spacing: 3, runSpacing: 3, children: _buildWordWidgets(isDark)),
+      child: Wrap(spacing: 3, runSpacing: 3, children: _buildLineWidgets()),
     );
   }
 
-  List<Widget> _buildWordWidgets(bool isDark) {
-    return widget.paragraph.words.asMap().entries.map((entry) {
-      final localIndex = entry.key;
-      final word = entry.value;
+  List<Widget> _buildLineWidgets() {
+    List<Widget> lineWidgets = [];
+    List<Widget> currentLine = [];
+    double? currentLineTop;
+    // OLD REQUIRED LOGIC RESTORED HERE
 
-      // COMPARE LOCAL INDEX (currentWordIndex is now local from screen)
-      final isCurrentWord = localIndex == widget.currentWordIndex;
+    for (int i = 0; i < widget.paragraph.words.length; i++) {
+      final word = widget.paragraph.words[i];
+      // final key = wordKeys[i];
+      final localIndex = i;
 
-      return Container(
-        key: widget.controller.wordKeys[widget.globalWordStartIndex + localIndex],
+      final key = widget.controller.wordKeys[widget.globalWordStartIndex + localIndex];
+      final wordWidget = Container(
+        key: key,
         child: GestureDetector(
           onTap: () => widget.onWordTap(word.start),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-            decoration: BoxDecoration(color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent, borderRadius: BorderRadius.circular(4)),
+            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+            decoration: BoxDecoration(
+              color: i == widget.currentWordIndex ? widget.colorAudioTextBg : Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+            ),
             child: Text(word.word, style: AppTextStyles.audioTextFontOnly(color: AppColors.colorWhite)),
           ),
         ),
       );
-    }).toList();
+
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox;
+        final top = box.localToGlobal(Offset.zero).dy;
+
+        if (currentLineTop == null || (top - currentLineTop).abs() < 1.0) {
+          // same line
+          currentLine.add(wordWidget);
+          currentLineTop ??= top;
+        } else {
+          // new line starts, wrap previous line in background
+          lineWidgets.add(_buildLineContainer(currentLine));
+          currentLine = [wordWidget];
+          currentLineTop = top;
+        }
+      } else {
+        currentLine.add(wordWidget);
+      }
+    }
+
+    if (currentLine.isNotEmpty) {
+      lineWidgets.add(_buildLineContainer(currentLine));
+    }
+
+    return lineWidgets;
+  }
+
+  Widget _buildLineContainer(List<Widget> words) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      margin: const EdgeInsets.only(bottom: 2),
+      decoration: BoxDecoration(
+        color: widget.paragraph.isBookmarked ?? false ? Colors.yellow.withOpacity(0.2) : Colors.transparent,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Wrap(spacing: 3, runSpacing: 3, children: words),
+    );
   }
 }

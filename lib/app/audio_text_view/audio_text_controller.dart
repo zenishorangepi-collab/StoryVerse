@@ -7,12 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
+import 'package:utsav_interview/core/pref.dart';
 
 bool isAudioPlay = false;
 
@@ -81,8 +83,8 @@ class AudioTextController extends GetxController {
   double currentSpeed = 1.0;
   int currentIndex = 8;
   String selectedFonts = CS.vInter;
-  Color colorAudioTextBg = AppColors.colorBlue;
-  Color colorAudioTextParagraphBg = AppColors.colorBlueBg;
+  Color colorAudioTextBg = AppColors.colorTealDark;
+  Color colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
 
   final List<double> presetSpeeds = [0.5, 0.75, 1, 1.5, 2];
 
@@ -156,6 +158,14 @@ class AudioTextController extends GetxController {
     isAudioPlay = value;
   }
 
+  Future<void> saveBookmark({required BookmarkModel data}) async {
+    final list = AppPrefs.getStringList(CS.keyBookmarks);
+
+    list.add(jsonEncode(data.toJson()));
+
+    await AppPrefs.setStringList(CS.keyBookmarks, list);
+  }
+
   // ------------------------------------------------------------
   // Initialization
   // ------------------------------------------------------------
@@ -198,6 +208,15 @@ class AudioTextController extends GetxController {
       errorMessage = 'Initialization error: $e';
       update();
     }
+  }
+
+  bookmark() {
+    for (var element in paragraphs) {
+      if (element.id == paragraphs[currentParagraphIndex].id) {
+        element.isBookmarked = true;
+      }
+    }
+    update();
   }
 
   // ------------------------------------------------------------

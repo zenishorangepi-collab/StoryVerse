@@ -25,7 +25,14 @@ class AccountScreen extends StatelessWidget {
             elevation: 0,
             title: Text(CS.vAccount, style: AppTextStyles.heading24WhiteMedium).paddingOnly(top: 20, left: 10),
 
-            actions: [IconButton(onPressed: () {}, icon: Icon(Icons.card_giftcard, color: AppColors.colorWhite)).paddingOnly(top: 20, right: 10)],
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Get.toNamed(AppRoutes.referScreen);
+                },
+                icon: Icon(Icons.card_giftcard, color: AppColors.colorWhite),
+              ).paddingOnly(top: 20, right: 10),
+            ],
           ),
 
           body: SingleChildScrollView(
@@ -41,7 +48,7 @@ class AccountScreen extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 32,
-                            backgroundColor: AppColors.colorBlue,
+                            backgroundColor: AppColors.colorTealDark,
                             child: Text(userData?.name[0] ?? "", style: AppTextStyles.heading20WhiteSemiBold),
                           ),
                           SizedBox(height: 10),
@@ -108,13 +115,22 @@ class AccountScreen extends StatelessWidget {
                       side: BorderSide(color: AppColors.colorWhite, width: 0.1),
                       textStyle: AppTextStyles.body16WhiteMedium,
                       radius: 30,
+                      onTap: () {
+                        Get.toNamed(AppRoutes.planScreen);
+                      },
                     ),
 
                     SizedBox(height: 20),
                     Divider(),
 
                     /// ---------- REFER & SAVE ----------
-                    commonListTile(title: CS.vReferAndSave, icon: Icons.card_giftcard, onTap: () {}),
+                    commonListTile(
+                      title: CS.vReferAndSave,
+                      icon: Icons.card_giftcard,
+                      onTap: () {
+                        Get.toNamed(AppRoutes.referScreen);
+                      },
+                    ),
                     commonListTile(
                       title: CS.vContentPreferences,
                       icon: Icons.tune,

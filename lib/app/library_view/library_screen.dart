@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -164,43 +165,98 @@ class LibraryScreen extends StatelessWidget {
   Widget _savedView() {
     return ListView(
       children: [
-        Container(
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadiusGeometry.circular(5),
-            border: Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 15,
+        Slidable(
+          key: const ValueKey(0),
+
+          /// LEFT SIDE ACTIONS ⬅⬅⬅⬅⬅⬅⬅
+          startActionPane: ActionPane(
+            motion: const BehindMotion(),
+            extentRatio: 0.50,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadiusGeometry.circular(5)),
-                child: Image.asset(CS.imgBookCover, height: 80),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(CS.vBookTitle, style: AppTextStyles.body16WhiteBold),
-                    Text("${CS.vAuthorName}\n${CS.vDuration}", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                    SizedBox(height: 10),
-                    Text(
-                      "Deep in the Amazon, Princess seraphine defines her queen and embarks on a quest to discover dshu dfkj dkf",
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.body14GreySemiBold,
-                    ),
-                    SizedBox(height: 10),
-                    Text("1% 20 minsleft", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                  ],
-                ),
-              ),
+              commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+              commonActionButton(color: AppColors.colorTeal, icon: Icons.remove_circle_outline, label: CS.vRemoveFromQueue, onTap: () {}),
             ],
+          ),
+
+          /// RIGHT SIDE ACTIONS ➡➡➡➡➡➡➡
+          endActionPane: ActionPane(
+            motion: const BehindMotion(),
+            extentRatio: 0.75,
+            children: [
+              commonActionButton(color: AppColors.colorDarkGreen, icon: Icons.add, label: CS.vAddToCollection, onTap: () {}),
+
+              commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
+
+              commonActionButton(color: AppColors.colorBgWhite10, icon: Icons.archive, label: CS.vArchive, onTap: () {}),
+            ],
+          ),
+
+          /// MAIN CARD (unchanged)
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 15,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
+                  child: Image.asset(CS.imgBookCover, height: 80),
+                ),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(CS.vBookTitle, style: AppTextStyles.body16WhiteBold),
+
+                      Text("${CS.vAuthorName}\n${CS.vDuration}", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+
+                      const SizedBox(height: 10),
+
+                      Text(
+                        "Deep in the Amazon, Princess seraphine defines her queen and embarks on a quest to discover dshu dfkj dkf",
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.body14GreySemiBold,
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Text("1% 20 mins left", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  commonActionButton({Color? color, IconData? icon, String? label, VoidCallback? onTap}) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          decoration: BoxDecoration(color: color),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: AppColors.colorWhite),
+              const SizedBox(height: 5),
+              Text(label ?? "", textAlign: TextAlign.center, style: AppTextStyles.body14WhiteMedium),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

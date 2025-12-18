@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
+import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -413,6 +414,8 @@ class AudioTextScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 GestureDetector(
                   onTap: () {
+                    controller.bookmark();
+                    // controller.saveBookmark(data: BookmarkModel(paragraph: paragraph, note: note, startTime: startTime, endTime: endTime));
                     showBookmarkSavedPopup(context);
                   },
                   child: Image.asset(CS.icBookmark, height: 20, color: AppColors.colorGrey),
@@ -1213,8 +1216,8 @@ class AudioTextScreen extends StatelessWidget {
                               onTap: () {
                                 if (index == 0) {
                                   controller.iThemeSelect = 0;
-                                  controller.colorAudioTextBg = AppColors.colorBlue;
-                                  controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
+                                  controller.colorAudioTextBg = AppColors.colorTealDark;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
                                   controller.update();
                                 } else if (index == 1) {
                                   controller.iThemeSelect = 1;
@@ -1262,8 +1265,8 @@ class AudioTextScreen extends StatelessWidget {
                               textStyle: AppTextStyles.button16WhiteBold,
                               onTap: () {
                                 controller.selectedFonts = CS.vInter;
-                                controller.colorAudioTextBg = AppColors.colorBlue;
-                                controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
+                                controller.colorAudioTextBg = AppColors.colorTealDark;
+                                controller.colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
                                 controller.iThemeSelect = 0;
                                 dCurrentAudioTextSize = 16;
                                 currentAudioTextFonts = AppFontType.inter;
