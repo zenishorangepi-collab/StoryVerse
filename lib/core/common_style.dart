@@ -98,6 +98,7 @@ class AppTextStyles {
   // Red 14
   static TextStyle body14RedRegular = wholeAppFont(fontSize: 14, color: AppColors.colorRed);
   static TextStyle body14RedBold = wholeAppFont(fontSize: 14, color: AppColors.colorRed, fontWeight: FontWeight.bold);
+  static TextStyle body16RedBold = wholeAppFont(fontSize: 16, color: AppColors.colorRed, fontWeight: FontWeight.bold);
 
   /// BUTTON TEXT
   // 18

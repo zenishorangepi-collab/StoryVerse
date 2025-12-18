@@ -67,8 +67,11 @@ class CS {
   static const String vReportIssue = "Report issue";
   static const String vBookmarkSaved = "Bookmark saved";
   static const String vBookmarks = "Bookmarks";
+  static const String vNoBookmarksAdded = "No bookmarks added";
   static const String vConfirm = "Confirm";
   static const String vDismiss = "Dismiss";
+  static const String vDeleteBookmark = "Delete Bookmark?";
+  static const String vDeleteBookmarkWarning = "Are you sure you want to delete this bookmark?";
   static const String vRecommendedCollection = "Recommended collection";
   static const String vUploadAndListen = "Upload & listen";
   static const String vWriteNote = "Write a note so you can easily refer to your bookmark later";

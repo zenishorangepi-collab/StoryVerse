@@ -69,6 +69,7 @@ class AudioTextController extends GetxController {
   bool _isSeeking = false;
   bool _isDisposed = false;
   bool _operationInProgress = false;
+  bool isBookMarkDelete = false;
 
   // ------------------------------------------------------------
   // Player Streams
@@ -90,6 +91,7 @@ class AudioTextController extends GetxController {
 
   final List listThemeImg = [CS.imgSky, CS.imgFall, CS.imgHighlight, CS.imgClassic];
   int iThemeSelect = 0;
+  List<BookmarkModel>? listBookmarks;
 
   final List<double> speedSteps = [
     0.25,
@@ -151,19 +153,12 @@ class AudioTextController extends GetxController {
     updateAudioBoolean(true);
     scrollController = ScrollController(initialScrollOffset: -10);
     scrollController.addListener(_onCollapseScroll);
+
     initializeApp();
   }
 
   updateAudioBoolean(bool value) {
     isAudioPlay = value;
-  }
-
-  Future<void> saveBookmark({required BookmarkModel data}) async {
-    final list = AppPrefs.getStringList(CS.keyBookmarks);
-
-    list.add(jsonEncode(data.toJson()));
-
-    await AppPrefs.setStringList(CS.keyBookmarks, list);
   }
 
   // ------------------------------------------------------------
@@ -174,6 +169,7 @@ class AudioTextController extends GetxController {
       transcript = await fetchJsonData();
       paragraphs = transcript?.paragraphs ?? [];
 
+      getBookmark();
       paragraphKeys.clear();
       wordKeys.clear();
 
@@ -210,13 +206,94 @@ class AudioTextController extends GetxController {
     }
   }
 
-  bookmark() {
-    for (var element in paragraphs) {
-      if (element.id == paragraphs[currentParagraphIndex].id) {
-        element.isBookmarked = true;
+  // ---------------- CONTROLLER ----------------
+
+  addNoteBookmark() async {
+    listBookmarks = await getBookmarksPrefs();
+
+    // update bookmark note
+    for (var i = 0; i < (listBookmarks?.length ?? 0); i++) {
+      if (paragraphs[currentParagraphIndex].id == listBookmarks?[i].id) {
+        listBookmarks?[i].note = addNoteController.text;
       }
     }
+
+    // save updated list
+    await _saveBookmarkList(listBookmarks ?? []);
+
     update();
+  }
+
+  // ADD BOOKMARK
+  bookmark() async {
+    final paragraphId = paragraphs[currentParagraphIndex].id;
+
+    bool exists = listBookmarks?.any((e) => e.id == paragraphId) ?? false;
+    if (exists) return;
+
+    final newItem = BookmarkModel(
+      id: paragraphId,
+      paragraph: paragraphs[currentParagraphIndex].words.map((e) => e.word).join(" "),
+      note: "",
+      startTime: formatTime(paragraphs[currentParagraphIndex].words.first.start),
+      endTime: formatTime(paragraphs[currentParagraphIndex].words.last.start),
+    );
+
+    await saveBookmark(data: newItem);
+
+    paragraphs[currentParagraphIndex].isBookmarked = true;
+
+    update();
+  }
+
+  // LOAD BOOKMARK STATE FOR UI
+  getBookmark() async {
+    listBookmarks = await getBookmarksPrefs();
+
+    for (var p in paragraphs) {
+      p.isBookmarked = listBookmarks?.any((b) => b.id == p.id) ?? false;
+    }
+
+    update();
+  }
+
+  // SAVE SINGLE BOOKMARK
+  Future<void> saveBookmark({required BookmarkModel data}) async {
+    final list = AppPrefs.getStringList(CS.keyBookmarks);
+    list.add(jsonEncode(data.toJson()));
+    await AppPrefs.setStringList(CS.keyBookmarks, list);
+  }
+
+  // GET ALL BOOKMARKS
+  Future<List<BookmarkModel>> getBookmarksPrefs() async {
+    final list = AppPrefs.getStringList(CS.keyBookmarks);
+    return list.map((e) => BookmarkModel.fromJson(jsonDecode(e))).toList();
+  }
+
+  // DELETE BOOKMARK
+  Future<void> deleteBookmark(int index) async {
+    try {
+      isBookMarkDelete = true;
+      update();
+
+      listBookmarks?.removeAt(index);
+
+      await _saveBookmarkList(listBookmarks ?? []);
+
+      transcript = await fetchJsonData();
+      paragraphs = transcript?.paragraphs ?? [];
+
+      await getBookmark();
+    } finally {
+      isBookMarkDelete = false;
+      update();
+    }
+  }
+
+  // ---------------- PRIVATE HELPER ----------------
+  Future<void> _saveBookmarkList(List<BookmarkModel> list) async {
+    final jsonList = list.map((e) => jsonEncode(e.toJson())).toList();
+    await AppPrefs.setStringList(CS.keyBookmarks, jsonList);
   }
 
   // ------------------------------------------------------------
