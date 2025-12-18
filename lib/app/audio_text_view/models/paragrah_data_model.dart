@@ -5,8 +5,9 @@ class ParagraphData {
   final String id;
   final List<WordData> words;
   final List<GlobalKey> wordKeys;
+  bool? isBookmarked;
 
-  ParagraphData({required this.id, required this.words}) : wordKeys = List.generate(words.length, (_) => GlobalKey());
+  ParagraphData({required this.id, required this.words, this.isBookmarked = false}) : wordKeys = List.generate(words.length, (_) => GlobalKey());
 
   factory ParagraphData.fromJson(Map<String, dynamic> json) {
     final wordsList = (json['words'] as List).map((w) => WordData.fromJson(w as Map<String, dynamic>)).toList();

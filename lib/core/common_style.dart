@@ -31,6 +31,7 @@ class AppTextStyles {
   }
 
   /// HEADLINES
+  static TextStyle heading30WhiteBold = wholeAppFont(fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
   static TextStyle heading28WhiteBold = wholeAppFont(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
   static TextStyle heading28BlackBold = wholeAppFont(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
 
@@ -83,6 +84,7 @@ class AppTextStyles {
   //16
   static TextStyle body16GreyBold = wholeAppFont(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorGrey);
   static TextStyle body16GreyMedium = wholeAppFont(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorGrey);
+  static TextStyle body16GreyRegular = wholeAppFont(fontSize: 16, color: AppColors.colorGrey);
 
   //14
   static TextStyle body14GreyBold = wholeAppFont(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.colorGrey);
@@ -96,6 +98,7 @@ class AppTextStyles {
   // Red 14
   static TextStyle body14RedRegular = wholeAppFont(fontSize: 14, color: AppColors.colorRed);
   static TextStyle body14RedBold = wholeAppFont(fontSize: 14, color: AppColors.colorRed, fontWeight: FontWeight.bold);
+  static TextStyle body16RedBold = wholeAppFont(fontSize: 16, color: AppColors.colorRed, fontWeight: FontWeight.bold);
 
   /// BUTTON TEXT
   // 18

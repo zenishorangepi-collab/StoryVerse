@@ -1,6 +1,6 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:scroll_loop_auto_scroll/scroll_loop_auto_scroll.dart';
 import 'package:utsav_interview/app/subscription_view/subscription_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
@@ -28,31 +28,30 @@ class SubscriptionScreen extends StatelessWidget {
                       const SizedBox(height: 80),
 
                       /// Top preview cards
-                      CarouselSlider(
-                        options: CarouselOptions(
-                          height: 140,
-                          viewportFraction: 0.25,
-                          // show 3–4 items on row
-                          autoPlay: true,
-                          // autoPlayInterval: const Duration(seconds: 0),
-                          autoPlayAnimationDuration: const Duration(milliseconds: 1000),
-                          autoPlayCurve: Curves.linear,
-                          enableInfiniteScroll: true,
-                          scrollDirection: Axis.horizontal,
-                          enlargeCenterPage: false,
+                      ScrollLoopAutoScroll(
+                        scrollDirection: Axis.horizontal,
+                        //required
+                        delay: Duration(seconds: 1),
+                        duration: Duration(seconds: 50),
+                        gap: 10,
+                        reverseScroll: false,
+                        duplicateChild: 25,
+                        enableScrollInput: true,
+                        delayAfterScrollInput: Duration(seconds: 1),
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 140,
+                              margin: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(borderRadius: BorderRadius.circular(5), child: Image.asset(CS.imgBookCover, fit: BoxFit.cover)),
+                            ),
+                            Container(
+                              height: 140,
+                              margin: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(borderRadius: BorderRadius.circular(5), child: Image.asset(CS.imgBookCover2, fit: BoxFit.cover)),
+                            ),
+                          ],
                         ),
-
-                        items:
-                            [CS.imgBookCover, CS.imgBookCover2, CS.imgBookCover, CS.imgBookCover2].map((img) {
-                              return Builder(
-                                builder: (_) {
-                                  return Container(
-                                    margin: const EdgeInsets.only(right: 10),
-                                    child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset(img, fit: BoxFit.cover)),
-                                  );
-                                },
-                              );
-                            }).toList(),
                       ),
 
                       if (!isArguments) const SizedBox(height: 40),
@@ -98,7 +97,7 @@ class SubscriptionScreen extends StatelessWidget {
 
                       const SizedBox(height: 25),
 
-                      _infoTile(Icons.headphones_outlined, CS.vUnlimited, CS.vUnlimitedDesc).screenPadding(),
+                      _infoTile(Icons.headphones_outlined, CS.vUnlimitedListening, CS.vUnlimitedDesc).screenPadding(),
 
                       const SizedBox(height: 40),
                     ],

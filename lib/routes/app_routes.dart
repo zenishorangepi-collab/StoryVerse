@@ -20,8 +20,12 @@ import 'package:utsav_interview/app/login_view/login_binding.dart';
 import 'package:utsav_interview/app/login_view/login_screen.dart';
 import 'package:utsav_interview/app/onbording_view/onbording_binding.dart';
 import 'package:utsav_interview/app/onbording_view/onbording_screen.dart';
+import 'package:utsav_interview/app/plan_view/plan_binding.dart';
+import 'package:utsav_interview/app/plan_view/plan_screen.dart';
 import 'package:utsav_interview/app/preference_view/preference_binding.dart';
 import 'package:utsav_interview/app/preference_view/preference_screen.dart';
+import 'package:utsav_interview/app/refer_view/refer_binding.dart';
+import 'package:utsav_interview/app/refer_view/refer_screen.dart';
 import 'package:utsav_interview/app/referral_view/referral_binding.dart';
 import 'package:utsav_interview/app/referral_view/referral_screen.dart';
 
@@ -56,6 +60,8 @@ class AppRoutes {
   static String subscription = "/subscription";
   static String accountScreen = "/accountScreen";
   static String deleteAccount = "/deleteAccount";
+  static String planScreen = "/planScreen";
+  static String referScreen = "/referScreen";
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
@@ -73,6 +79,9 @@ class AppRoutes {
     GetPage(name: subscription, page: () => const SubscriptionScreen(), binding: SubscriptionBinding()),
     GetPage(name: accountScreen, page: () => const AccountScreen(), binding: AccountBinding()),
     GetPage(name: deleteAccount, page: () => const DeleteAccountScreen(), binding: DeleteAccountBinding()),
+    GetPage(name: planScreen, page: () => const PlanScreen(), binding: PlanBinding()),
+    GetPage(name: referScreen, page: () => const ReferScreen(), binding: ReferBinding()),
+
     GetPage(
       name: voiceScreen,
       page: () => VoiceScreen(),

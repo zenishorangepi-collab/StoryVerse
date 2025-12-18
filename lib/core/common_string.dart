@@ -67,8 +67,12 @@ class CS {
   static const String vReportIssue = "Report issue";
   static const String vBookmarkSaved = "Bookmark saved";
   static const String vBookmarks = "Bookmarks";
+  static const String vBookmark = "Bookmark";
+  static const String vNoBookmarksAdded = "No bookmarks added";
   static const String vConfirm = "Confirm";
   static const String vDismiss = "Dismiss";
+  static const String vDeleteBookmark = "Delete Bookmark?";
+  static const String vDeleteBookmarkWarning = "Are you sure you want to delete this bookmark?";
   static const String vRecommendedCollection = "Recommended collection";
   static const String vUploadAndListen = "Upload & listen";
   static const String vWriteNote = "Write a note so you can easily refer to your bookmark later";
@@ -162,6 +166,41 @@ class CS {
   static const String vYesSignOut = "Yes, Sign Out";
   static const String vHoursListening = "Hours of listening remaining";
 
+  // Titles
+  static const vChooseWhatWorks = "Choose what works for you.";
+  static const vHoursLeft = "10 hours left";
+
+  // Sub text
+  static const vChooseSubText = "Add a few extra hours for when you need them, or unlock unlimited listening with the Ultra plan.";
+
+  // Plan names
+  static const vHour30 = "30 hours";
+  static const vHour15 = "15 hours";
+
+  // Plan subtitle
+  static const vUnlimitedSub = "Your best value — Ultra plan";
+  static const vPayAsYouGo = "Pay as you go";
+
+  static const vMarkAsUnread = "Mark as\nunread";
+
+  static const vArchiveText = "Archive";
+  static const vRemoveFromQueue = "Remove from Queue";
+  static const vDownloadText = "Download";
+
+  // Bottom info
+  static const vPlanBottomNote =
+      "Your purchased hours are valid for 12 months.\n"
+      "Listening time is calculated at 1.0x speed.\n"
+      "‘Unlimited’ means up to 24 hours per day.";
+
+  static const vFiveHrs = "5 hrs";
+
+  static const vReferMain = "Get 5 listening hours for every new user you refer.";
+
+  static const vReferSub = "Once they sign up successfully, you each get 5 hours of listening valid for 12 months.";
+
+  static const vShareBtn = "SHARE REFERRAL LINK";
+
   // Tabs
   static const String vSaved = "Saved";
   static const String vText = "Text";
@@ -187,6 +226,8 @@ class CS {
   static const String vByType = "By type";
   static const String vImports = "Imports";
   static const String vLinks = "Links";
+  static const String vEdit = "Edit";
+  static const String vListenFromHere = "Listen from here";
   static const String vArchivedItems = "Archived items";
   static String vTermsDesc =
       'By clicking "Continue with Google", I agree to the Terms of Service, '
@@ -227,7 +268,8 @@ class CS {
   static const String vWhyJoinDesc = "Join thousands who are listening with Ultra.";
   static const String vAwarded = "Awarded Apple’s “App of the Day”";
   static const String vAwardedDesc = "Featured by Apple for an immersive listening experience.";
-  static const String vUnlimited = "Unlimited 24/7 listening time*";
+  static const String vUnlimitedListening = "Unlimited 24/7 listening time*";
+  static const String vUnlimited = "Unlimited 24/7";
   static const String vUnlimitedDesc = "*Unlimited means 24 hours of audio conversion every day. Replay as much as you like.";
 
   /// images path
@@ -270,6 +312,7 @@ class CS {
   /// Pref Strings
   static String keyIsLoginIn = "isLoggedIn";
   static String keyUserData = "userData";
+  static String keyBookmarks = "bookmarks";
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
@@ -292,12 +292,6 @@ class AudioTextScreen extends StatelessWidget {
                 controller.isScrolling = false;
                 controller.update();
               }
-              // Reset timer on every scroll event
-              // controller.scrollStopTimer?.cancel();
-              // controller.scrollStopTimer = Timer(const Duration(milliseconds: 120), () {
-              //   controller.isScrolling = false;
-              //   controller.update();
-              // });
             }
 
             return false;
@@ -342,7 +336,13 @@ class AudioTextScreen extends StatelessWidget {
                       paragraphIndex: index,
                       currentWordIndex: wordIndexInParagraph,
                       isCurrentParagraph: isCurrentParagraph,
-                      onWordTap: (start) => controller.seek(start),
+                      onWordTap: (start) {
+                        if (paragraphs[index].isBookmarked ?? false) {
+                          openBookmarkedSheet(context, start, index);
+                        } else {
+                          controller.seek(start);
+                        }
+                      },
                       widgetKey: controller.paragraphKeys[index],
                       controller: controller,
                       globalWordStartIndex: globalWordStartIndex,
@@ -413,6 +413,7 @@ class AudioTextScreen extends StatelessWidget {
                 const SizedBox(width: 16),
                 GestureDetector(
                   onTap: () {
+                    controller.bookmark();
                     showBookmarkSavedPopup(context);
                   },
                   child: Image.asset(CS.icBookmark, height: 20, color: AppColors.colorGrey),
@@ -805,7 +806,10 @@ class AudioTextScreen extends StatelessWidget {
                     Divider(),
 
                     GestureDetector(
-                      onTap: () => _openAddNoteSheet(context),
+                      onTap: () {
+                        Get.back();
+                        _openAddNoteSheet(context);
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [Icon(Icons.edit_rounded, color: AppColors.colorWhite), Text(CS.vAddNote, style: AppTextStyles.body16WhiteBold)],
@@ -876,7 +880,10 @@ class AudioTextScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // ---------------- DESCRIPTION ----------------
-              Text("Level II is an intensive workshop for experienced writers...", style: AppTextStyles.body16WhiteBold).paddingSymmetric(horizontal: 20),
+              Text(
+                controller.paragraphs[controller.currentParagraphIndex].words.map((e) => e.word).join(" "),
+                style: AppTextStyles.body16WhiteBold,
+              ).paddingSymmetric(horizontal: 20),
 
               const SizedBox(height: 25),
 
@@ -886,7 +893,16 @@ class AudioTextScreen extends StatelessWidget {
               const SizedBox(height: 25),
 
               // ---------------- SAVE BUTTON ----------------
-              SizedBox(width: double.infinity, child: CommonElevatedButton(title: CS.vSaveNotes)).paddingSymmetric(horizontal: 25),
+              SizedBox(
+                width: double.infinity,
+                child: CommonElevatedButton(
+                  title: CS.vSaveNotes,
+                  onTap: () async {
+                    controller.addNoteBookmark();
+                    Get.back();
+                  },
+                ),
+              ).paddingSymmetric(horizontal: 25),
 
               const SizedBox(height: 35),
             ],
@@ -1056,7 +1072,19 @@ class AudioTextScreen extends StatelessWidget {
                                 openContentsSheet(context);
                               },
                             ),
-                            commonListTile(assetPath: CS.icBookmark, title: CS.vBookmarks, onTap: () {}),
+                            commonListTile(
+                              assetPath: CS.icBookmark,
+                              title: CS.vBookmarks,
+                              onTap: () async {
+                                controller.listBookmarks = await controller.getBookmarksPrefs();
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (_) => bookmarkBottomSheet(context),
+                                );
+                              },
+                            ),
                             commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
                             commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
                             Divider(color: AppColors.colorGreyDivider),
@@ -1213,8 +1241,8 @@ class AudioTextScreen extends StatelessWidget {
                               onTap: () {
                                 if (index == 0) {
                                   controller.iThemeSelect = 0;
-                                  controller.colorAudioTextBg = AppColors.colorBlue;
-                                  controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
+                                  controller.colorAudioTextBg = AppColors.colorTealDark;
+                                  controller.colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
                                   controller.update();
                                 } else if (index == 1) {
                                   controller.iThemeSelect = 1;
@@ -1262,8 +1290,8 @@ class AudioTextScreen extends StatelessWidget {
                               textStyle: AppTextStyles.button16WhiteBold,
                               onTap: () {
                                 controller.selectedFonts = CS.vInter;
-                                controller.colorAudioTextBg = AppColors.colorBlue;
-                                controller.colorAudioTextParagraphBg = AppColors.colorBlueBg;
+                                controller.colorAudioTextBg = AppColors.colorTealDark;
+                                controller.colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
                                 controller.iThemeSelect = 0;
                                 dCurrentAudioTextSize = 16;
                                 currentAudioTextFonts = AppFontType.inter;
@@ -1370,6 +1398,229 @@ class AudioTextScreen extends StatelessWidget {
                           SizedBox(height: 20),
                         ],
                       ).screenPadding(),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  bookmarkBottomSheet(context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
+      decoration: BoxDecoration(color: AppColors.colorBgGray02, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+      padding: EdgeInsets.all(16),
+
+      child: GetBuilder<AudioTextController>(
+        init: AudioTextController(),
+        builder: (controller) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // TITLE
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(CS.vBookmarks, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                ],
+              ),
+
+              SizedBox(height: 12),
+
+              // IF EMPTY
+              if (controller.listBookmarks?.isEmpty ?? false)
+                Center(child: Text(CS.vNoBookmarksAdded, style: AppTextStyles.body16WhiteMedium))
+              else
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: controller.listBookmarks?.length ?? 0,
+                    separatorBuilder: (_, __) => Divider(),
+                    itemBuilder: (_, index) {
+                      return Slidable(
+                        key: ValueKey(controller.listBookmarks?[index].startTime),
+
+                        endActionPane: ActionPane(
+                          motion: DrawerMotion(),
+                          extentRatio: 0.25,
+                          children: [
+                            SlidableAction(
+                              onPressed: (_) async {
+                                showDeleteBookmarkDialog(
+                                  context,
+                                  onPressed: () async {
+                                    await controller.deleteBookmark(index);
+                                    Get.back();
+                                  },
+                                );
+                              },
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              icon: Icons.delete,
+                              label: CS.vDelete,
+                            ),
+                          ],
+                        ),
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 5,
+                          children: [
+                            SizedBox(height: 5),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(controller.listBookmarks?[index].startTime ?? "", style: AppTextStyles.body12GreyRegular),
+                                Text("\t-\t", style: AppTextStyles.body12GreyRegular),
+                                Text(controller.listBookmarks?[index].endTime ?? "", style: AppTextStyles.body12GreyRegular),
+                              ],
+                            ),
+                            Text(controller.listBookmarks?[index].paragraph ?? "", style: AppTextStyles.body16WhiteBold),
+                            if (controller.listBookmarks?[index].note != null && (controller.listBookmarks?[index].note.isNotEmpty ?? false))
+                              Text(controller.listBookmarks?[index].note ?? "", style: AppTextStyles.body16GreyMedium),
+                            SizedBox(height: 5),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<bool?> showDeleteBookmarkDialog(BuildContext context, {Function()? onPressed}) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return GetBuilder<AudioTextController>(
+          init: AudioTextController(),
+          builder: (controller) {
+            return AlertDialog(
+              backgroundColor: AppColors.colorGreyDivider,
+              title: Text(CS.vDeleteBookmark, style: AppTextStyles.heading20WhiteSemiBold),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              content: Text(CS.vDeleteBookmarkWarning, style: AppTextStyles.body16WhiteMedium).paddingOnly(left: 15),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context, false), child: Text(CS.vCancel, style: AppTextStyles.body16WhiteBold)),
+                TextButton(
+                  onPressed: onPressed,
+                  child:
+                      controller.isBookMarkDelete
+                          ? SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.colorWhite))
+                          : Text(CS.vDelete, style: AppTextStyles.body16RedBold),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ==========================================================
+  // Bookmarked sheet
+  // ==========================================================
+  void openBookmarkedSheet(BuildContext context, int start, int index) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.colorBgGray02,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+
+      builder: (_) {
+        return GetBuilder<AudioTextController>(
+          builder: (controller) {
+            return SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.colorBgGray02,
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                ),
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 250),
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.colorDialogHeader,
+                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(CS.vBookmark, style: AppTextStyles.heading18WhiteSemiBold),
+                            commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                          ],
+                        ),
+                      ),
+                      commonListTile(
+                        onTap: () {
+                          Get.back();
+                          controller.seek(start);
+                        },
+                        title: CS.vListenFromHere,
+                        assetPath: CS.icHeadphone,
+                        style: AppTextStyles.body16WhiteBold,
+                      ),
+                      commonListTile(
+                        onTap: () {
+                          _openAddNoteSheet(context);
+                        },
+                        title: CS.vEdit,
+                        icon: Icons.edit_outlined,
+                        style: AppTextStyles.body16WhiteBold,
+                      ),
+                      commonListTile(
+                        onTap: () {
+                          showDeleteBookmarkDialog(
+                            context,
+                            onPressed: () async {
+                              try {
+                                controller.isBookMarkDelete = true;
+                                controller.update();
+
+                                // controller.listBookmarks = await controller.getBookmarksPrefs();
+
+                                for (var p in controller.paragraphs) {
+                                  if (controller.paragraphs[index].id == p.id) {
+                                    p.isBookmarked = false;
+                                  }
+                                }
+                                for (var i = 0; i < (controller.listBookmarks?.length ?? 0); i++) {
+                                  if (controller.paragraphs[index].id == controller.listBookmarks?[i].id) {
+                                    controller.listBookmarks?.removeAt(i);
+                                  }
+                                }
+                                controller.update();
+                                // save updated list
+                                await controller.saveBookmarkList(controller.listBookmarks ?? []);
+                              } finally {
+                                Get.back();
+                                controller.isBookMarkDelete = false;
+                                controller.update();
+                              }
+                              Get.back();
+                            },
+                          );
+                        },
+                        title: CS.vDelete,
+                        icon: Icons.delete_outline,
+                        iconColor: AppColors.colorRed,
+                        style: AppTextStyles.body16RedBold,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

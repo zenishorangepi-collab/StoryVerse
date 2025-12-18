@@ -13,6 +13,10 @@ class AppColors {
   static const Color colorDarkRed = Color(0xFF46110d);
   static const Color colorGreen = Color(0xff32BA7D);
   static const Color colorYellow = Color(0xff6b5906);
+  static const Color colorBlue = Color(0xFF007AFF);
+  static const Color colorDarkGreen = Color(0xFF00D15E);
+  static const Color colorDarkPurple = Color(0xFFB020FF);
+  static const Color colorTeal = Color(0xff008080);
 
   // Greys
   static const Color colorGrey = Colors.grey;
@@ -35,8 +39,8 @@ class AppColors {
   static const Color colorDialogHeader = Color(0xff111111);
 
   // Brand / Accent
-  static const Color colorBlueBg = Color(0xff425f6d);
-  static const Color colorBlue = Color(0xff0a4354);
+  static const Color colorTealDarkBg = Color(0xff425f6d);
+  static const Color colorTealDark = Color(0xff0a4354);
   static const Color colorBrown = Color(0xff4a2c10);
   static const Color colorBgBrown = Color(0xff654f42);
   static const Color colorGreenLightBg = Color(0xff536d4a);
