@@ -67,6 +67,7 @@ class CS {
   static const String vReportIssue = "Report issue";
   static const String vBookmarkSaved = "Bookmark saved";
   static const String vBookmarks = "Bookmarks";
+  static const String vBookmark = "Bookmark";
   static const String vNoBookmarksAdded = "No bookmarks added";
   static const String vConfirm = "Confirm";
   static const String vDismiss = "Dismiss";
@@ -225,6 +226,8 @@ class CS {
   static const String vByType = "By type";
   static const String vImports = "Imports";
   static const String vLinks = "Links";
+  static const String vEdit = "Edit";
+  static const String vListenFromHere = "Listen from here";
   static const String vArchivedItems = "Archived items";
   static String vTermsDesc =
       'By clicking "Continue with Google", I agree to the Terms of Service, '

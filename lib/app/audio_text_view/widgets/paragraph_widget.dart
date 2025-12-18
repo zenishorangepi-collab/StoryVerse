@@ -64,11 +64,9 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
     List<Widget> lineWidgets = [];
     List<Widget> currentLine = [];
     double? currentLineTop;
-    // OLD REQUIRED LOGIC RESTORED HERE
 
     for (int i = 0; i < widget.paragraph.words.length; i++) {
       final word = widget.paragraph.words[i];
-      // final key = wordKeys[i];
       final localIndex = i;
 
       final key = widget.controller.wordKeys[widget.globalWordStartIndex + localIndex];

@@ -219,7 +219,7 @@ class AudioTextController extends GetxController {
     }
 
     // save updated list
-    await _saveBookmarkList(listBookmarks ?? []);
+    await saveBookmarkList(listBookmarks ?? []);
 
     update();
   }
@@ -278,7 +278,7 @@ class AudioTextController extends GetxController {
 
       listBookmarks?.removeAt(index);
 
-      await _saveBookmarkList(listBookmarks ?? []);
+      await saveBookmarkList(listBookmarks ?? []);
 
       transcript = await fetchJsonData();
       paragraphs = transcript?.paragraphs ?? [];
@@ -291,7 +291,7 @@ class AudioTextController extends GetxController {
   }
 
   // ---------------- PRIVATE HELPER ----------------
-  Future<void> _saveBookmarkList(List<BookmarkModel> list) async {
+  Future<void> saveBookmarkList(List<BookmarkModel> list) async {
     final jsonList = list.map((e) => jsonEncode(e.toJson())).toList();
     await AppPrefs.setStringList(CS.keyBookmarks, jsonList);
   }

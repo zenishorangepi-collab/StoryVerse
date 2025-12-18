@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
-import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -294,12 +292,6 @@ class AudioTextScreen extends StatelessWidget {
                 controller.isScrolling = false;
                 controller.update();
               }
-              // Reset timer on every scroll event
-              // controller.scrollStopTimer?.cancel();
-              // controller.scrollStopTimer = Timer(const Duration(milliseconds: 120), () {
-              //   controller.isScrolling = false;
-              //   controller.update();
-              // });
             }
 
             return false;
@@ -344,7 +336,13 @@ class AudioTextScreen extends StatelessWidget {
                       paragraphIndex: index,
                       currentWordIndex: wordIndexInParagraph,
                       isCurrentParagraph: isCurrentParagraph,
-                      onWordTap: (start) => controller.seek(start),
+                      onWordTap: (start) {
+                        if (paragraphs[index].isBookmarked ?? false) {
+                          openBookmarkedSheet(context, start, index);
+                        } else {
+                          controller.seek(start);
+                        }
+                      },
                       widgetKey: controller.paragraphKeys[index],
                       controller: controller,
                       globalWordStartIndex: globalWordStartIndex,
@@ -1461,7 +1459,7 @@ class AudioTextScreen extends StatelessWidget {
                               backgroundColor: Colors.red,
                               foregroundColor: Colors.white,
                               icon: Icons.delete,
-                              label: "Delete",
+                              label: CS.vDelete,
                             ),
                           ],
                         ),
@@ -1519,6 +1517,112 @@ class AudioTextScreen extends StatelessWidget {
                           : Text(CS.vDelete, style: AppTextStyles.body16RedBold),
                 ),
               ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ==========================================================
+  // Bookmarked sheet
+  // ==========================================================
+  void openBookmarkedSheet(BuildContext context, int start, int index) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.colorBgGray02,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+
+      builder: (_) {
+        return GetBuilder<AudioTextController>(
+          builder: (controller) {
+            return SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.colorBgGray02,
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                ),
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 250),
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.colorDialogHeader,
+                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(CS.vBookmark, style: AppTextStyles.heading18WhiteSemiBold),
+                            commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                          ],
+                        ),
+                      ),
+                      commonListTile(
+                        onTap: () {
+                          Get.back();
+                          controller.seek(start);
+                        },
+                        title: CS.vListenFromHere,
+                        assetPath: CS.icHeadphone,
+                        style: AppTextStyles.body16WhiteBold,
+                      ),
+                      commonListTile(
+                        onTap: () {
+                          _openAddNoteSheet(context);
+                        },
+                        title: CS.vEdit,
+                        icon: Icons.edit_outlined,
+                        style: AppTextStyles.body16WhiteBold,
+                      ),
+                      commonListTile(
+                        onTap: () {
+                          showDeleteBookmarkDialog(
+                            context,
+                            onPressed: () async {
+                              try {
+                                controller.isBookMarkDelete = true;
+                                controller.update();
+
+                                // controller.listBookmarks = await controller.getBookmarksPrefs();
+
+                                for (var p in controller.paragraphs) {
+                                  if (controller.paragraphs[index].id == p.id) {
+                                    p.isBookmarked = false;
+                                  }
+                                }
+                                for (var i = 0; i < (controller.listBookmarks?.length ?? 0); i++) {
+                                  if (controller.paragraphs[index].id == controller.listBookmarks?[i].id) {
+                                    controller.listBookmarks?.removeAt(i);
+                                  }
+                                }
+                                controller.update();
+                                // save updated list
+                                await controller.saveBookmarkList(controller.listBookmarks ?? []);
+                              } finally {
+                                Get.back();
+                                controller.isBookMarkDelete = false;
+                                controller.update();
+                              }
+                              Get.back();
+                            },
+                          );
+                        },
+                        title: CS.vDelete,
+                        icon: Icons.delete_outline,
+                        iconColor: AppColors.colorRed,
+                        style: AppTextStyles.body16RedBold,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             );
           },
         );
