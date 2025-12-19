@@ -215,15 +215,19 @@ class AudioTextController extends GetxController {
       vAuthorName.value = "";
       vBookName.value = "";
       await clearBookInfo();
-      _isDisposed = true;
+      // Get.delete<AudioTextController>();
 
-      _positionSubscription?.cancel();
-
-      _stateSubscription?.cancel();
-      _completionSubscription?.cancel();
-
-      audioPlayer.stop();
-      audioPlayer.dispose();
+      // _isDisposed = true;
+      //
+      // _positionSubscription?.cancel();
+      // _stateSubscription?.cancel();
+      // _completionSubscription?.cancel();
+      //
+      // if (audioPlayer.state != PlayerState.disposed) {
+      //   audioPlayer.stop();
+      //   audioPlayer.dispose();
+      //   initializeApp();
+      // }
     });
   }
 
@@ -232,7 +236,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> initializeApp() async {
     try {
-      transcript = await fetchJsonData();
+      transcript = await loadRealData();
       paragraphs = transcript?.paragraphs ?? [];
 
       getBookmark();
@@ -244,11 +248,11 @@ class AudioTextController extends GetxController {
 
       // Build wordKeys list (preserve original logic)
       for (final paragraph in paragraphs) {
-        for (int i = 0; i < paragraph.words.length; i++) {
+        final allWords = paragraph.allWords; // Use allWords instead of words
+        for (int i = 0; i < allWords.length; i++) {
           wordKeys.add(GlobalKey());
         }
       }
-
       syncEngine = SyncEngine(paragraphs);
 
       _duration = transcript?.duration ?? 0;
@@ -317,10 +321,11 @@ class AudioTextController extends GetxController {
 
     final newItem = BookmarkModel(
       id: paragraphId,
-      paragraph: paragraphs[currentParagraphIndex].words.map((e) => e.word).join(" "),
+      paragraph: paragraphs[currentParagraphIndex].allWords.map((e) => e.word).join(" "),
+      // Use allWords
       note: "",
-      startTime: formatTime(paragraphs[currentParagraphIndex].words.first.start),
-      endTime: formatTime(paragraphs[currentParagraphIndex].words.last.start),
+      startTime: formatTime(paragraphs[currentParagraphIndex].allWords.first.start),
+      endTime: formatTime(paragraphs[currentParagraphIndex].allWords.last.start),
     );
 
     await saveBookmark(data: newItem);
@@ -364,7 +369,7 @@ class AudioTextController extends GetxController {
 
       await saveBookmarkList(listBookmarks ?? []);
 
-      transcript = await fetchJsonData();
+      transcript = await loadRealData();
       paragraphs = transcript?.paragraphs ?? [];
 
       await getBookmark();
@@ -504,7 +509,7 @@ class AudioTextController extends GetxController {
 
       if (_audioUrl != null) {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
-        await audioPlayer.setSourceUrl(_audioUrl!);
+        await audioPlayer.setSourceAsset(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
 
         _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
@@ -624,7 +629,7 @@ class AudioTextController extends GetxController {
 
       // First-time play
       if (!_hasPlayedOnce) {
-        await audioPlayer.play(UrlSource(_audioUrl!));
+        await audioPlayer.play(AssetSource(_audioUrl!));
         _hasPlayedOnce = true;
       }
       // Resume

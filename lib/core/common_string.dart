@@ -307,7 +307,7 @@ class CS {
   static const String imgHighlight = "assets/images/grey_theme.png";
   static const String imgClassic = "assets/images/green_theme.png";
   static const String imgBookCover = "assets/images/book_cover_img.png";
-  static const String imgBookCover2 = "assets/images/book_cover_img.png";
+  static const String imgBookCover2 = "assets/images/bookcover2.png";
   static const String icArchive = "assets/icons/archiv.png";
   static const String icCollections = "assets/icons/collections.png";
 

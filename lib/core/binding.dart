@@ -5,6 +5,6 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     // Register global audio controller
-    Get.put(AudioTextController(), permanent: true);
+    Get.put(AudioTextController());
   }
 }

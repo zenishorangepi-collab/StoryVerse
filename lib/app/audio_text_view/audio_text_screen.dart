@@ -329,7 +329,7 @@ class AudioTextScreen extends StatelessWidget {
 
                     int globalWordStartIndex = 0;
                     for (int p = 0; p < index; p++) {
-                      globalWordStartIndex += paragraphs[p].words.length;
+                      globalWordStartIndex += paragraphs[p].allWords.length; // Use allWords
                     }
 
                     return ParagraphWidget(
@@ -347,7 +347,6 @@ class AudioTextScreen extends StatelessWidget {
                       widgetKey: controller.paragraphKeys[index],
                       controller: controller,
                       globalWordStartIndex: globalWordStartIndex,
-                      // NEW
                       colorAudioTextBg: controller.colorAudioTextBg,
                       colorAudioTextParagraphBg: controller.colorAudioTextParagraphBg,
                     );
@@ -882,7 +881,7 @@ class AudioTextScreen extends StatelessWidget {
 
               // ---------------- DESCRIPTION ----------------
               Text(
-                controller.paragraphs[controller.currentParagraphIndex].words.map((e) => e.word).join(" "),
+                controller.paragraphs[controller.currentParagraphIndex].allWords.map((e) => e.word).join(" "),
                 style: AppTextStyles.body16WhiteBold,
               ).paddingSymmetric(horizontal: 20),
 
@@ -1100,6 +1099,7 @@ class AudioTextScreen extends StatelessWidget {
                                 showDeleteDialog(
                                   context,
                                   onConfirm: () {
+                                    controller.pause();
                                     controller.stopListening();
                                   },
                                 );
@@ -1128,7 +1128,7 @@ class AudioTextScreen extends StatelessWidget {
 
       builder: (context) {
         return AlertDialog(
-          insetPadding: EdgeInsets.zero,
+          // insetPadding: EdgeInsets.zero,
           backgroundColor: AppColors.colorBgGray02,
           contentPadding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

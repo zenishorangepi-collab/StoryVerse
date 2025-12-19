@@ -35,18 +35,9 @@ class ParagraphWidget extends StatefulWidget {
 }
 
 class _ParagraphWidgetState extends State<ParagraphWidget> {
-  late final List<GlobalKey> wordKeys; // NEW: Word keys for this paragraph
-
-  @override
-  void initState() {
-    super.initState();
-    wordKeys = List.generate(widget.paragraph.words.length, (index) => GlobalKey());
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final allWords = widget.paragraph.allWords; // Get flattened words
 
     return Container(
       key: widget.widgetKey,
@@ -56,17 +47,17 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.isCurrentParagraph ? widget.colorAudioTextParagraphBg : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Wrap(spacing: 3, runSpacing: 3, children: _buildLineWidgets()),
+      child: Wrap(spacing: 3, runSpacing: 3, children: _buildLineWidgets(allWords)),
     );
   }
 
-  List<Widget> _buildLineWidgets() {
+  List<Widget> _buildLineWidgets(List<dynamic> allWords) {
     List<Widget> lineWidgets = [];
     List<Widget> currentLine = [];
     double? currentLineTop;
 
-    for (int i = 0; i < widget.paragraph.words.length; i++) {
-      final word = widget.paragraph.words[i];
+    for (int i = 0; i < allWords.length; i++) {
+      final word = allWords[i];
       final localIndex = i;
 
       final key = widget.controller.wordKeys[widget.globalWordStartIndex + localIndex];
@@ -93,11 +84,9 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         final top = box.localToGlobal(Offset.zero).dy;
 
         if (currentLineTop == null || (top - currentLineTop).abs() < 1.0) {
-          // same line
           currentLine.add(wordWidget);
           currentLineTop ??= top;
         } else {
-          // new line starts, wrap previous line in background
           lineWidgets.add(_buildLineContainer(currentLine));
           currentLine = [wordWidget];
           currentLineTop = top;

@@ -158,24 +158,34 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              if (isBookListening.value)
-                StreamBuilder(
-                  stream: isPlayAudio.stream,
-                  builder: (context, snap) {
-                    return MiniAudioPlayer(
-                      bookImage: CS.imgBookCover,
-                      authorName: bookInfo.value.authorName,
-                      bookName: bookInfo.value.bookName,
-                      playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
-                      onPlayPause: () {
-                        Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
-                      },
-                      onForward10: () {
-                        Get.find<AudioTextController>().skipForward();
-                      },
-                    );
-                  },
-                ),
+              StreamBuilder(
+                stream: isBookListening.stream,
+                builder: (context, snap) {
+                  if (!isBookListening.value) return SizedBox.fromSize();
+                  return StreamBuilder(
+                    stream: isPlayAudio.stream,
+                    builder: (context, asyncSnapshot) {
+                      return StreamBuilder(
+                        stream: bookInfo.stream,
+                        builder: (context, asyncSnapshot) {
+                          return MiniAudioPlayer(
+                            bookImage: CS.imgBookCover,
+                            authorName: bookInfo.value.authorName,
+                            bookName: bookInfo.value.bookName,
+                            playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
+                            onPlayPause: () {
+                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                            },
+                            onForward10: () {
+                              Get.find<AudioTextController>().skipForward();
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
         );
