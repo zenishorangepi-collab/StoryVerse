@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
+import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
 import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/home_model.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_controller.dart';
@@ -18,64 +20,171 @@ class HomeScreen extends StatelessWidget {
       init: HomeController(),
       builder: (controller) {
         return Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                expandedHeight: 60,
-                floating: true,
-                // shows AppBar when scrolling down
-                snap: true,
-                // smooth animation
-                pinned: false,
-                // disappears when scrolling up
-                backgroundColor: AppColors.colorBgGray02,
-                elevation: 0,
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20, top: 10),
-                    child: GestureDetector(
-                      onTap: () {},
+          body: Stack(
+            children: [
+              CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 60,
+                    floating: true,
+                    // shows AppBar when scrolling down
+                    snap: true,
+                    // smooth animation
+                    pinned: false,
+                    // disappears when scrolling up
+                    backgroundColor: AppColors.colorBgGray02,
+                    elevation: 0,
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 20, top: 10),
+                        child: GestureDetector(
+                          onTap: () {},
 
-                      child: Container(
-                        width: 34,
-                        height: 34,
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
-                        child: Image.asset(CS.icSearch),
+                          child: Container(
+                            width: 34,
+                            height: 34,
+                            padding: EdgeInsets.all(6),
+                            decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
+                            child: Image.asset(CS.icSearch),
+                          ),
+                        ),
+                      ),
+
+                      // Padding(
+                      //   padding: const EdgeInsets.only(right: 12),
+                      //   child: GestureDetector(
+                      //     onTap: () {},
+                      //     child: CircleAvatar(
+                      //       radius: 17,
+                      //       backgroundColor: Colors.white24,
+                      //       child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 34, width: 34)),
+                      //     ),
+                      //   ),
+                      // ),
+                    ],
+                    title: Text(
+                      "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}",
+                      style: AppTextStyles.heading24WhiteMedium,
+                    ).paddingOnly(top: 10, left: 10),
+                  ),
+                  if (controller.listRecents.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 150,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 20),
+                            Text(CS.vRecentsListening, style: AppTextStyles.body16GreyMedium).screenPadding(),
+
+                            Expanded(
+                              child: ListView.builder(
+                                padding: const EdgeInsets.only(left: 25, top: 20, bottom: 0, right: 16),
+                                scrollDirection: Axis.horizontal,
+                                itemCount: controller.listRecents.length,
+                                itemBuilder: (context, index) {
+                                  return SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.85, // adjusts
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                                          decoration: BoxDecoration(color: AppColors.colorBgGray04, borderRadius: BorderRadius.circular(5)),
+                                          child: Card(
+                                            elevation: 2,
+                                            shadowColor: AppColors.colorBlack,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(2),
+                                              child: Image.asset(controller.listRecents[index].image, height: 60, fit: BoxFit.cover),
+                                            ),
+                                          ),
+                                        ),
+
+                                        const SizedBox(width: 15),
+
+                                        Expanded(
+                                          child: Column(
+                                            spacing: 3,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(controller.listRecents[index].title, style: AppTextStyles.body14WhiteBold),
+
+                                              Text(
+                                                controller.listRecents[index].summary,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: AppTextStyles.body14GreySemiBold,
+                                              ),
+
+                                              Text(
+                                                controller.formatReadableLength(controller.listRecents[index].length),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: AppTextStyles.body14GreySemiBold,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(3, (index) {
+                          return bookHorizontalSection(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.bookDetailsScreen)?.then((_) {
+                                // Called when Summary closes (final back)
+                                controller.getRecentList();
+                              });
+                            },
+                            title: index == 1 ? "Love" : "Action",
+                            image: index == 1 ? CS.imgBookCover2 : CS.imgBookCover,
+                          );
+                        }),
+                      ).paddingOnly(bottom: isBookListening.value ? 100 : 0);
+                    }, childCount: 1),
                   ),
-
-                  // Padding(
-                  //   padding: const EdgeInsets.only(right: 12),
-                  //   child: GestureDetector(
-                  //     onTap: () {},
-                  //     child: CircleAvatar(
-                  //       radius: 17,
-                  //       backgroundColor: Colors.white24,
-                  //       child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 34, width: 34)),
-                  //     ),
-                  //   ),
-                  // ),
                 ],
-                title: Text("${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}", style: AppTextStyles.heading24WhiteMedium).paddingOnly(top: 10),
               ),
-
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(3, (index) {
-                      return bookHorizontalSection(
-                        onTap: () {
-                          Get.toNamed(AppRoutes.bookDetailsScreen);
+              StreamBuilder(
+                stream: isBookListening.stream,
+                builder: (context, snap) {
+                  if (!isBookListening.value) return SizedBox.fromSize();
+                  return StreamBuilder(
+                    stream: isPlayAudio.stream,
+                    builder: (context, asyncSnapshot) {
+                      return StreamBuilder(
+                        stream: bookInfo.stream,
+                        builder: (context, asyncSnapshot) {
+                          return MiniAudioPlayer(
+                            bookImage: CS.imgBookCover,
+                            authorName: bookInfo.value.authorName,
+                            bookName: bookInfo.value.bookName,
+                            playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
+                            onPlayPause: () {
+                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                            },
+                            onForward10: () {
+                              Get.find<AudioTextController>().skipForward();
+                            },
+                          );
                         },
-                        title: index == 1 ? "Love" : "Action",
-                        image: index == 1 ? CS.imgBookCover2 : CS.imgBookCover,
                       );
-                    }),
+                    },
                   );
-                }, childCount: 1),
+                },
               ),
             ],
           ),
@@ -88,7 +197,7 @@ class HomeScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 25),
+        const SizedBox(height: 20),
         commonHeadingText(title).screenPadding(),
         const SizedBox(height: 10),
         GestureDetector(
@@ -107,7 +216,7 @@ class HomeScreen extends StatelessWidget {
                   children: [Image.asset(image), Text("A Million To One", style: AppTextStyles.body14GreyBold)],
                 );
               },
-            ),
+            ).paddingOnly(left: 8),
           ),
         ),
       ],

@@ -43,6 +43,7 @@ class AppTextStyles {
 
   //20
   static TextStyle heading20WhiteSemiBold = wholeAppFont(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.colorWhite);
+  static TextStyle heading20WhiteRegular = wholeAppFont(fontSize: 20, color: AppColors.colorWhite);
   static TextStyle heading20BlackBold = wholeAppFont(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.colorBlack);
 
   //18

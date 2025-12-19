@@ -7,16 +7,24 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:utsav_interview/app/audio_text_view/models/book_info_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
+import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
 
-bool isAudioPlay = false;
+RxBool isBookListening = false.obs;
+RxBool isPlayAudio = false.obs;
+RxString vAuthorName = "".obs;
+RxString vBookName = "".obs;
+RxString vBookImage = "".obs;
+RxString vBookId = "".obs;
+Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '').obs;
 
 class AudioTextController extends GetxController {
   // ------------------------------------------------------------
@@ -150,15 +158,77 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    updateAudioBoolean(true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadIsBookListening();
+    });
     scrollController = ScrollController(initialScrollOffset: -10);
     scrollController.addListener(_onCollapseScroll);
-
-    initializeApp();
+    print(Get.arguments);
+    if (!(Get.arguments ?? false)) {
+      initializeApp();
+    }
   }
 
-  updateAudioBoolean(bool value) {
-    isAudioPlay = value;
+  Future<void> saveBookInfo(BookInfoModel model) async {
+    final jsonString = jsonEncode(model.toMap());
+    AppPrefs.setString(CS.keyBookInfo, jsonString);
+  }
+
+  Future<BookInfoModel> loadBookInfo() async {
+    final jsonString = AppPrefs.getString(CS.keyBookInfo);
+
+    final map = jsonDecode(jsonString);
+    return BookInfoModel.fromMap(map);
+  }
+
+  Future<void> clearBookInfo() async {
+    AppPrefs.remove(CS.keyBookInfo);
+  }
+
+  Future<void> setIsBookListening(bool value) async {
+    return AppPrefs.setBool(CS.keyIsBookListening, value);
+  }
+
+  Future<bool> getIsBookListening() async {
+    return AppPrefs.getBool(CS.keyIsBookListening);
+  }
+
+  Future<void> loadIsBookListening() async {
+    isBookListening.value = await getIsBookListening();
+    bookInfo.value = await loadBookInfo();
+  }
+
+  void startListening() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      isBookListening.value = true;
+      vAuthorName.value = "Tony Faggioli";
+      vBookName.value = "A Million To One";
+      saveBookInfo(BookInfoModel(authorName: vAuthorName.value, bookName: vBookName.value, bookImage: "", bookId: ""));
+      setIsBookListening(true);
+    });
+  }
+
+  Future<void> stopListening() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      isBookListening.value = false;
+      setIsBookListening(false);
+      vAuthorName.value = "";
+      vBookName.value = "";
+      await clearBookInfo();
+      // Get.delete<AudioTextController>();
+
+      // _isDisposed = true;
+      //
+      // _positionSubscription?.cancel();
+      // _stateSubscription?.cancel();
+      // _completionSubscription?.cancel();
+      //
+      // if (audioPlayer.state != PlayerState.disposed) {
+      //   audioPlayer.stop();
+      //   audioPlayer.dispose();
+      //   initializeApp();
+      // }
+    });
   }
 
   // ------------------------------------------------------------
@@ -166,7 +236,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> initializeApp() async {
     try {
-      transcript = await fetchJsonData();
+      transcript = await loadRealData();
       paragraphs = transcript?.paragraphs ?? [];
 
       getBookmark();
@@ -178,18 +248,20 @@ class AudioTextController extends GetxController {
 
       // Build wordKeys list (preserve original logic)
       for (final paragraph in paragraphs) {
-        for (int i = 0; i < paragraph.words.length; i++) {
+        final allWords = paragraph.allWords; // Use allWords instead of words
+        for (int i = 0; i < allWords.length; i++) {
           wordKeys.add(GlobalKey());
         }
       }
-
       syncEngine = SyncEngine(paragraphs);
 
       _duration = transcript?.duration ?? 0;
       _audioUrl = transcript?.audioUrl;
 
       await audioInitialize();
-
+      saveRecentView(
+        RecentViewModel(id: "", title: "A Million to one", image: CS.imgBookCover, summary: "summary text here show", length: formatTime(duration)),
+      );
       // Preserve user scroll listener addition
       scrollController.addListener(_onUserScroll);
 
@@ -206,7 +278,23 @@ class AudioTextController extends GetxController {
     }
   }
 
-  // ---------------- CONTROLLER ----------------
+  /// Recent Listening Save Pref
+  Future<void> saveRecentView(RecentViewModel book) async {
+    List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
+
+    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
+
+    items.removeWhere((e) => e.id == book.id);
+
+    items.insert(0, book);
+
+    if (items.length > 10) {
+      items.removeLast();
+    }
+
+    // save back
+    AppPrefs.setStringList(CS.keyRecentViews, items.map((e) => jsonEncode(e.toJson())).toList());
+  }
 
   addNoteBookmark() async {
     listBookmarks = await getBookmarksPrefs();
@@ -233,10 +321,11 @@ class AudioTextController extends GetxController {
 
     final newItem = BookmarkModel(
       id: paragraphId,
-      paragraph: paragraphs[currentParagraphIndex].words.map((e) => e.word).join(" "),
+      paragraph: paragraphs[currentParagraphIndex].allWords.map((e) => e.word).join(" "),
+      // Use allWords
       note: "",
-      startTime: formatTime(paragraphs[currentParagraphIndex].words.first.start),
-      endTime: formatTime(paragraphs[currentParagraphIndex].words.last.start),
+      startTime: formatTime(paragraphs[currentParagraphIndex].allWords.first.start),
+      endTime: formatTime(paragraphs[currentParagraphIndex].allWords.last.start),
     );
 
     await saveBookmark(data: newItem);
@@ -280,7 +369,7 @@ class AudioTextController extends GetxController {
 
       await saveBookmarkList(listBookmarks ?? []);
 
-      transcript = await fetchJsonData();
+      transcript = await loadRealData();
       paragraphs = transcript?.paragraphs ?? [];
 
       await getBookmark();
@@ -420,7 +509,7 @@ class AudioTextController extends GetxController {
 
       if (_audioUrl != null) {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
-        await audioPlayer.setSourceUrl(_audioUrl!);
+        await audioPlayer.setSourceAsset(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
 
         _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
@@ -514,7 +603,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Playback Controls
   // ------------------------------------------------------------
-  Future<void> play({bool isPositionScrollOnly = false}) async {
+  Future<void> play({bool isPositionScrollOnly = false, bool isOnlyPlayAudio = false}) async {
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
     // if (_isPlaying) return;
 
@@ -522,7 +611,7 @@ class AudioTextController extends GetxController {
 
     try {
       // ⭐ NEW: If no paragraph is active → scroll to top
-      if (currentParagraphIndex == -1) {
+      if (currentParagraphIndex == -1 && !isOnlyPlayAudio) {
         await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
       }
 
@@ -540,7 +629,7 @@ class AudioTextController extends GetxController {
 
       // First-time play
       if (!_hasPlayedOnce) {
-        await audioPlayer.play(UrlSource(_audioUrl!));
+        await audioPlayer.play(AssetSource(_audioUrl!));
         _hasPlayedOnce = true;
       }
       // Resume
@@ -549,6 +638,8 @@ class AudioTextController extends GetxController {
       }
 
       _isPlaying = true;
+      isPlayAudio.value = true;
+
       _lastDriftCheck = DateTime.now();
 
       update();
@@ -569,6 +660,7 @@ class AudioTextController extends GetxController {
     try {
       await audioPlayer.pause();
       _isPlaying = false;
+      isPlayAudio.value = false;
       _lastDriftCheck = null;
       update();
     } catch (e) {
@@ -579,11 +671,11 @@ class AudioTextController extends GetxController {
     }
   }
 
-  Future<void> togglePlayPause() async {
+  Future<void> togglePlayPause({bool isOnlyPlayAudio = false}) async {
     if (_isPlaying) {
       await pause();
     } else {
-      await play();
+      await play(isOnlyPlayAudio: isOnlyPlayAudio);
     }
   }
 
@@ -755,19 +847,19 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   @override
   void onClose() {
-    _isDisposed = true;
+    // _isDisposed = true;
 
-    _positionSubscription?.cancel();
-    _stateSubscription?.cancel();
-    _completionSubscription?.cancel();
+    // _positionSubscription?.cancel();
+    // _stateSubscription?.cancel();
+    // _completionSubscription?.cancel();
 
     // safe dispose of scrollController
     try {
       scrollController.dispose();
     } catch (_) {}
 
-    audioPlayer.stop();
-    audioPlayer.dispose();
+    // audioPlayer.stop();
+    // audioPlayer.dispose();
 
     super.onClose();
   }

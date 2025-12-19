@@ -15,14 +15,14 @@ class DobScreen extends StatelessWidget {
     return GetBuilder<DobController>(
       builder: (controller) {
         return Scaffold(
-          backgroundColor: AppColors.colorWhite,
+          // backgroundColor: AppColors.colorWhite,
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
                   const SizedBox(height: 80),
-                  Text(CS.vWhatYourDateOfBirth, style: AppTextStyles.heading20BlackBold),
+                  Text(CS.vWhatYourDateOfBirth, style: AppTextStyles.heading20WhiteSemiBold),
                   const SizedBox(height: 8),
                   Text(CS.vWeAskForYourDateOfBirth, textAlign: TextAlign.center, style: AppTextStyles.body14GreyBold),
                   const SizedBox(height: 50),
@@ -63,7 +63,7 @@ class DobScreen extends StatelessWidget {
                     onTap: () {
                       Get.toNamed(AppRoutes.preference);
                     },
-                    isDark: true,
+
                     title: CS.vContinue,
                   ),
 
@@ -72,7 +72,7 @@ class DobScreen extends StatelessWidget {
                     onPressed: () {
                       Get.toNamed(AppRoutes.preference);
                     },
-                    child: Text(CS.vSkip, style: AppTextStyles.button18BlackBold),
+                    child: Text(CS.vSkip, style: AppTextStyles.button16WhiteBold),
                   ),
                   const SizedBox(height: 22),
                 ],
@@ -98,7 +98,7 @@ class DobScreen extends StatelessWidget {
           // Wheel
           ListWheelScrollView.useDelegate(
             controller: scrollController,
-            itemExtent: 30,
+            itemExtent: 35,
             physics: const FixedExtentScrollPhysics(),
             diameterRatio: 1.5,
             perspective: 0.005,
@@ -122,40 +122,42 @@ class DobScreen extends StatelessWidget {
                         ? controller.selectedMonth == index + 1
                         : controller.selectedYear == items[index];
 
-                return Center(child: Text(itemBuilder(items[index]), style: isSelected ? AppTextStyles.body22GreyMedium : AppTextStyles.body20GreyMedium));
+                return Center(
+                  child: Text(itemBuilder(items[index]), style: isSelected ? AppTextStyles.heading20WhiteSemiBold : AppTextStyles.body20GreyMedium),
+                );
               },
             ),
           ),
 
-          // 🔥 TOP SHADOW
-          Positioned(
-            top: 10,
-            left: 0,
-            right: 0,
-            height: 40,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.white, Colors.white.withOpacity(0.0)]),
-                ),
-              ),
-            ),
-          ),
-
-          // 🔥 BOTTOM SHADOW
-          Positioned(
-            bottom: 10,
-            left: 0,
-            right: 0,
-            height: 40,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [Colors.white, Colors.white.withOpacity(0.0)]),
-                ),
-              ),
-            ),
-          ),
+          // // 🔥 TOP SHADOW
+          // Positioned(
+          //   top: 10,
+          //   left: 0,
+          //   right: 0,
+          //   height: 40,
+          //   child: IgnorePointer(
+          //     child: Container(
+          //       decoration: BoxDecoration(
+          //         gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.colorBgWhite10]),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          //
+          // // 🔥 BOTTOM SHADOW
+          // Positioned(
+          //   bottom: 10,
+          //   left: 0,
+          //   right: 0,
+          //   height: 40,
+          //   child: IgnorePointer(
+          //     child: Container(
+          //       decoration: BoxDecoration(
+          //         gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: [Colors.white, Colors.white.withOpacity(0.0)]),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

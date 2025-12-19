@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
+import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
@@ -18,15 +20,37 @@ class LibraryScreen extends StatelessWidget {
         return Scaffold(
           // backgroundColor: const Color(0xFF1C1C1C),
           body: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                const SizedBox(height: 16),
-                _header(controller).screenPadding(),
-                const SizedBox(height: 16),
-                _tabs(controller).screenPadding(),
-                const SizedBox(height: 20),
-                Expanded(child: _content(controller)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    _header(controller).screenPadding(),
+                    const SizedBox(height: 16),
+                    _tabs(controller).screenPadding(),
+                    const SizedBox(height: 20),
+                    Expanded(child: _content(controller)),
+                  ],
+                ),
+                if (isBookListening.value)
+                  StreamBuilder(
+                    stream: isPlayAudio.stream,
+                    builder: (context, snap) {
+                      return MiniAudioPlayer(
+                        bookImage: CS.imgBookCover,
+                        authorName: bookInfo.value.authorName,
+                        bookName: bookInfo.value.bookName,
+                        playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
+                        onPlayPause: () {
+                          Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                        },
+                        onForward10: () {
+                          Get.find<AudioTextController>().skipForward();
+                        },
+                      );
+                    },
+                  ),
               ],
             ),
           ),

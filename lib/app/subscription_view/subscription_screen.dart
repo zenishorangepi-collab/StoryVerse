@@ -137,6 +137,7 @@ class SubscriptionScreen extends StatelessWidget {
                     backgroundColor: AppColors.colorBgWhite10,
 
                     title: CS.vContinueFree,
+                    textStyle: AppTextStyles.body16WhiteMedium,
                   ).screenPadding(),
 
               const SizedBox(height: 40),

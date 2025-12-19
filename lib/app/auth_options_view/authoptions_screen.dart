@@ -17,7 +17,7 @@ class AuthOptionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.colorWhite,
+      // backgroundColor: AppColors.colorWhite,
       body: GetBuilder<AuthOptionsController>(
         init: AuthOptionsController(),
         builder: (controller) {
@@ -28,7 +28,10 @@ class AuthOptionsScreen extends StatelessWidget {
               Row(
                 // mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 12,
-                children: [Image.asset(CS.imgSplashLogo, height: 40, width: 40), Text(CS.vAppName, style: AppTextStyles.heading28BlackBold)],
+                children: [
+                  Image.asset(CS.imgSplashLogo, height: 40, width: 40, color: AppColors.colorWhite),
+                  Text(CS.vAppName, style: AppTextStyles.heading28WhiteBold),
+                ],
               ),
               Text(CS.vAuthText, style: AppTextStyles.body14GreyBold),
               SizedBox(height: 20),
@@ -43,8 +46,7 @@ class AuthOptionsScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: controller.isGoogleLogin && controller.isLoading ? null : Image.asset(CS.icGoogle, height: 20),
-                    label:
-                        controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueWithGoogle, style: AppTextStyles.heading18BlackMedium),
+                    label: controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueWithGoogle, style: AppTextStyles.body16WhiteMedium),
                     onPressed: () {
                       showTermsDialog(
                         onAgree: () async {
@@ -59,23 +61,23 @@ class AuthOptionsScreen extends StatelessWidget {
                     // onPressed: () => controller.signInWithGoogle(),
                   ),
                   controller.isGoogleLogin && controller.isLoading
-                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorBlack)))
+                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorWhite)))
                       : SizedBox(),
                 ],
               ),
-              if (Platform.isIOS)
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    overlayColor: AppColors.colorTransparent,
-                    minimumSize: const Size(double.infinity, 52),
-                    side: const BorderSide(color: AppColors.colorGrey),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  icon: Image.asset(CS.icAppleLogo, height: 20, color: AppColors.colorBlack),
-                  label: Text(CS.vContinueWithApple, style: AppTextStyles.heading18BlackMedium),
-                  onPressed: () {},
-                  // onPressed: () => controller.signInWithGoogle(),
+              // if (Platform.isIOS)
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  overlayColor: AppColors.colorTransparent,
+                  minimumSize: const Size(double.infinity, 52),
+                  side: const BorderSide(color: AppColors.colorGrey),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
+                icon: Image.asset(CS.icAppleLogo, height: 20, color: AppColors.colorWhite),
+                label: Text(CS.vContinueWithApple, style: AppTextStyles.body16WhiteMedium),
+                onPressed: () {},
+                // onPressed: () => controller.signInWithGoogle(),
+              ),
 
               Stack(
                 alignment: Alignment.center,
@@ -87,16 +89,16 @@ class AuthOptionsScreen extends StatelessWidget {
                       side: const BorderSide(color: AppColors.colorGrey),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    icon: !controller.isGoogleLogin && controller.isLoading ? null : Image.asset(CS.icProfile, height: 22, color: AppColors.colorBlack),
+                    icon: !controller.isGoogleLogin && controller.isLoading ? null : Image.asset(CS.icProfile, height: 22, color: AppColors.colorWhite),
 
-                    label: !controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueGuest, style: AppTextStyles.heading18BlackMedium),
+                    label: !controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueGuest, style: AppTextStyles.body16WhiteMedium),
                     onPressed: () async {
                       await controller.signInAsGuest(context);
                     },
                     // onPressed: () => controller.signInWithGoogle(),
                   ),
                   !controller.isGoogleLogin && controller.isLoading
-                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorBlack)))
+                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorWhite)))
                       : SizedBox(),
                 ],
               ),

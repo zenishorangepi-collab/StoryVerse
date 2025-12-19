@@ -23,6 +23,7 @@ class CS {
   static const String vGender = "Gender";
   static const String vExplore = "Explore";
   static const String vRecents = "Recents";
+  static const String vRecentsListening = "Recents listening";
   static const String vShareLink = "Share link";
   static const String vShareCurrentClip = "Share current clip";
   static const String vSaveSettings = "Save settings";
@@ -85,6 +86,7 @@ class CS {
   static const String vAudioTextSynchronizer = "Audio Text Synchronizer";
   static const String vAnErrorOccurred = "An error occurred";
   static const String vConfirmDeletion = "Confirm deletion?";
+  static const String vYouWillNoLongerHave = "You will no longer have this item in your library.";
   static const String vWhatYourDateOfBirth = "What's your date of birth?";
   static const String vOpenSans = "OpenSans";
   static const String vInter = "Inter";
@@ -313,6 +315,9 @@ class CS {
   static String keyIsLoginIn = "isLoggedIn";
   static String keyUserData = "userData";
   static String keyBookmarks = "bookmarks";
+  static String keyRecentViews = "recent_views";
+  static String keyIsBookListening = "isBookListening";
+  static String keyBookInfo = "bookInfo";
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";
