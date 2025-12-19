@@ -221,6 +221,7 @@ class AudioTextScreen extends StatelessWidget {
 
   /// new
   Widget _buildTranscriptView(context, AudioTextController controller) {
+    controller.startListening();
     final paragraphs = controller.transcript?.paragraphs;
 
     if (paragraphs == null) {
@@ -1096,7 +1097,12 @@ class AudioTextScreen extends StatelessWidget {
                               title: CS.vDelete,
                               iconColor: AppColors.colorRed,
                               onTap: () {
-                                showDeleteDialog(context, onConfirm: () {});
+                                showDeleteDialog(
+                                  context,
+                                  onConfirm: () {
+                                    controller.stopListening();
+                                  },
+                                );
                               },
                             ),
                             Divider(color: AppColors.colorGreyDivider),
@@ -1139,10 +1145,10 @@ class AudioTextScreen extends StatelessWidget {
             TextButton(
               style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
               onPressed: () {
-                Navigator.pop(context);
+                Get.close(3);
                 onConfirm();
               },
-              child: Text(CS.vConfirm, style: AppTextStyles.body14RedBold),
+              child: Text(CS.vConfirm, style: AppTextStyles.body16RedBold),
             ),
           ],
         );

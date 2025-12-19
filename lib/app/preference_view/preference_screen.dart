@@ -17,7 +17,7 @@ class PreferenceScreen extends StatelessWidget {
       init: PreferenceController(),
       builder: (controller) {
         return Scaffold(
-          backgroundColor: AppColors.colorWhite,
+          // backgroundColor: AppColors.colorWhite,
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -25,7 +25,7 @@ class PreferenceScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 50),
-                  Text(CS.vWhatWouldYouLikeToListen, style: AppTextStyles.heading20BlackBold),
+                  Text(CS.vWhatWouldYouLikeToListen, style: AppTextStyles.heading20WhiteSemiBold),
                   const SizedBox(height: 30),
 
                   Expanded(
@@ -38,10 +38,10 @@ class PreferenceScreen extends StatelessWidget {
 
                         return commonListTile(
                           icon: item.icon,
-                          tileColor: isSelected ? AppColors.colorBlack : AppColors.colorWhite,
-                          iconColor: isSelected ? AppColors.colorWhite : AppColors.colorBlack,
+                          tileColor: isSelected ? AppColors.colorWhite : AppColors.colorChipBackground,
+                          iconColor: isSelected ? AppColors.colorBlack : AppColors.colorWhite,
                           title: item.title,
-                          style: isSelected ? AppTextStyles.button16WhiteBold : AppTextStyles.button16BlackBold,
+                          style: isSelected ? AppTextStyles.button16BlackBold : AppTextStyles.button16WhiteBold,
                           // trailing: isSelected ? Icon(Icons.check_circle, color: Colors.black) : SizedBox(),
                           onTap: () {
                             controller.selectItem(index);
@@ -60,9 +60,10 @@ class PreferenceScreen extends StatelessWidget {
                               Get.toNamed(AppRoutes.interests);
                             }
                             : null,
-                    isDark: true,
-                    backgroundColor: controller.isContinueEnabled ? AppColors.colorBlack : AppColors.colorGrey,
+                    // isDark: true,
+                    backgroundColor: controller.isContinueEnabled ? AppColors.colorWhite : AppColors.colorGrey,
                     title: CS.vContinue,
+                    textStyle: controller.isContinueEnabled ? AppTextStyles.button16BlackBold : AppTextStyles.body16WhiteMedium,
                   ),
                   const SizedBox(height: 30),
                 ],

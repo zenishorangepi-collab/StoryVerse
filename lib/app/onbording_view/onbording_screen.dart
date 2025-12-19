@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/onbording_view/onbording_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_elevated_button.dart';
+import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 
@@ -56,21 +58,10 @@ class OnboardingScreen extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // Next button
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: controller.nextPage,
-                      style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
-                      child: Text(
-                        controller.currentIndex.value == controller.totalPages - 1 ? CS.vGetStarted : CS.vNext,
-                        style: AppTextStyles.button18BlackBold,
-                      ),
-                    ),
-                  ),
-                ),
+                CommonElevatedButton(
+                  onTap: controller.nextPage,
+                  title: controller.currentIndex.value == controller.totalPages - 1 ? CS.vGetStarted : CS.vNext,
+                ).screenPadding(),
 
                 const SizedBox(height: 20),
               ],

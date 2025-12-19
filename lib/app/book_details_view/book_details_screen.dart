@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
+import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
 import 'package:utsav_interview/app/auth_options_view/authoptions_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
@@ -10,6 +11,8 @@ import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
+
+import '../audio_text_view/audio_text_controller.dart';
 
 class BookDetailsScreen extends StatelessWidget {
   const BookDetailsScreen({super.key});
@@ -170,36 +173,34 @@ class BookDetailsScreen extends StatelessWidget {
             ),
           ).screenPadding(),
 
-          if (isAudioPlay)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                padding: EdgeInsets.all(5),
-
-                decoration: BoxDecoration(color: AppColors.colorDialogHeader, borderRadius: BorderRadiusGeometry.circular(10)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-
-                  children: [
-                    SizedBox(width: 5),
-                    Image.asset(CS.imgBookCover, width: 50, height: 35),
-                    SizedBox(width: 10),
-                    Column(
-                      children: [
-                        Text("Author Name", style: AppTextStyles.body14GreyRegular, maxLines: 1),
-                        Text("Book Name", maxLines: 1, style: AppTextStyles.body16WhiteMedium),
-                      ],
-                    ),
-                    Spacer(),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.play_arrow_rounded, size: 40, color: AppColors.colorWhite)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.forward_10_rounded, size: 30, color: AppColors.colorWhite)),
-                  ],
-                ),
-              ),
-            ),
+          StreamBuilder(
+            stream: isBookListening.stream,
+            builder: (context, snap) {
+              if (!isBookListening.value) return SizedBox.fromSize();
+              return StreamBuilder(
+                stream: isPlayAudio.stream,
+                builder: (context, asyncSnapshot) {
+                  return StreamBuilder(
+                    stream: bookInfo.stream,
+                    builder: (context, asyncSnapshot) {
+                      return MiniAudioPlayer(
+                        bookImage: CS.imgBookCover,
+                        authorName: bookInfo.value.authorName,
+                        bookName: bookInfo.value.bookName,
+                        playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
+                        onPlayPause: () {
+                          Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                        },
+                        onForward10: () {
+                          Get.find<AudioTextController>().skipForward();
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
 
