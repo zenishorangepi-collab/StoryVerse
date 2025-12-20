@@ -63,73 +63,73 @@ class BookDetailsScreen extends StatelessWidget {
           /// 🔹 Foreground Content
           SafeArea(
             child: SingleChildScrollView(
-              child:
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 40),
 
-                      /// Book Cover
-                      Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset(CS.imgBookCover2, height: 260))),
+                  /// Book Cover
+                  Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset(CS.imgBookCover2, height: 260))),
 
-                      const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                      Center(child: Text('Princess of Amazon', style: AppTextStyles.heading20WhiteSemiBold)),
+                  Center(child: Text('Princess of Amazon', style: AppTextStyles.heading20WhiteSemiBold)),
 
-                      const SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
-                      Center(child: Text('by Alan Mitchell', style: AppTextStyles.body16WhiteBold)),
-                      const SizedBox(height: 30),
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: AppColors.colorChipBackground),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [Text(CS.vLength, style: AppTextStyles.body16GreyMedium), Text("22m", style: AppTextStyles.body16WhiteBold)],
-                              ),
-                            ),
-                            Container(color: AppColors.colorBgWhite10, height: 50, width: 2),
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Text(CS.vPublished, style: AppTextStyles.body16GreyMedium),
-                                  Text("Oct 28,2025", style: AppTextStyles.body16WhiteBold),
-                                ],
-                              ),
-                            ),
-                          ],
+                  Center(child: Text('by Alan Mitchell', style: AppTextStyles.body14WhiteBold)),
+                  const SizedBox(height: 30),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: AppColors.colorChipBackground),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            spacing: 5,
+                            children: [Text(CS.vLength, style: AppTextStyles.body14GreyBold), Text("22m", style: AppTextStyles.body14WhiteBold)],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(CS.vSummary, style: AppTextStyles.body16WhiteBold),
-                      const SizedBox(height: 5),
-                      Text("er dgdjfbiv djufh bhdifh bidhfibh diojkfhb dhfijkbh dfbhdoubfhi dhfibh dikohfbiodio", style: AppTextStyles.body12GreyRegular),
-                      const SizedBox(height: 20),
-                      Text(CS.vDetails, style: AppTextStyles.body16WhiteBold),
-                      const SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Expanded(child: Text(CS.vLength, style: AppTextStyles.body14GreyRegular)),
-                          Expanded(flex: 2, child: Text("2 mins", style: AppTextStyles.body14WhiteBold)),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(child: Text(CS.vPublished, style: AppTextStyles.body14GreyRegular)),
-                          Expanded(flex: 2, child: Text("Oct 28, 2025", style: AppTextStyles.body14WhiteBold)),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(child: Text(CS.vLanguage, style: AppTextStyles.body14GreyRegular)),
-                          Expanded(flex: 2, child: Text("English", style: AppTextStyles.body14WhiteBold)),
-                        ],
-                      ),
+                        Container(color: AppColors.colorBgWhite10, height: 50, width: 2),
+                        Expanded(
+                          child: Column(
+                            spacing: 5,
+                            children: [Text(CS.vPublished, style: AppTextStyles.body14GreyBold), Text("Oct 28,2025", style: AppTextStyles.body14WhiteBold)],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(CS.vSummary, style: AppTextStyles.body16WhiteBold),
+                  const SizedBox(height: 5),
+                  Text("er dgdjfbiv djufh bhdifh bidhfibh diojkfhb dhfijkbh dfbhdoubfhi dhfibh dikohfbiodio", style: AppTextStyles.body14GreyRegular),
+                  const SizedBox(height: 20),
+                  Text(CS.vDetails, style: AppTextStyles.body16WhiteBold),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(child: Text(CS.vLength, style: AppTextStyles.body14GreyRegular)),
+                      Expanded(flex: 2, child: Text("2 mins", style: AppTextStyles.body14WhiteMedium)),
                     ],
-                  ).screenPadding(),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Expanded(child: Text(CS.vPublished, style: AppTextStyles.body14GreyRegular)),
+                      Expanded(flex: 2, child: Text("Oct 28, 2025", style: AppTextStyles.body14WhiteMedium)),
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Expanded(child: Text(CS.vLanguage, style: AppTextStyles.body14GreyRegular)),
+                      Expanded(flex: 2, child: Text("English", style: AppTextStyles.body14WhiteMedium)),
+                    ],
+                  ),
+                ],
+              ).screenPadding().paddingOnly(bottom: isBookListening.value ? 100 : 0),
             ),
           ),
 

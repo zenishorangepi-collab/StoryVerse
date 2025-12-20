@@ -22,6 +22,15 @@ class AudioTextScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<AudioTextController>(
       init: AudioTextController(),
+      initState: (state) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          try {
+            state.controller?.startListening();
+          } catch (e) {
+            print('Error starting listening: $e');
+          }
+        });
+      },
       builder: (controller) {
         if (controller.hasError) {
           return SafeArea(
@@ -145,7 +154,7 @@ class AudioTextScreen extends StatelessWidget {
                   builder: (controller) {
                     return Positioned(
                       right: 18,
-                      bottom: MediaQuery.of(context).size.height * 0.28,
+                      bottom: MediaQuery.of(context).size.height * 0.29,
                       child: GestureDetector(
                         onTap: () async {
                           controller.isScrolling = false;
@@ -221,7 +230,6 @@ class AudioTextScreen extends StatelessWidget {
 
   /// new
   Widget _buildTranscriptView(context, AudioTextController controller) {
-    controller.startListening();
     final paragraphs = controller.transcript?.paragraphs;
 
     if (paragraphs == null) {
@@ -857,55 +865,57 @@ class AudioTextScreen extends StatelessWidget {
         child: AnimatedPadding(
           duration: const Duration(milliseconds: 250),
           padding: MediaQuery.of(context).viewInsets,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ---------------- HEADER ----------------
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.colorDialogHeader,
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ---------------- HEADER ----------------
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.colorDialogHeader,
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(CS.vAddNote, style: AppTextStyles.heading20WhiteSemiBold),
+                      commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(CS.vAddNote, style: AppTextStyles.heading20WhiteSemiBold),
-                    commonCircleButton(onTap: () => Get.back(), iconPath: CS.icClose, iconSize: 12, padding: 12),
-                  ],
-                ),
-              ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              // ---------------- DESCRIPTION ----------------
-              Text(
-                controller.paragraphs[controller.currentParagraphIndex].allWords.map((e) => e.word).join(" "),
-                style: AppTextStyles.body16WhiteBold,
-              ).paddingSymmetric(horizontal: 20),
+                // ---------------- DESCRIPTION ----------------
+                Text(
+                  controller.paragraphs[controller.currentParagraphIndex].allWords.map((e) => e.word).join(" "),
+                  style: AppTextStyles.body16WhiteBold,
+                ).paddingSymmetric(horizontal: 20),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              // ---------------- TEXTFIELD ----------------
-              CommonTextFormField(controller: controller.addNoteController, hint: CS.vWriteNote, maxLines: 6).paddingSymmetric(horizontal: 20),
+                // ---------------- TEXTFIELD ----------------
+                CommonTextFormField(controller: controller.addNoteController, hint: CS.vWriteNote, maxLines: 6).paddingSymmetric(horizontal: 20),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              // ---------------- SAVE BUTTON ----------------
-              SizedBox(
-                width: double.infinity,
-                child: CommonElevatedButton(
-                  title: CS.vSaveNotes,
-                  onTap: () async {
-                    controller.addNoteBookmark();
-                    Get.back();
-                  },
-                ),
-              ).paddingSymmetric(horizontal: 25),
+                // ---------------- SAVE BUTTON ----------------
+                SizedBox(
+                  width: double.infinity,
+                  child: CommonElevatedButton(
+                    title: CS.vSaveNotes,
+                    onTap: () async {
+                      controller.addNoteBookmark();
+                      Get.back();
+                    },
+                  ),
+                ).paddingSymmetric(horizontal: 25),
 
-              const SizedBox(height: 35),
-            ],
+                const SizedBox(height: 35),
+              ],
+            ),
           ),
         ),
       ),
@@ -1098,9 +1108,12 @@ class AudioTextScreen extends StatelessWidget {
                               onTap: () {
                                 showDeleteDialog(
                                   context,
-                                  onConfirm: () {
-                                    controller.pause();
-                                    controller.stopListening();
+                                  onConfirm: () async {
+                                    final controller = Get.find<AudioTextController>();
+                                    await controller.stopListeningAndDelete();
+                                    Get.close(3);
+                                    // controller.pause();
+                                    // controller.stopListening();
                                   },
                                 );
                               },
@@ -1145,7 +1158,6 @@ class AudioTextScreen extends StatelessWidget {
             TextButton(
               style: ButtonStyle(overlayColor: WidgetStatePropertyAll(AppColors.colorTransparent)),
               onPressed: () {
-                Get.close(3);
                 onConfirm();
               },
               child: Text(CS.vConfirm, style: AppTextStyles.body16RedBold),

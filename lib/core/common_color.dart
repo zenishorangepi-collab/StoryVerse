@@ -20,7 +20,7 @@ class AppColors {
 
   // Greys
   static const Color colorGrey = Colors.grey;
-  static const Color colorGreyDivider = Color(0xff242424);
+  static const Color colorGreyDivider = Color(0x1AFFFFFF);
   static const Color colorBlack800 = Color(0xff020202);
   static const Color colorAppBar = Color(0xff3b3b3b);
   static const Color colorGreyBg = Color(0xff464646);
