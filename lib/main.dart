@@ -3,6 +3,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_notification_service/notification_service.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_binding.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/core/binding.dart';
@@ -16,6 +17,7 @@ bool shouldUseFirestoreEmulator = true;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // await AudioNotificationService.initialize();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AppPrefs.init();
 

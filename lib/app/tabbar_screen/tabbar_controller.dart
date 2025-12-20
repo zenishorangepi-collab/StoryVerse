@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/tabbar_screen/user_data_model.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
@@ -36,6 +37,7 @@ class TabBarScreenController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     userData = getUserFromPrefs();
+
     print(userData);
   }
 }

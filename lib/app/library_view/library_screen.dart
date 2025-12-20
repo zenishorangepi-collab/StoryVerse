@@ -28,29 +28,40 @@ class LibraryScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _header(controller).screenPadding(),
                     const SizedBox(height: 16),
-                    _tabs(controller).screenPadding(),
+                    _tabs(controller),
                     const SizedBox(height: 20),
                     Expanded(child: _content(controller)),
                   ],
                 ),
-                if (isBookListening.value)
-                  StreamBuilder(
-                    stream: isPlayAudio.stream,
-                    builder: (context, snap) {
-                      return MiniAudioPlayer(
-                        bookImage: CS.imgBookCover,
-                        authorName: bookInfo.value.authorName,
-                        bookName: bookInfo.value.bookName,
-                        playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
-                        onPlayPause: () {
-                          Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
-                        },
-                        onForward10: () {
-                          Get.find<AudioTextController>().skipForward();
-                        },
-                      );
-                    },
-                  ),
+                StreamBuilder(
+                  stream: isBookListening.stream,
+                  builder: (context, snap) {
+                    if (!isBookListening.value) return SizedBox.fromSize();
+
+                    return StreamBuilder(
+                      stream: isPlayAudio.stream,
+                      builder: (context, asyncSnapshot) {
+                        return StreamBuilder(
+                          stream: bookInfo.stream,
+                          builder: (context, asyncSnapshot) {
+                            return MiniAudioPlayer(
+                              bookImage: CS.imgBookCover,
+                              authorName: bookInfo.value.authorName,
+                              bookName: bookInfo.value.bookName,
+                              playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
+                              onPlayPause: () {
+                                Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                              },
+                              onForward10: () {
+                                Get.find<AudioTextController>().skipForward();
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -95,7 +106,7 @@ class LibraryScreen extends StatelessWidget {
                       value: SortType.recentlyAdded,
                       child: Row(
                         children: [
-                          Expanded(flex: 3, child: Text(CS.vRecentlyAdded, style: AppTextStyles.body16WhiteMedium)),
+                          Expanded(flex: 5, child: Text(CS.vRecentlyAdded, style: AppTextStyles.body14WhiteMedium)),
                           if (controller.selectedSort == SortType.recentlyAdded) Expanded(child: Icon(Icons.check, color: AppColors.colorWhite, size: 18)),
                         ],
                       ),
@@ -105,7 +116,7 @@ class LibraryScreen extends StatelessWidget {
                       value: SortType.recentlyListened,
                       child: Row(
                         children: [
-                          Expanded(flex: 3, child: Text(CS.vRecentlyListened, style: AppTextStyles.body16WhiteMedium)),
+                          Expanded(flex: 5, child: Text(CS.vRecentlyListened, style: AppTextStyles.body14WhiteMedium)),
                           if (controller.selectedSort == SortType.recentlyListened) Expanded(child: Icon(Icons.check, color: AppColors.colorWhite, size: 18)),
                         ],
                       ),
@@ -115,7 +126,7 @@ class LibraryScreen extends StatelessWidget {
                       value: SortType.progress,
                       child: Row(
                         children: [
-                          Expanded(flex: 3, child: Text(CS.vProgress, style: AppTextStyles.body16WhiteMedium)),
+                          Expanded(flex: 5, child: Text(CS.vProgress, style: AppTextStyles.body14WhiteMedium)),
                           if (controller.selectedSort == SortType.progress)
                             Expanded(
                               flex: 4,
@@ -137,12 +148,15 @@ class LibraryScreen extends StatelessWidget {
 
   /// TABS
   Widget _tabs(LibraryController controller) {
-    return Row(
-      children: [
-        _tab(CS.vSaved, LibraryTab.saved, controller),
-        _tab(CS.vCollections, LibraryTab.collections, controller),
-        _tab(CS.vArchive, LibraryTab.archive, controller),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _tab(CS.vSaved, LibraryTab.saved, controller).paddingOnly(left: 20),
+          _tab(CS.vCollections, LibraryTab.collections, controller),
+          _tab(CS.vArchive, LibraryTab.archive, controller),
+        ],
+      ),
     );
   }
 
@@ -236,7 +250,7 @@ class LibraryScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(CS.vBookTitle, style: AppTextStyles.body16WhiteBold),
+                      Text(CS.vBookTitle, style: AppTextStyles.body14WhiteBold),
 
                       Text("${CS.vAuthorName}\n${CS.vDuration}", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
 
@@ -290,11 +304,9 @@ class LibraryScreen extends StatelessWidget {
       children: [
         Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5),
 
-        commonListTile(imageHeight: 30, title: CS.vCreateCollection, icon: Icons.add, style: AppTextStyles.body16WhiteBold),
-
-        Divider(color: AppColors.colorGreyDivider),
+        // commonListTile(imageHeight: 30, title: CS.vCreateCollection, icon: Icons.add, style: AppTextStyles.body16WhiteBold),
+        // Divider(color: AppColors.colorGreyDivider),
         commonListTile(
-          imageHeight: 30,
           title: CS.vDownloaded,
           icon: Icons.download,
           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
@@ -303,7 +315,6 @@ class LibraryScreen extends StatelessWidget {
         Divider(color: AppColors.colorGreyDivider),
         Text(CS.vByType, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5, top: 15),
         commonListTile(
-          imageHeight: 30,
           title: CS.vBooks,
           icon: Icons.book,
           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
@@ -312,7 +323,6 @@ class LibraryScreen extends StatelessWidget {
 
         Divider(color: AppColors.colorGreyDivider),
         commonListTile(
-          imageHeight: 30,
           title: CS.vGenFm,
           icon: Icons.auto_awesome,
           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
@@ -321,7 +331,6 @@ class LibraryScreen extends StatelessWidget {
 
         Divider(color: AppColors.colorGreyDivider),
         commonListTile(
-          imageHeight: 30,
           title: CS.vImports,
           icon: Icons.grid_view,
           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
@@ -330,7 +339,6 @@ class LibraryScreen extends StatelessWidget {
 
         Divider(color: AppColors.colorGreyDivider),
         commonListTile(
-          imageHeight: 30,
           title: CS.vLinks,
           icon: Icons.link,
           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
@@ -338,7 +346,6 @@ class LibraryScreen extends StatelessWidget {
         ),
         Divider(color: AppColors.colorGreyDivider),
         commonListTile(
-          imageHeight: 30,
           title: CS.vText,
           icon: Icons.text_fields,
           trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),

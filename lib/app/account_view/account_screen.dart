@@ -281,7 +281,7 @@ upgradeUltraBox() {
 void showSignOutDialog() {
   Get.dialog(
     Dialog(
-      backgroundColor: AppColors.colorGreyDivider,
+      backgroundColor: AppColors.colorBgGray02,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 22),

@@ -162,12 +162,13 @@ class HomeScreen extends StatelessWidget {
                 stream: isBookListening.stream,
                 builder: (context, snap) {
                   if (!isBookListening.value) return SizedBox.fromSize();
+
                   return StreamBuilder(
                     stream: isPlayAudio.stream,
                     builder: (context, asyncSnapshot) {
                       return StreamBuilder(
                         stream: bookInfo.stream,
-                        builder: (context, asyncSnapshot) {
+                        builder: (context, bookSnapshot) {
                           return MiniAudioPlayer(
                             bookImage: CS.imgBookCover,
                             authorName: bookInfo.value.authorName,
