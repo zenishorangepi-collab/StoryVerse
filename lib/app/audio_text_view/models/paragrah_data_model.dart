@@ -6,12 +6,11 @@ class ParagraphData {
   final String id;
   final int start;
   final int end;
-  final String? text;
   final List<SentenceData> sentences;
   final List<GlobalKey> wordKeys;
   bool? isBookmarked;
 
-  ParagraphData({required this.id, required this.start, required this.end, this.text, required this.sentences, this.isBookmarked = false})
+  ParagraphData({required this.id, required this.start, required this.end, required this.sentences, this.isBookmarked = false})
     : wordKeys = List.generate(_countTotalWords(sentences), (_) => GlobalKey());
 
   // Helper to count total words across all sentences
@@ -28,13 +27,7 @@ class ParagraphData {
     try {
       final sentencesList = (json['sentences'] as List?)?.map((s) => SentenceData.fromJson(s as Map<String, dynamic>)).where((s) => !s.isEmpty).toList() ?? [];
 
-      return ParagraphData(
-        id: json['id'] as String,
-        start: json['start'] as int,
-        end: json['end'] as int,
-        text: json['text'] as String?,
-        sentences: sentencesList,
-      );
+      return ParagraphData(id: json['id'] as String, start: json['start'] as int, end: json['end'] as int, sentences: sentencesList);
     } catch (e) {
       throw FormatException('Invalid paragraph data: $e');
     }

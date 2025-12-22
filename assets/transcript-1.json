@@ -4,13 +4,11 @@
       "id": "p1",
       "start": 0,
       "end": 43200,
-      "text": "At dawn, the city learned how to breathe again, not with the grand inhalation of monuments or the practiced sigh of avenues, but with the quiet discipline of ordinary lives resuming their fragile choreography. And in that hour, before the sun fully committed to its promise, the streets were honest. Shopkeepers lifted shutters like eyelids heavy with dreams. Buses hummed their first uncertain notes. Pigeons negotiated the crumbs of yesterday's arguments, and a woman paused on a bridge to watch the river rehearse the same sentence it had spoken for centuries, each ripple a syllable that refused to be owned. She carried in her pocket a letter she had not opened, believing that sealed words retained their mercy.",
       "sentences": [
         {
           "id": "s1",
           "start": 0,
           "end": 11940,
-          "text": "At dawn, the city learned how to breathe again, not with the grand inhalation of monuments or the practiced sigh of avenues, but with the quiet discipline of ordinary lives resuming their fragile choreography.",
           "words": [
             {
               "word": "At",
@@ -188,7 +186,6 @@
           "id": "s2",
           "start": 12620,
           "end": 17140,
-          "text": "And in that hour, before the sun fully committed to its promise, the streets were honest.",
           "words": [
             {
               "word": "And",
@@ -276,7 +273,6 @@
           "id": "s3",
           "start": 17900,
           "end": 20700,
-          "text": "Shopkeepers lifted shutters like eyelids heavy with dreams.",
           "words": [
             {
               "word": "Shopkeepers",
@@ -324,7 +320,6 @@
           "id": "s4",
           "start": 21500,
           "end": 23660,
-          "text": "Buses hummed their first uncertain notes.",
           "words": [
             {
               "word": "Buses",
@@ -362,7 +357,6 @@
           "id": "s5",
           "start": 24160,
           "end": 36300,
-          "text": "Pigeons negotiated the crumbs of yesterday's arguments, and a woman paused on a bridge to watch the river rehearse the same sentence it had spoken for centuries, each ripple a syllable that refused to be owned.",
           "words": [
             {
               "word": "Pigeons",
@@ -550,7 +544,6 @@
           "id": "s6",
           "start": 37160,
           "end": 43200,
-          "text": "She carried in her pocket a letter she had not opened, believing that sealed words retained their mercy.",
           "words": [
             {
               "word": "She",
@@ -650,13 +643,11 @@
       "id": "p2",
       "start": 43760,
       "end": 107820,
-      "text": "And as she walked, she counted her steps not for superstition, but for steadiness, because to measure the world was to make it briefly kind, and kindness she had learned was not an emotion, but a method, practiced in small repetitions, like tying a shoe or forgiving a silence. Above her, windows caught the light and returned it altered, turning gold into story. While behind her, the night folded itself into a memory that would later insist on being mistaken for fate. Everywhere there were signs that life preferred persistence to clarity, paint peeling yet holding, grass splitting concrete without ceremony, laughter but accepted warm cups and the temporary shelter of names spoken aloud. And the woman, moving among these proofs, felt the weight of her own history loosen as if time itself were a garment that could be unbuttoned, revealing the simple anatomy of desire beneath, to belong without vanishing, to love without inventory, to speak and be answered by something other than echo.",
       "sentences": [
         {
           "id": "s7",
           "start": 43760,
           "end": 59460,
-          "text": "And as she walked, she counted her steps not for superstition, but for steadiness, because to measure the world was to make it briefly kind, and kindness she had learned was not an emotion, but a method, practiced in small repetitions, like tying a shoe or forgiving a silence.",
           "words": [
             {
               "word": "And",
@@ -909,7 +900,6 @@
           "id": "s8",
           "start": 60400,
           "end": 65500,
-          "text": "Above her, windows caught the light and returned it altered, turning gold into story.",
           "words": [
             {
               "word": "Above",
@@ -987,7 +977,6 @@
           "id": "s9",
           "start": 66020,
           "end": 72100,
-          "text": "While behind her, the night folded itself into a memory that would later insist on being mistaken for fate.",
           "words": [
             {
               "word": "While",
@@ -1090,7 +1079,6 @@
           "id": "s10",
           "start": 72800,
           "end": 89280,
-          "text": "Everywhere there were signs that life preferred persistence to clarity, paint peeling yet holding, grass splitting concrete without ceremony, laughter but accepted warm cups and the temporary shelter of names spoken aloud.",
           "words": [
             {
               "word": "Everywhere",
@@ -1258,7 +1246,6 @@
           "id": "s11",
           "start": 90040,
           "end": 107820,
-          "text": "And the woman, moving among these proofs, felt the weight of her own history loosen as if time itself were a garment that could be unbuttoned, revealing the simple anatomy of desire beneath, to belong without vanishing, to love without inventory, to speak and be answered by something other than echo.",
           "words": [
             {
               "word": "And",
@@ -1523,13 +1510,11 @@
       "id": "p3",
       "start": 108660,
       "end": 146560,
-      "text": "She reached the far side of the bridge and finally opened the letter, discovering not the verdict she feared but a question that refused to conclude, an invitation rather than a map, and she smiled at its audacity, because questions, unlike answers, traveled well, fitting into pockets, surviving rain, asking nothing but attention. And as the city brightened and the day claimed its witnesses, she understood that the truest literature was not bound in covers or guarded by shelves, but written continuously in the margin between intention and chance, where each person however briefly becomes a sentence capable of changing the meaning of the page.",
       "sentences": [
         {
           "id": "s12",
           "start": 108660,
           "end": 127760,
-          "text": "She reached the far side of the bridge and finally opened the letter, discovering not the verdict she feared but a question that refused to conclude, an invitation rather than a map, and she smiled at its audacity, because questions, unlike answers, traveled well, fitting into pockets, surviving rain, asking nothing but attention.",
           "words": [
             {
               "word": "She",
@@ -1802,7 +1787,6 @@
           "id": "s13",
           "start": 128539,
           "end": 146560,
-          "text": "And as the city brightened and the day claimed its witnesses, she understood that the truest literature was not bound in covers or guarded by shelves, but written continuously in the margin between intention and chance, where each person however briefly becomes a sentence capable of changing the meaning of the page.",
           "words": [
             {
               "word": "And",

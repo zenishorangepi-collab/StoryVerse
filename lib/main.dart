@@ -17,9 +17,9 @@ bool shouldUseFirestoreEmulator = true;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await AudioNotificationService.initialize();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AppPrefs.init();
+  await AudioNotificationService.initialize();
 
   runApp(const AudioHighlighterApp());
 }
