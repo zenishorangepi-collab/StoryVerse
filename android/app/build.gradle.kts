@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.utsav_interview"
+    namespace = "com.storyverse"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 

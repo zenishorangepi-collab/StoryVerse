@@ -32,7 +32,7 @@ class AudioTextController extends GetxController {
   // Controllers / Services
   // ------------------------------------------------------------
   final TextEditingController addNoteController = TextEditingController();
-  final AudioPlayer audioPlayer = AudioPlayer();
+  AudioPlayer audioPlayer = AudioPlayer();
   bool _hasStartedListening = false;
   TranscriptData? transcript;
   SyncEngine? syncEngine;
@@ -159,7 +159,7 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeAudioService();
+    audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadIsBookListening();
     });
@@ -171,20 +171,15 @@ class AudioTextController extends GetxController {
     }
   }
 
-  Future<void> _initializeAudioService() async {
-    await AudioNotificationService.initialize();
-    audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
-  }
-
+  // Future<void> _initializeAudioService() async {
+  //   await AudioNotificationService.initialize();
+  //   audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
+  //   _isInitialized = true;
+  // }
   Future<void> _setupNotification() async {
     if (audioHandler == null) return;
 
-    await audioHandler!.loadAndPlay(
-      audioUrl: _audioUrl ?? '',
-      title: vBookName.value.isNotEmpty ? vBookName.value : 'A Million to One',
-      artist: vAuthorName.value.isNotEmpty ? vAuthorName.value : 'Alan Mitchell',
-      artUri: vBookImage.value.isNotEmpty ? vBookImage.value : CS.imgBookCover,
-    );
+    await audioHandler!.loadAndPlay(audioUrl: _audioUrl ?? '', title: 'A Million to One', artist: 'Alan Mitchell', artUri: "https://picsum.photos/200/300");
   }
 
   Future<void> saveBookInfo(BookInfoModel model) async {
@@ -776,12 +771,12 @@ class AudioTextController extends GetxController {
   }
 
   Future<void> skipForward() async {
-    await audioHandler?.skipForward();
+    await audioHandler?.skipToNext();
     await seek(_position + 10000);
   }
 
   Future<void> skipBackward() async {
-    await audioHandler?.skipBackward();
+    await audioHandler?.skipToPrevious();
     await seek(_position - 10000);
   }
 
@@ -851,7 +846,7 @@ class AudioTextController extends GetxController {
       final jsonData = json.decode(jsonString);
 
       // preserve original assignment
-      jsonData['audioUrl'] = 'audio.mp3';
+      // jsonData['audioUrl'] = 'audio.mp3';
 
       return TranscriptData.fromJson(jsonData);
     } catch (e) {
