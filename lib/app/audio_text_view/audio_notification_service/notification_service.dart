@@ -71,6 +71,7 @@ class AudioPlayerHandler extends BaseAudioHandler {
     player.onPlayerStateChanged.listen((state) {
       final playing = state == PlayerState.playing;
       _updatePlaybackState(playing);
+      isPlayAudio.value = playing;
     });
 
     // Listen to position changes
@@ -137,16 +138,16 @@ class AudioPlayerHandler extends BaseAudioHandler {
         artist: artist,
         // Author name
         artUri: artUri != null && artUri.isNotEmpty ? Uri.parse(artUri) : null,
-        duration: Duration.zero,
+        // duration: Duration.zero,
       ),
     );
 
     try {
-      if (audioUrl.startsWith('http')) {
-        await player.setSourceUrl(audioUrl);
-      } else {
-        await player.setSource(AssetSource(audioUrl));
-      }
+      // if (audioUrl.startsWith('https')) {
+      // } else {
+      //   await player.setSource(AssetSource(audioUrl));
+      // }
+      await player.setSourceUrl(audioUrl);
       _updatePlaybackState(false);
     } catch (e) {
       print('Error loading audio: $e');

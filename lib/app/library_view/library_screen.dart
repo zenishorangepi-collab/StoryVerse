@@ -45,7 +45,7 @@ class LibraryScreen extends StatelessWidget {
                           stream: bookInfo.stream,
                           builder: (context, asyncSnapshot) {
                             return MiniAudioPlayer(
-                              bookImage: CS.imgBookCover,
+                              bookImage: bookInfo.value.bookImage,
                               authorName: bookInfo.value.authorName,
                               bookName: bookInfo.value.bookName,
                               playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,

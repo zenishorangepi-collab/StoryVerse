@@ -59,9 +59,9 @@ class AuthOptionsController extends GetxController {
   }
 
   Future<void> saveUserAsMap({required String uid, required String email, required String name, String? photoUrl}) async {
-    // final Map<String, dynamic> userMap = {'uid': uid, 'email': email, 'name': name, 'photoUrl': photoUrl ?? ''};
-    final user = UserModel(uid: uid, email: email ?? '', name: name ?? '', photoUrl: photoUrl ?? '');
+    final user = UserModel(uid: uid, email: email, name: name, photoUrl: photoUrl ?? '');
+
     await AppPrefs.setBool(CS.keyIsLoginIn, true);
-    await AppPrefs.setString(CS.keyUserData, jsonEncode(user));
+    await AppPrefs.setString(CS.keyUserData, jsonEncode(user.toJson())); // ✅ Call toJson()
   }
 }

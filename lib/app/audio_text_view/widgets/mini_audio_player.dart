@@ -30,7 +30,7 @@ class MiniAudioPlayer extends StatelessWidget {
       bottom: 10,
       child: GestureDetector(
         onTap: () {
-          Get.toNamed(AppRoutes.audioTextScreen, arguments: true);
+          Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
         },
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -40,16 +40,18 @@ class MiniAudioPlayer extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(width: 5),
-              Image.asset(bookImage, width: 50, height: 35),
+              Image.network(bookImage, width: 50, height: 35),
               const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(authorName, style: AppTextStyles.body14GreyRegular, maxLines: 1),
-                  Text(bookName, maxLines: 1, style: AppTextStyles.body16WhiteMedium),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(authorName, style: AppTextStyles.body14GreyRegular, maxLines: 1).paddingOnly(bottom: 2),
+                    Text(bookName, maxLines: 1, style: AppTextStyles.body14WhiteMedium, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
               ),
-              const Spacer(),
+
               IconButton(onPressed: onPlayPause, icon: Icon(playIcon, size: 40, color: AppColors.colorWhite)),
               IconButton(onPressed: onForward10, icon: const Icon(Icons.forward_10_rounded, size: 30, color: AppColors.colorWhite)),
             ],

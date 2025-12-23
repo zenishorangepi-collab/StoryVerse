@@ -1,9 +1,12 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
 import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/home_model.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -36,7 +39,7 @@ class HomeScreen extends StatelessWidget {
                     elevation: 0,
                     actions: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 20, top: 10),
+                        padding: const EdgeInsets.only(right: 20, top: 25),
                         child: GestureDetector(
                           onTap: () {},
 
@@ -65,7 +68,7 @@ class HomeScreen extends StatelessWidget {
                     title: Text(
                       "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}",
                       style: AppTextStyles.heading24WhiteMedium,
-                    ).paddingOnly(top: 10, left: 10),
+                    ).paddingOnly(top: 25, left: 10),
                   ),
                   if (controller.listRecents.isNotEmpty)
                     SliverToBoxAdapter(
@@ -119,7 +122,7 @@ class HomeScreen extends StatelessWidget {
                                               ),
 
                                               Text(
-                                                controller.formatReadableLength(controller.listRecents[index].length),
+                                                formatReadableLength(controller.listRecents[index].length),
                                                 maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: AppTextStyles.body14GreySemiBold,
@@ -137,24 +140,108 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(3, (index) {
-                          return bookHorizontalSection(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.bookDetailsScreen)?.then((_) {
-                                // Called when Summary closes (final back)
-                                controller.getRecentList();
-                              });
-                            },
-                            title: index == 1 ? "Love" : "Action",
-                            image: index == 1 ? CS.imgBookCover2 : CS.imgBookCover,
+                  // Display categories with novels
+                  StreamBuilder(
+                    stream: controller.listNovelData.stream,
+                    builder: (context, novelSnapshot) {
+                      // Show loading indicator while waiting for data
+                      if (!novelSnapshot.hasData) {
+                        return SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: CircularProgressIndicator(color: AppColors.colorWhite).paddingOnly(top: 50),
+                            ),
+                          ),
+                        );
+                      }
+
+                      final activeCategories = controller.getActiveCategoriesOnly();
+
+                      // Show "No data" message if no categories with novels
+                      if (activeCategories.isEmpty) {
+                        return SliverToBoxAdapter(
+                          child: Center(child: Padding(padding: const EdgeInsets.all(20), child: Text(CS.vNoNovelFound, style: AppTextStyles.body14WhiteBold))),
+                        );
+                      }
+
+                      // Show data - Build list of categories with their novels
+                      return SliverList(
+                        delegate: SliverChildBuilderDelegate((context, categoryIndex) {
+                          final category = activeCategories[categoryIndex];
+                          final categoryNovels = controller.getNovelsForCategory(category.id ?? "", category.name ?? '');
+
+                          // Skip if no novels (extra safety check)
+                          if (categoryNovels.isEmpty) return const SizedBox.shrink();
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Category title
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                child: Text(category.name ?? '', style: AppTextStyles.heading18WhiteSemiBold),
+                              ),
+
+                              // Horizontal list of novels in this category
+                              SizedBox(
+                                height: 200,
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  itemCount: categoryNovels.length,
+                                  separatorBuilder: (_, __) => const SizedBox(width: 20),
+                                  itemBuilder: (context, novelIndex) {
+                                    NovelsDataModel novel = categoryNovels[novelIndex];
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Get.toNamed(AppRoutes.bookDetailsScreen, arguments: novel)?.then((_) {
+                                          controller.getRecentList();
+                                        });
+                                      },
+                                      child: Column(
+                                        spacing: 5,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          CachedNetworkImage(
+                                            imageUrl: novel.bookCoverUrl ?? "",
+                                            height: 150,
+                                            width: 100,
+                                            fit: BoxFit.cover,
+                                            placeholder:
+                                                (context, url) => Shimmer(
+                                                  // duration: Duration(seconds: 3),
+                                                  // interval: Duration(seconds: 5),
+                                                  color: Colors.white,
+                                                  colorOpacity: 100,
+                                                  enabled: true,
+                                                  direction: ShimmerDirection.fromLTRB(),
+                                                  child: Container(height: 150, width: 100, color: AppColors.colorGrey),
+                                                ),
+                                            errorWidget:
+                                                (context, url, error) => Container(height: 150, width: 100, color: Colors.grey, child: const Icon(Icons.book)),
+                                          ),
+                                          SizedBox(
+                                            width: 100,
+                                            child: Text(
+                                              novel.bookName ?? "",
+                                              style: AppTextStyles.body12GreyRegular,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           );
-                        }),
-                      ).paddingOnly(bottom: isBookListening.value ? 100 : 0);
-                    }, childCount: 1),
+                        }, childCount: activeCategories.length),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -170,7 +257,7 @@ class HomeScreen extends StatelessWidget {
                         stream: bookInfo.stream,
                         builder: (context, bookSnapshot) {
                           return MiniAudioPlayer(
-                            bookImage: CS.imgBookCover,
+                            bookImage: bookInfo.value.bookImage,
                             authorName: bookInfo.value.authorName,
                             bookName: bookInfo.value.bookName,
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
@@ -214,7 +301,7 @@ class HomeScreen extends StatelessWidget {
                 return Column(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Image.asset(image), Text("A Million To One", style: AppTextStyles.body14GreyBold)],
+                  children: [Image.network(image), Text(title, style: AppTextStyles.body14GreyBold)],
                 );
               },
             ).paddingOnly(left: 8),

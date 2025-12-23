@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/home_screen/models/categories_model.dart';
 import 'package:utsav_interview/app/home_screen/models/home_model.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
@@ -22,12 +25,63 @@ class HomeController extends GetxController {
     ),
   ];
   List<RecentViewModel> listRecents = <RecentViewModel>[];
+  RxList<NovelsDataModel> listNovelData = <NovelsDataModel>[].obs;
+  RxList<CategoriesDataModel> listNovelCategoriesData = <CategoriesDataModel>[].obs;
+  bool isDataLoading = true;
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
+    fetchData();
     getRecentList();
+  }
+
+  fetchData() async {
+    await fetchNovelCategories();
+    await fetchNovels();
+  }
+
+  fetchNovels() async {
+    listNovelData.clear();
+    final querySnapshot = await FirebaseFirestore.instance.collection('novels').get();
+
+    for (final doc in querySnapshot.docs) {
+      print(doc.id);
+      final data = doc.data();
+      final novel = NovelsDataModel.fromJson(data);
+      listNovelData.add(novel);
+    }
+  }
+
+  fetchNovelCategories() async {
+    listNovelCategoriesData.clear();
+    final querySnapshot = await FirebaseFirestore.instance.collection('categories').get();
+
+    for (final doc in querySnapshot.docs) {
+      print(doc.id);
+      final data = doc.data();
+      final novelCategory = CategoriesDataModel.fromJson(data);
+      listNovelCategoriesData.add(novelCategory);
+      isDataLoading = false;
+      update();
+    }
+  }
+
+  // Get novels for a specific category
+  List<NovelsDataModel> getNovelsForCategory(String categoryId, String categoryName) {
+    return listNovelData.where((novel) {
+      if (novel.categories == null || novel.categories!.isEmpty) return false;
+      return novel.categories!.any((cat) => cat.id == categoryId || cat.name == categoryName);
+    }).toList();
+  }
+
+  // Get only categories that have novels
+  List<CategoriesDataModel> getActiveCategoriesOnly() {
+    return listNovelCategoriesData.where((category) {
+      final novelsInCategory = getNovelsForCategory(category.id ?? '', category.name ?? '');
+      return novelsInCategory.isNotEmpty;
+    }).toList();
   }
 
   getRecentList() async {
@@ -48,39 +102,5 @@ class HomeController extends GetxController {
 
     // reverse to show latest first
     return items.reversed.toList();
-  }
-
-  String formatReadableLength(String rawTime) {
-    List<String> parts = rawTime.split(':');
-
-    // mm:ss format → Xm Ys
-    if (parts.length == 2) {
-      int minutes = int.parse(parts[0]);
-      int seconds = int.parse(parts[1]);
-
-      String result = "";
-
-      if (minutes > 0) result += "${minutes}m ";
-      if (seconds > 0) result += "${seconds}s";
-
-      return result.trim();
-    }
-
-    // hh:mm:ss format → Hh MMm SSs
-    if (parts.length == 3) {
-      int hours = int.parse(parts[0]);
-      int minutes = int.parse(parts[1]);
-      int seconds = int.parse(parts[2]);
-
-      String result = "";
-
-      if (hours > 0) result += "${hours}h ";
-      if (minutes > 0) result += "${minutes}m ";
-      if (seconds > 0) result += "${seconds}s";
-
-      return result.trim();
-    }
-
-    return rawTime;
   }
 }

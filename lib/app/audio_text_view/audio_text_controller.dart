@@ -14,6 +14,7 @@ import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -28,9 +29,7 @@ RxString vBookId = "".obs;
 Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '').obs;
 
 class AudioTextController extends GetxController {
-  // ------------------------------------------------------------
-  // Controllers / Services
-  // ------------------------------------------------------------
+  NovelsDataModel? novelData;
   final TextEditingController addNoteController = TextEditingController();
   AudioPlayer audioPlayer = AudioPlayer();
   bool _hasStartedListening = false;
@@ -159,27 +158,38 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
+    if (Get.arguments != null) {
+      novelData = Get.arguments["novelData"];
+    }
+    _initializeAudioService();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadIsBookListening();
     });
     scrollController = ScrollController(initialScrollOffset: -10);
     scrollController.addListener(_onCollapseScroll);
-    print(Get.arguments);
-    if (!(Get.arguments ?? false)) {
-      initializeApp();
+
+    if (Get.arguments != null) {
+      if (!(Get.arguments["isInitCall"] ?? false)) {
+        initializeApp();
+      }
     }
   }
 
-  // Future<void> _initializeAudioService() async {
-  //   await AudioNotificationService.initialize();
-  //   audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
-  //   _isInitialized = true;
-  // }
+  Future<void> _initializeAudioService() async {
+    audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
+    // _isInitialized = true;
+    update();
+  }
+
   Future<void> _setupNotification() async {
     if (audioHandler == null) return;
 
-    await audioHandler!.loadAndPlay(audioUrl: _audioUrl ?? '', title: 'A Million to One', artist: 'Alan Mitchell', artUri: "https://picsum.photos/200/300");
+    await audioHandler?.loadAndPlay(
+      audioUrl: novelData?.audioFiles?.first.url ?? "",
+      title: novelData?.bookName ?? "",
+      artist: novelData?.author?.name ?? "",
+      artUri: novelData?.bookCoverUrl ?? "",
+    );
   }
 
   Future<void> saveBookInfo(BookInfoModel model) async {
@@ -223,13 +233,17 @@ class AudioTextController extends GetxController {
 
   void startListening() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      novelData = Get.arguments["novelData"];
       isBookListening.value = true;
       setIsBookListening(true);
-      vAuthorName.value = "Tony Faggioli";
-      vBookName.value = "A Million To One";
-      saveBookInfo(BookInfoModel(authorName: vAuthorName.value, bookName: vBookName.value, bookImage: "", bookId: ""));
+      vAuthorName.value = novelData?.author?.name ?? "";
+      vBookName.value = novelData?.bookName ?? "";
+      saveBookInfo(
+        BookInfoModel(authorName: vAuthorName.value, bookName: vBookName.value, bookImage: novelData?.bookCoverUrl ?? "", bookId: novelData?.id ?? ""),
+      );
       loadIsBookListening();
       // Update notification
+      _initializeAudioService();
       _setupNotification();
     });
   }
@@ -262,7 +276,8 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> initializeApp() async {
     try {
-      transcript = await loadRealData();
+      novelData = Get.arguments["novelData"];
+      transcript = await fetchJsonData(audioUrl: novelData?.audioFiles?.first.url, textUrl: novelData?.audioFiles?.first.audioJsonUrl);
       paragraphs = transcript?.paragraphs ?? [];
 
       getBookmark();
@@ -286,7 +301,13 @@ class AudioTextController extends GetxController {
 
       await audioInitialize();
       saveRecentView(
-        RecentViewModel(id: "", title: "A Million to one", image: CS.imgBookCover, summary: "summary text here show", length: formatTime(duration)),
+        RecentViewModel(
+          id: novelData?.id ?? "",
+          title: novelData?.bookName ?? "",
+          image: novelData?.bookCoverUrl ?? "",
+          summary: novelData?.summary ?? "",
+          length: formatTime(duration),
+        ),
       );
       // Preserve user scroll listener addition
       scrollController.addListener(_onUserScroll);
@@ -299,7 +320,10 @@ class AudioTextController extends GetxController {
       await _setupNotification();
       if (!isClosed) update();
     } catch (e) {
-      hasError = true;
+      if ((Get.arguments["isInitCall"] ?? false)) {
+        hasError = true;
+      }
+
       errorMessage = 'Initialization error: $e';
       update();
     }
@@ -396,7 +420,7 @@ class AudioTextController extends GetxController {
 
       await saveBookmarkList(listBookmarks ?? []);
 
-      transcript = await loadRealData();
+      transcript = await fetchJsonData(audioUrl: novelData?.audioFiles?.first.url, textUrl: novelData?.audioFiles?.first.audioJsonUrl);
       paragraphs = transcript?.paragraphs ?? [];
 
       await getBookmark();
@@ -536,7 +560,7 @@ class AudioTextController extends GetxController {
 
       if (_audioUrl != null) {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
-        await audioPlayer.setSourceAsset(_audioUrl!);
+        await audioPlayer.setSourceUrl(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
 
         _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
@@ -638,8 +662,14 @@ class AudioTextController extends GetxController {
 
     try {
       // Play via notification handler
-      await audioHandler?.play();
-      // ⭐ NEW: If no paragraph is active → scroll to top
+
+      if (audioHandler == null) {
+        startListening();
+        await audioHandler?.play();
+      } else {
+        await audioHandler?.play();
+      }
+
       if (currentParagraphIndex == -1 && !isOnlyPlayAudio) {
         await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
       }
@@ -658,7 +688,7 @@ class AudioTextController extends GetxController {
 
       // First-time play
       if (!_hasPlayedOnce) {
-        await audioPlayer.play(AssetSource(_audioUrl!));
+        await audioPlayer.play(UrlSource(_audioUrl!));
         _hasPlayedOnce = true;
       }
       // Resume
@@ -687,10 +717,10 @@ class AudioTextController extends GetxController {
     _operationInProgress = true;
 
     try {
-      await audioHandler?.pause();
-      await audioPlayer.pause();
       _isPlaying = false;
       isPlayAudio.value = false;
+      await audioHandler?.pause();
+      await audioPlayer.pause();
       _lastDriftCheck = null;
       update();
     } catch (e) {
@@ -854,19 +884,15 @@ class AudioTextController extends GetxController {
     }
   }
 
-  Future<TranscriptData> fetchJsonData() async {
+  Future<TranscriptData> fetchJsonData({String? textUrl, String? audioUrl}) async {
     try {
-      final url = Uri.parse(
-        'https://firebasestorage.googleapis.com/v0/b/storyverse-db8a5.firebasestorage.app/o/books%2Fjson%2F4VGE6wTtMokWjiCFeXIE%2Ftranscript.json?alt=media&token=1a134233-33af-4f87-b174-4b7fa82c7ae4',
-      );
+      final url = Uri.parse(textUrl ?? "");
 
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        jsonData['audioUrl'] =
-            'https://firebasestorage.googleapis.com/v0/b/storyverse-db8a5.firebasestorage.app/o/books%2Faudios%2F4VGE6wTtMokWjiCFeXIE%2FElevenLabs_2025-12-16T10_40_39_Ariana%20Grande_ivc_sp100_s50_sb75_se0_b_m2.mp3?alt=media&token=b83843c6-f124-450d-b731-ed336adf8cdf';
-
+        jsonData['audioUrl'] = audioUrl ?? "";
         return TranscriptData.fromJson(jsonData);
       } else {
         print('Failed to fetch. Status: ${response.statusCode}');
