@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_style.dart';
 
 extension CommonPaddingHorizontal on Widget {
   Widget screenPadding() {
-    return paddingOnly(left: 25, right: 25);
+    return paddingOnly(left: 20, right: 20);
   }
 }
 
@@ -111,4 +112,43 @@ Widget commonListTile({
     onTap: onTap,
     trailing: trailing,
   );
+}
+
+String formatDate(String date) {
+  final DateTime parsedDate = DateTime.parse(date);
+  return DateFormat('dd MMM, yyyy').format(parsedDate);
+}
+
+String formatReadableLength(String rawTime) {
+  List<String> parts = rawTime.split(':');
+
+  // mm:ss format → Xm Ys
+  if (parts.length == 2) {
+    int minutes = int.parse(parts[0]);
+    int seconds = int.parse(parts[1]);
+
+    String result = "";
+
+    if (minutes > 0) result += "${minutes}m ";
+    if (seconds > 0) result += "${seconds}s";
+
+    return result.trim();
+  }
+
+  // hh:mm:ss format → Hh MMm SSs
+  if (parts.length == 3) {
+    int hours = int.parse(parts[0]);
+    int minutes = int.parse(parts[1]);
+    int seconds = int.parse(parts[2]);
+
+    String result = "";
+
+    if (hours > 0) result += "${hours}h ";
+    if (minutes > 0) result += "${minutes}m ";
+    if (seconds > 0) result += "${seconds}s";
+
+    return result.trim();
+  }
+
+  return rawTime;
 }

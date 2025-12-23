@@ -19,24 +19,17 @@ class TabBarScreenController extends GetxController {
     update();
   }
 
-  UserModel? getUserFromPrefs() {
-    final String? userJson = AppPrefs.getString(CS.keyUserData);
-
-    if (userJson == null || userJson.isEmpty) return null;
-
-    try {
-      return UserModel.fromMap(jsonDecode(userJson));
-    } catch (e) {
-      debugPrint('User parse error: $e');
-      return null;
-    }
+  getUserFromPrefs() {
+    // Get user data from preferences
+    String? userJson = AppPrefs.getString(CS.keyUserData);
+    userData = UserModel.fromJson(jsonDecode(userJson));
   }
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    userData = getUserFromPrefs();
+    getUserFromPrefs();
 
     print(userData);
   }

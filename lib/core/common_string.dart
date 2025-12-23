@@ -265,6 +265,7 @@ class CS {
   static const String vUltraYearly = "Ultra Yearly";
   static const String vContinueFree = "Continue with Free";
   static const String vUltraMonthly = "Ultra Monthly";
+  static const String vNoNovelFound = "No novel found";
 
   static const String vWhyJoinUltra = "Why join Ultra?";
   static const String vWhyJoinDesc = "Join thousands who are listening with Ultra.";
