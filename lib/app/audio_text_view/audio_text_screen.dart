@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -25,6 +26,10 @@ class AudioTextScreen extends StatelessWidget {
       initState: (state) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
+            if (Get.arguments != null) {
+              if ((Get.arguments["isInitCall"] ?? true)) {}
+              state.controller?.initializeApp();
+            }
             state.controller?.startListening();
           } catch (e) {
             print('Error starting listening: $e');
@@ -94,8 +99,8 @@ class AudioTextScreen extends StatelessWidget {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(CS.vAudioTextSynchronizer, style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis),
-                                      Text("Subtitle text", style: AppTextStyles.body14GreyRegular, overflow: TextOverflow.ellipsis),
+                                      Text(controller.bookNme ?? "", style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis),
+                                      Text(controller.authorNme ?? "", style: AppTextStyles.body14GreyRegular, overflow: TextOverflow.ellipsis),
                                     ],
                                   ),
                                 ),
@@ -240,12 +245,16 @@ class AudioTextScreen extends StatelessWidget {
         ? Stack(
           children: [
             /// 🔹 Blur Effect
-            Image.asset(
+            CachedNetworkImage(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              CS.imgBookCover2, // your image
               fit: BoxFit.cover,
+              imageUrl: controller.bookCoverUrl,
+              errorWidget: (context, error, stackTrace) {
+                return Image.asset(CS.imgBookCover2, height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width, fit: BoxFit.cover);
+              },
             ),
+
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
@@ -253,7 +262,18 @@ class AudioTextScreen extends StatelessWidget {
               ),
             ),
 
-            Center(child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.asset(CS.imgBookCover2, height: 260))),
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  height: 260,
+                  imageUrl: controller.bookCoverUrl,
+                  errorWidget: (context, error, stackTrace) {
+                    return Image.asset(CS.imgBookCover2, height: 260);
+                  },
+                ),
+              ),
+            ),
             Row(
               spacing: 16,
               // alignment: Alignment.center,
@@ -319,7 +339,7 @@ class AudioTextScreen extends StatelessWidget {
                   background: Container(
                     padding: const EdgeInsets.only(left: 25, bottom: 5),
                     alignment: Alignment.bottomLeft,
-                    child: Text(CS.vAudioTextSynchronizer, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                    child: Text(controller.bookNme, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
@@ -952,7 +972,17 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          Container(color: AppColors.colorGrey, height: 80, width: 50),
+                          (controller.novelData?.bookCoverUrl?.isNotEmpty ?? false)
+                              ? Image.network(
+                                controller.novelData?.bookCoverUrl ?? "",
+                                height: 80,
+                                width: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(color: AppColors.colorGrey, height: 80, width: 50);
+                                },
+                              )
+                              : Container(color: AppColors.colorGrey, height: 80, width: 50),
 
                           Expanded(
                             child: Column(

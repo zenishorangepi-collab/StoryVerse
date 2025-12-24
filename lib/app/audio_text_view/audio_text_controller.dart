@@ -22,85 +22,79 @@ import 'package:utsav_interview/core/pref.dart';
 
 RxBool isBookListening = false.obs;
 RxBool isPlayAudio = false.obs;
-RxString vAuthorName = "".obs;
-RxString vBookName = "".obs;
-RxString vBookImage = "".obs;
-RxString vBookId = "".obs;
-Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '').obs;
+// RxString vAuthorName = "".obs;
+// RxString vBookName = "".obs;
+// RxString vBookImage = "".obs;
+// RxString vBookId = "".obs;
+Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "").obs;
 
 class AudioTextController extends GetxController {
+  // Models & Data
   NovelsDataModel? novelData;
-  final TextEditingController addNoteController = TextEditingController();
-  AudioPlayer audioPlayer = AudioPlayer();
-  bool _hasStartedListening = false;
   TranscriptData? transcript;
   SyncEngine? syncEngine;
+  List<ParagraphData> paragraphs = [];
+  List<BookmarkModel>? listBookmarks;
+
+  // Controllers & Services
+  final TextEditingController addNoteController = TextEditingController();
+  AudioPlayer audioPlayer = AudioPlayer();
   AudioPlayerHandler? audioHandler;
   late final ScrollController scrollController;
-  late final ScrollController nestedScrollViewController;
+
+  // Keys for scroll tracking
   final List<GlobalKey> paragraphKeys = [];
   final List<GlobalKey> wordKeys = [];
 
-  List<ParagraphData> paragraphs = [];
+  // Book metadata
+  String bookNme = "";
+  String authorNme = "";
+  String bookCoverUrl = "";
+  String audioUrl = "";
+  String textUrl = "";
+  String bookId = "";
+  String bookSummary = "";
 
+  // UI State
   bool isHideText = false;
-
-  int currentWordIndex = -1;
-  int currentParagraphIndex = -1;
-
   bool isCollapsed = false;
   bool isScrolling = false;
-  bool isAnimateAppBarText = false;
   bool suppressAutoScroll = false;
-
-  // ------------------------------------------------------------
-  // Audio properties
-  // ------------------------------------------------------------
   bool hasError = false;
+  bool isBookMarkDelete = false;
   String? errorMessage;
 
+  // Audio State
+  int currentWordIndex = -1;
+  int currentParagraphIndex = -1;
   bool _isPlaying = false;
-  double _speed = 1.0;
-
-  int _position = 0;
-  int _duration = 0;
-  String? _audioUrl;
-
-  bool _isLoading = false;
   bool _isInitialized = false;
   bool _hasPlayedOnce = false;
-  String? _error;
-
-  int _driftCorrectionCount = 0;
-  DateTime? _lastDriftCheck;
-
+  bool _isLoading = false;
   bool _isSeeking = false;
   bool _isDisposed = false;
   bool _operationInProgress = false;
-  bool isBookMarkDelete = false;
+  double _speed = 1.0;
+  int _position = 0;
+  int _duration = 0;
+  String? _audioUrl;
+  String? _error;
+  int _driftCorrectionCount = 0;
 
-  // ------------------------------------------------------------
-  // Player Streams
-  // ------------------------------------------------------------
+  // Timestamps
+  DateTime? _lastDriftCheck;
+  DateTime? _lastScrollTime;
+  DateTime? _lastPositionSave;
+
+  // Subscriptions
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<PlayerState>? _stateSubscription;
   StreamSubscription<void>? _completionSubscription;
 
-  // ------------------------------------------------------------
   // Speed Options
-  // ------------------------------------------------------------
   double currentSpeed = 1.0;
   int currentIndex = 8;
-  String selectedFonts = CS.vInter;
-  Color colorAudioTextBg = AppColors.colorTealDark;
-  Color colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
-
   final List<double> presetSpeeds = [0.5, 0.75, 1, 1.5, 2];
-
-  final List listThemeImg = [CS.imgSky, CS.imgFall, CS.imgHighlight, CS.imgClassic];
-  int iThemeSelect = 0;
-  List<BookmarkModel>? listBookmarks;
-
   final List<double> speedSteps = [
     0.25,
     0.30,
@@ -133,9 +127,14 @@ class AudioTextController extends GetxController {
     3.0,
   ];
 
-  // ------------------------------------------------------------
+  // Theme Options
+  String selectedFonts = CS.vInter;
+  Color colorAudioTextBg = AppColors.colorTealDark;
+  Color colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
+  int iThemeSelect = 0;
+  final List listThemeImg = [CS.imgSky, CS.imgFall, CS.imgHighlight, CS.imgClassic];
+
   // Getters
-  // ------------------------------------------------------------
   bool get isPlaying => _isPlaying;
 
   int get position => _position;
@@ -152,46 +151,302 @@ class AudioTextController extends GetxController {
 
   bool get isInitialized => _isInitialized;
 
-  // ------------------------------------------------------------
-  // Lifecycle
-  // ------------------------------------------------------------
+  bool get showScrollButton => isScrolling && suppressAutoScroll;
+
+  // ============================================================
+  // LIFECYCLE
+  // ============================================================
+
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments != null) {
-      novelData = Get.arguments["novelData"];
-    }
-    _initializeAudioService();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      loadIsBookListening();
+      _initializeAudioService();
+      WidgetsBinding.instance.addPostFrameCallback((_) => loadIsBookListening());
+      scrollController = ScrollController(initialScrollOffset: -10)..addListener(_onCollapseScroll);
+      if (Get.arguments != null) initializeApp();
     });
-    scrollController = ScrollController(initialScrollOffset: -10);
-    scrollController.addListener(_onCollapseScroll);
+  }
 
-    if (Get.arguments != null) {
-      if (!(Get.arguments["isInitCall"] ?? false)) {
-        initializeApp();
+  // ------------------------------------------------------------
+  // Initialization
+  // ------------------------------------------------------------
+  Future<void> initializeApp() async {
+    bool usedCache = false;
+
+    try {
+      if (Get.arguments != null) {
+        novelData = Get.arguments["novelData"];
+      } else {
+        bookInfo.value = await loadBookInfo();
       }
+
+      if (Get.arguments != null && novelData != null) {
+        audioUrl = novelData?.audioFiles?.first.url ?? "";
+        textUrl = novelData?.audioFiles?.first.audioJsonUrl ?? "";
+        bookId = novelData?.id ?? "";
+        authorNme = novelData?.author?.name ?? "";
+        bookNme = novelData?.bookName ?? "";
+        bookCoverUrl = novelData?.bookCoverUrl ?? "";
+        bookSummary = novelData?.summary ?? "";
+      } else {
+        audioUrl = bookInfo.value.audioUrl;
+        textUrl = bookInfo.value.textUrl;
+        bookId = bookInfo.value.bookId;
+        authorNme = bookInfo.value.authorName;
+        bookNme = bookInfo.value.bookName;
+        bookCoverUrl = bookInfo.value.bookImage;
+        bookSummary = bookInfo.value.summary;
+      }
+
+      print('📌 Book ID: $bookId');
+      print('📌 Audio URL: $audioUrl');
+
+      // ✅ Step 1: Try to load from cache first
+      TranscriptData? cachedTranscript = getCachedTranscript(bookId);
+
+      if (cachedTranscript != null) {
+        print('✅ Using cached transcript');
+        transcript = cachedTranscript;
+        usedCache = true;
+      } else {
+        // ✅ Step 2: Load from server if no cache
+        print('🌐 Loading transcript from server...');
+        transcript = await fetchJsonData(audioUrl: audioUrl, textUrl: textUrl);
+
+        // ✅ Step 3: Cache the transcript and URLs for next time
+        if (transcript != null) {
+          await cacheTranscript(bookId: bookId, transcript: transcript!);
+          await cacheUrls(bookId: bookId, audioUrl: audioUrl, jsonUrl: textUrl);
+        }
+      }
+
+      paragraphs = transcript?.paragraphs ?? [];
+
+      getBookmark();
+      paragraphKeys.clear();
+      wordKeys.clear();
+
+      paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
+
+      for (final paragraph in paragraphs) {
+        final allWords = paragraph.allWords;
+        for (int i = 0; i < allWords.length; i++) {
+          wordKeys.add(GlobalKey());
+        }
+      }
+
+      syncEngine = SyncEngine(paragraphs);
+
+      _duration = transcript?.duration ?? 0;
+      _audioUrl = transcript?.audioUrl;
+      print('📌 JSON URL: $_audioUrl');
+      await audioInitialize();
+
+      // Load saved position
+      final savedPosition = await loadSavedPosition();
+      if (savedPosition > 0 && savedPosition < _duration) {
+        _position = savedPosition;
+        print('✅ Restoring position to: ${formatTime(savedPosition)}');
+
+        if (syncEngine != null) {
+          currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
+          currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
+        }
+      }
+
+      saveRecentView(RecentViewModel(id: bookId, title: bookNme, image: bookCoverUrl, summary: bookSummary, length: formatTime(duration)));
+
+      scrollController.addListener(_onUserScroll);
+      await _setupNotification();
+
+      if (!isClosed) update();
+
+      print('✅ Initialization completed ${usedCache ? "(from cache)" : "(from server)"}');
+    } catch (e, stackTrace) {
+      print('❌ Initialization Error: $e');
+      print('📍 Stack trace: $stackTrace');
+
+      // ✅ TRY TO RECOVER FROM CACHE
+      if (!usedCache) {
+        print('🔄 Attempting to recover from cache...');
+
+        try {
+          // Try cached transcript
+          final cachedTranscript = getCachedTranscript(bookId);
+
+          if (cachedTranscript != null) {
+            print('✅ Successfully loaded from cache after error');
+
+            transcript = cachedTranscript;
+            paragraphs = transcript?.paragraphs ?? [];
+
+            getBookmark();
+            paragraphKeys.clear();
+            wordKeys.clear();
+
+            paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
+
+            for (final paragraph in paragraphs) {
+              final allWords = paragraph.allWords;
+              for (int i = 0; i < allWords.length; i++) {
+                wordKeys.add(GlobalKey());
+              }
+            }
+
+            syncEngine = SyncEngine(paragraphs);
+
+            _duration = transcript?.duration ?? 0;
+
+            // Get cached URLs
+            final cachedUrls = getCachedUrls(bookId);
+            _audioUrl = transcript?.audioUrl ?? cachedUrls['audioUrl'] ?? audioUrl;
+
+            await audioInitialize();
+
+            // Load saved position
+            final savedPosition = await loadSavedPosition();
+            if (savedPosition > 0 && savedPosition < _duration) {
+              _position = savedPosition;
+
+              if (syncEngine != null) {
+                currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
+                currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
+              }
+            }
+
+            saveRecentView(RecentViewModel(id: bookId, title: bookNme, image: bookCoverUrl, summary: bookSummary, length: formatTime(duration)));
+
+            scrollController.addListener(_onUserScroll);
+            await _setupNotification();
+
+            if (!isClosed) update();
+
+            print('✅ Recovery successful - using cached data');
+            return; // Exit successfully
+          } else {
+            print('❌ No cache available for recovery');
+          }
+        } catch (cacheError) {
+          print('❌ Cache recovery failed: $cacheError');
+        }
+      }
+
+      // ✅ If cache recovery fails, show error
+      hasError = true;
+
+      if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException') || e.toString().contains('Network')) {
+        errorMessage = 'No internet connection. Please check your network and try again.';
+      } else if (e.toString().contains('FormatException')) {
+        errorMessage = 'Invalid data format. Please try again later.';
+      } else {
+        errorMessage = 'Failed to load content. Please try again.';
+      }
+
+      // Preserve URLs even on error
+      if (audioUrl.isNotEmpty) {
+        _audioUrl = audioUrl;
+      }
+
+      update();
     }
   }
 
+  // ============================================================
+  // CACHE MANAGEMENT
+  // ============================================================
+
+  Future<void> cacheUrls({required String bookId, required String audioUrl, required String jsonUrl}) async {
+    await AppPrefs.setString('${CS.keyCachedAudioUrl}_$bookId', audioUrl);
+    await AppPrefs.setString('${CS.keyCachedJsonUrl}_$bookId', jsonUrl);
+    print('💾 Cached URLs for book: $bookId');
+  }
+
+  Map<String, String?> getCachedUrls(String bookId) {
+    final audio = AppPrefs.getString('${CS.keyCachedAudioUrl}_$bookId');
+    final json = AppPrefs.getString('${CS.keyCachedJsonUrl}_$bookId');
+    return {'audioUrl': audio.isEmpty ? null : audio, 'jsonUrl': json.isEmpty ? null : json};
+  }
+
+  Future<void> cacheTranscript({required String bookId, required TranscriptData transcript}) async {
+    final jsonString = jsonEncode(transcript.toJson());
+    await AppPrefs.setString('${CS.keyCachedTranscript}_$bookId', jsonString);
+    print('💾 Cached transcript for book: $bookId');
+  }
+
+  TranscriptData? getCachedTranscript(String bookId) {
+    final jsonString = AppPrefs.getString('${CS.keyCachedTranscript}_$bookId');
+    if (jsonString.isEmpty) return null;
+
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is String) {
+        print('⚠️ Old invalid cache detected. Clearing...');
+        AppPrefs.remove('${CS.keyCachedTranscript}_$bookId');
+        return null;
+      }
+      return TranscriptData.fromJson(decoded as Map<String, dynamic>);
+    } catch (e) {
+      print('❌ Error loading cached transcript: $e');
+      return null;
+    }
+  }
+
+  Future<void> clearBookCache(String bookId) async {
+    await Future.wait([
+      AppPrefs.remove('${CS.keyCachedAudioUrl}_$bookId'),
+      AppPrefs.remove('${CS.keyCachedJsonUrl}_$bookId'),
+      AppPrefs.remove('${CS.keyCachedTranscript}_$bookId'),
+      AppPrefs.remove(CS.keyLastBookId),
+      AppPrefs.remove('${CS.keyLastPosition}_$bookId'),
+    ]);
+  }
+
+  // ============================================================
+  // POSITION MANAGEMENT
+  // ============================================================
+
+  Future<void> saveCurrentPosition() async {
+    if (novelData?.id != null) {
+      await AppPrefs.setInt('${CS.keyLastPosition}_${novelData!.id}', _position);
+      await AppPrefs.setString(CS.keyLastBookId, novelData!.id!);
+      print('Saved position: $_position for book: ${novelData!.id}');
+    }
+  }
+
+  Future<int> loadSavedPosition() async {
+    final novelId = AppPrefs.getString(CS.keyLastBookId);
+    if (novelId.isNotEmpty) {
+      final position = AppPrefs.getInt('${CS.keyLastPosition}_$novelId');
+      print('Loaded position: $position for book: $novelId');
+      return position;
+    }
+    return 0;
+  }
+
+  Future<void> clearSavedPosition() async {
+    if (novelData?.id != null) {
+      await AppPrefs.remove('${CS.keyLastPosition}_${novelData!.id}');
+    }
+  }
+
+  // ============================================================
+  // BackGround Audio Play NOTIFICATION
+  // ============================================================
+
   Future<void> _initializeAudioService() async {
     audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
-    // _isInitialized = true;
     update();
   }
 
   Future<void> _setupNotification() async {
     if (audioHandler == null) return;
-
-    await audioHandler?.loadAndPlay(
-      audioUrl: novelData?.audioFiles?.first.url ?? "",
-      title: novelData?.bookName ?? "",
-      artist: novelData?.author?.name ?? "",
-      artUri: novelData?.bookCoverUrl ?? "",
-    );
+    await audioHandler?.loadAndPlay(audioUrl: audioUrl, title: bookNme, artist: authorNme, artUri: bookCoverUrl);
   }
 
+  // ============================================================
+  // BOOK INFO
+  // ============================================================
   Future<void> saveBookInfo(BookInfoModel model) async {
     final jsonString = jsonEncode(model.toMap());
     AppPrefs.setString(CS.keyBookInfo, jsonString);
@@ -199,32 +454,23 @@ class AudioTextController extends GetxController {
 
   Future<BookInfoModel> loadBookInfo() async {
     final jsonString = AppPrefs.getString(CS.keyBookInfo);
-
-    // ✅ Add this check
     if (jsonString.isEmpty) {
-      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '');
+      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
     }
 
     try {
-      final map = jsonDecode(jsonString);
-      return BookInfoModel.fromMap(map);
+      return BookInfoModel.fromMap(jsonDecode(jsonString));
     } catch (e) {
       print('Error loading book info: $e');
-      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '');
+      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
     }
   }
 
-  Future<void> clearBookInfo() async {
-    AppPrefs.remove(CS.keyBookInfo);
-  }
+  Future<void> clearBookInfo() async => await AppPrefs.remove(CS.keyBookInfo);
 
-  Future<void> setIsBookListening(bool value) async {
-    return AppPrefs.setBool(CS.keyIsBookListening, value);
-  }
+  Future<void> setIsBookListening(bool value) async => await AppPrefs.setBool(CS.keyIsBookListening, value);
 
-  Future<bool> getIsBookListening() async {
-    return AppPrefs.getBool(CS.keyIsBookListening);
-  }
+  Future<bool> getIsBookListening() async => await AppPrefs.getBool(CS.keyIsBookListening);
 
   Future<void> loadIsBookListening() async {
     isBookListening.value = await getIsBookListening();
@@ -233,196 +479,91 @@ class AudioTextController extends GetxController {
 
   void startListening() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      novelData = Get.arguments["novelData"];
       isBookListening.value = true;
       setIsBookListening(true);
-      vAuthorName.value = novelData?.author?.name ?? "";
-      vBookName.value = novelData?.bookName ?? "";
+
       saveBookInfo(
-        BookInfoModel(authorName: vAuthorName.value, bookName: vBookName.value, bookImage: novelData?.bookCoverUrl ?? "", bookId: novelData?.id ?? ""),
+        BookInfoModel(
+          authorName: authorNme,
+          bookName: bookNme,
+          bookImage: bookCoverUrl,
+          bookId: bookId,
+          textUrl: textUrl,
+          audioUrl: audioUrl,
+          summary: bookSummary,
+        ),
       );
+
       loadIsBookListening();
-      // Update notification
       _initializeAudioService();
       _setupNotification();
     });
   }
 
-  // Future<void> stopListening() async {
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     isBookListening.value = false;
-  //     setIsBookListening(false);
-  //     vAuthorName.value = "";
-  //     vBookName.value = "";
-  //     await clearBookInfo();
-  //     // Get.delete<AudioTextController>();
-  //
-  //     // _isDisposed = true;
-  //     //
-  //     // _positionSubscription?.cancel();
-  //     // _stateSubscription?.cancel();
-  //     // _completionSubscription?.cancel();
-  //     //
-  //     // if (audioPlayer.state != PlayerState.disposed) {
-  //     //   audioPlayer.stop();
-  //     //   audioPlayer.dispose();
-  //     //   initializeApp();
-  //     // }
-  //   });
-  // }
+  // ============================================================
+  // BOOKMARK MANAGEMENT
+  // ============================================================
 
-  // ------------------------------------------------------------
-  // Initialization
-  // ------------------------------------------------------------
-  Future<void> initializeApp() async {
-    try {
-      novelData = Get.arguments["novelData"];
-      transcript = await fetchJsonData(audioUrl: novelData?.audioFiles?.first.url, textUrl: novelData?.audioFiles?.first.audioJsonUrl);
-      paragraphs = transcript?.paragraphs ?? [];
-
-      getBookmark();
-      paragraphKeys.clear();
-      wordKeys.clear();
-
-      // keep original behaviour: generate paragraph keys
-      paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
-
-      // Build wordKeys list (preserve original logic)
-      for (final paragraph in paragraphs) {
-        final allWords = paragraph.allWords; // Use allWords instead of words
-        for (int i = 0; i < allWords.length; i++) {
-          wordKeys.add(GlobalKey());
-        }
-      }
-      syncEngine = SyncEngine(paragraphs);
-
-      _duration = transcript?.duration ?? 0;
-      _audioUrl = transcript?.audioUrl;
-
-      await audioInitialize();
-      saveRecentView(
-        RecentViewModel(
-          id: novelData?.id ?? "",
-          title: novelData?.bookName ?? "",
-          image: novelData?.bookCoverUrl ?? "",
-          summary: novelData?.summary ?? "",
-          length: formatTime(duration),
-        ),
-      );
-      // Preserve user scroll listener addition
-      scrollController.addListener(_onUserScroll);
-
-      // Retained comment from original code (disabled post-frame capture)
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //    captureParagraphOffsets();
-      // });
-      // Setup notification with book info
-      await _setupNotification();
-      if (!isClosed) update();
-    } catch (e) {
-      if ((Get.arguments["isInitCall"] ?? false)) {
-        hasError = true;
-      }
-
-      errorMessage = 'Initialization error: $e';
-      update();
-    }
-  }
-
-  /// Recent Listening Save Pref
-  Future<void> saveRecentView(RecentViewModel book) async {
-    List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
-
-    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
-
-    items.removeWhere((e) => e.id == book.id);
-
-    items.insert(0, book);
-
-    if (items.length > 10) {
-      items.removeLast();
-    }
-
-    // save back
-    AppPrefs.setStringList(CS.keyRecentViews, items.map((e) => jsonEncode(e.toJson())).toList());
-  }
-
-  addNoteBookmark() async {
+  Future<void> addNoteBookmark() async {
     listBookmarks = await getBookmarksPrefs();
 
-    // update bookmark note
     for (var i = 0; i < (listBookmarks?.length ?? 0); i++) {
       if (paragraphs[currentParagraphIndex].id == listBookmarks?[i].id) {
         listBookmarks?[i].note = addNoteController.text;
       }
     }
 
-    // save updated list
     await saveBookmarkList(listBookmarks ?? []);
-
     update();
   }
 
-  // ADD BOOKMARK
-  bookmark() async {
+  Future<void> bookmark() async {
     final paragraphId = paragraphs[currentParagraphIndex].id;
-
     bool exists = listBookmarks?.any((e) => e.id == paragraphId) ?? false;
     if (exists) return;
 
     final newItem = BookmarkModel(
       id: paragraphId,
       paragraph: paragraphs[currentParagraphIndex].allWords.map((e) => e.word).join(" "),
-      // Use allWords
       note: "",
       startTime: formatTime(paragraphs[currentParagraphIndex].allWords.first.start),
       endTime: formatTime(paragraphs[currentParagraphIndex].allWords.last.start),
     );
 
     await saveBookmark(data: newItem);
-
     paragraphs[currentParagraphIndex].isBookmarked = true;
-
     update();
   }
 
-  // LOAD BOOKMARK STATE FOR UI
-  getBookmark() async {
+  Future<void> getBookmark() async {
     listBookmarks = await getBookmarksPrefs();
-
     for (var p in paragraphs) {
       p.isBookmarked = listBookmarks?.any((b) => b.id == p.id) ?? false;
     }
-
     update();
   }
 
-  // SAVE SINGLE BOOKMARK
   Future<void> saveBookmark({required BookmarkModel data}) async {
     final list = AppPrefs.getStringList(CS.keyBookmarks);
     list.add(jsonEncode(data.toJson()));
     await AppPrefs.setStringList(CS.keyBookmarks, list);
   }
 
-  // GET ALL BOOKMARKS
   Future<List<BookmarkModel>> getBookmarksPrefs() async {
     final list = AppPrefs.getStringList(CS.keyBookmarks);
     return list.map((e) => BookmarkModel.fromJson(jsonDecode(e))).toList();
   }
 
-  // DELETE BOOKMARK
   Future<void> deleteBookmark(int index) async {
     try {
       isBookMarkDelete = true;
       update();
 
       listBookmarks?.removeAt(index);
-
       await saveBookmarkList(listBookmarks ?? []);
 
-      transcript = await fetchJsonData(audioUrl: novelData?.audioFiles?.first.url, textUrl: novelData?.audioFiles?.first.audioJsonUrl);
+      transcript = await fetchJsonData(audioUrl: audioUrl, textUrl: textUrl);
       paragraphs = transcript?.paragraphs ?? [];
-
       await getBookmark();
     } finally {
       isBookMarkDelete = false;
@@ -430,10 +571,24 @@ class AudioTextController extends GetxController {
     }
   }
 
-  // ---------------- PRIVATE HELPER ----------------
   Future<void> saveBookmarkList(List<BookmarkModel> list) async {
     final jsonList = list.map((e) => jsonEncode(e.toJson())).toList();
     await AppPrefs.setStringList(CS.keyBookmarks, jsonList);
+  }
+
+  // ============================================================
+  // RECENT VIEWS
+  // ============================================================
+
+  Future<void> saveRecentView(RecentViewModel book) async {
+    List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews);
+    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
+
+    items.removeWhere((e) => e.id == book.id);
+    items.insert(0, book);
+    if (items.length > 10) items.removeLast();
+
+    AppPrefs.setStringList(CS.keyRecentViews, items.map((e) => jsonEncode(e.toJson())).toList());
   }
 
   // ------------------------------------------------------------
@@ -460,8 +615,6 @@ class AudioTextController extends GetxController {
       update();
     }
   }
-
-  bool get showScrollButton => isScrolling && suppressAutoScroll;
 
   // ------------------------------------------------------------
   // Detect manual scroll
@@ -525,10 +678,6 @@ class AudioTextController extends GetxController {
     final context = key.currentContext;
 
     if (context != null) {
-      // Paragraph built → safe to compute offset and animate
-      final box = context.findRenderObject() as RenderBox;
-      final offset = box.localToGlobal(Offset.zero).dy;
-
       scrollController.animateTo(
         scrollController.offset, // Adjust padding as original
         duration: const Duration(milliseconds: 350),
@@ -603,6 +752,12 @@ class AudioTextController extends GetxController {
       }
 
       _checkDrift();
+      // ✅ Save position every 5 seconds
+      final now = DateTime.now();
+      if (_lastPositionSave == null || now.difference(_lastPositionSave!) > Duration(seconds: 5)) {
+        saveCurrentPosition();
+        _lastPositionSave = now;
+      }
       update();
     }
   }
@@ -618,6 +773,17 @@ class AudioTextController extends GetxController {
     }
 
     update();
+  }
+
+  void safeScrollToParagraph(int index) {
+    final now = DateTime.now();
+    if (_lastScrollTime != null && now.difference(_lastScrollTime!) < const Duration(milliseconds: 120)) {
+      return;
+    }
+
+    _lastScrollTime = now;
+
+    scrollToCurrentParagraph(index);
   }
 
   // ------------------------------------------------------------
@@ -651,18 +817,16 @@ class AudioTextController extends GetxController {
     }
   }
 
-  // ------------------------------------------------------------
-  // Playback Controls
-  // ------------------------------------------------------------
+  // ============================================================
+  // PLAYBACK CONTROLS
+  // ============================================================
+
   Future<void> play({bool isPositionScrollOnly = false, bool isOnlyPlayAudio = false}) async {
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
-    // if (_isPlaying) return;
 
     _operationInProgress = true;
 
     try {
-      // Play via notification handler
-
       if (audioHandler == null) {
         startListening();
         await audioHandler?.play();
@@ -674,31 +838,25 @@ class AudioTextController extends GetxController {
         await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
       }
 
-      // If audio ended → reset position
       if (_position >= _duration - 100) {
         _position = 0;
         _hasPlayedOnce = false;
       }
 
-      // IMPORTANT → seek logic (your original)
       if (_position > -1) {
         _operationInProgress = false;
         await seek(_position, isPlay: true);
       }
 
-      // First-time play
       if (!_hasPlayedOnce) {
         await audioPlayer.play(UrlSource(_audioUrl!));
         _hasPlayedOnce = true;
-      }
-      // Resume
-      else {
+      } else {
         await audioPlayer.resume();
       }
 
       _isPlaying = true;
       isPlayAudio.value = true;
-
       _lastDriftCheck = DateTime.now();
 
       update();
@@ -711,8 +869,7 @@ class AudioTextController extends GetxController {
   }
 
   Future<void> pause() async {
-    if (_isDisposed || !_isInitialized || _operationInProgress) return;
-    if (!_isPlaying) return;
+    if (_isDisposed || !_isInitialized || _operationInProgress || !_isPlaying) return;
 
     _operationInProgress = true;
 
@@ -722,6 +879,7 @@ class AudioTextController extends GetxController {
       await audioHandler?.pause();
       await audioPlayer.pause();
       _lastDriftCheck = null;
+      await saveCurrentPosition();
       update();
     } catch (e) {
       _error = 'Pause error: $e';
@@ -785,19 +943,6 @@ class AudioTextController extends GetxController {
 
       update();
     }
-  }
-
-  DateTime? _lastScrollTime;
-
-  void safeScrollToParagraph(int index) {
-    final now = DateTime.now();
-    if (_lastScrollTime != null && now.difference(_lastScrollTime!) < const Duration(milliseconds: 120)) {
-      return;
-    }
-
-    _lastScrollTime = now;
-
-    scrollToCurrentParagraph(index);
   }
 
   Future<void> skipForward() async {
@@ -953,7 +1098,7 @@ class AudioTextController extends GetxController {
       // 5. Reset UI state
       isCollapsed = false;
       isScrolling = false;
-      isAnimateAppBarText = false;
+
       suppressAutoScroll = false;
       isHideText = false;
       hasError = false;
@@ -1003,19 +1148,18 @@ class AudioTextController extends GetxController {
     await WidgetsBinding.instance.endOfFrame;
 
     try {
+      // ✅ Save current position before stopping
+      await saveCurrentPosition();
       // 1. Clear book listening state
       isBookListening.value = false;
       isPlayAudio.value = false;
       await setIsBookListening(false);
 
       // 2. Clear book info
-      vAuthorName.value = "";
-      vBookName.value = "";
-      vBookImage.value = "";
-      vBookId.value = "";
-      bookInfo.value = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '');
-      await clearBookInfo();
 
+      bookInfo.value = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      await clearBookInfo();
+      await clearBookCache(bookId);
       // 3. Reset the entire controller
       await resetController();
     } catch (e) {
@@ -1053,51 +1197,11 @@ class AudioTextController extends GetxController {
   // ============================================================
   @override
   void onClose() {
-    // if (!_isDisposed) {
-    // _isDisposed = true;
-    //
-    // // Cancel subscriptions
-    // _positionSubscription?.cancel();
-    // _stateSubscription?.cancel();
-    // _completionSubscription?.cancel();
-
-    // Dispose scroll controller
     try {
       scrollController.dispose();
     } catch (e) {
       print('Error disposing scroll controller: $e');
     }
-
-    // Stop and dispose audio
-    // try {
-    //   audioPlayer.stop();
-    //   audioPlayer.dispose();
-    // } catch (e) {
-    //   print('Error disposing audio player: $e');
-    // }
-
     super.onClose();
   }
-
-  // ------------------------------------------------------------
-  // Cleanup
-  // ------------------------------------------------------------
-  // @override
-  // void onClose() {
-  //   // _isDisposed = true;
-  //
-  //   // _positionSubscription?.cancel();
-  //   // _stateSubscription?.cancel();
-  //   // _completionSubscription?.cancel();
-  //
-  //   // safe dispose of scrollController
-  //   try {
-  //     scrollController.dispose();
-  //   } catch (_) {}
-  //
-  //   // audioPlayer.stop();
-  //   // audioPlayer.dispose();
-  //
-  //   super.onClose();
-  // }
 }

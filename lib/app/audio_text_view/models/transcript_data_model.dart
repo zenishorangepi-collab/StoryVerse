@@ -19,13 +19,22 @@ class TranscriptData {
 
       return TranscriptData(
         paragraphs: paragraphs,
-        audioUrl: json['audioUrl'] as String,
-        totalWords: json['metadata']['totalWords'] as int,
-        duration: json['metadata']['duration'] as int,
-        language: json['metadata']['language'] as String? ?? 'en-US',
+        audioUrl: json['audioUrl'] as String?,
+        totalWords: json['metadata']?['totalWords'] as int?,
+        duration: json['metadata']?['duration'] as int?,
+        language: json['metadata']?['language'] as String? ?? 'en-US',
       );
     } catch (e) {
       throw FormatException('Invalid transcript data: $e');
     }
+  }
+
+  /// ✅ ADD THIS
+  Map<String, dynamic> toJson() {
+    return {
+      'paragraphs': paragraphs.map((p) => p.toJson()).toList(),
+      'audioUrl': audioUrl,
+      'metadata': {'totalWords': totalWords, 'duration': duration, 'language': language},
+    };
   }
 }
