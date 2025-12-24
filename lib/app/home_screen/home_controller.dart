@@ -27,7 +27,7 @@ class HomeController extends GetxController {
   List<RecentViewModel> listRecents = <RecentViewModel>[];
   RxList<NovelsDataModel> listNovelData = <NovelsDataModel>[].obs;
   RxList<CategoriesDataModel> listNovelCategoriesData = <CategoriesDataModel>[].obs;
-  bool isDataLoading = true;
+  bool isDataLoading = false;
 
   @override
   void onInit() {

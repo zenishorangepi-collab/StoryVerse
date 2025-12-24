@@ -22,10 +22,8 @@ import 'package:utsav_interview/core/pref.dart';
 
 RxBool isBookListening = false.obs;
 RxBool isPlayAudio = false.obs;
-// RxString vAuthorName = "".obs;
-// RxString vBookName = "".obs;
-// RxString vBookImage = "".obs;
-// RxString vBookId = "".obs;
+RxInt isAudioInitCount = 0.obs;
+
 Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "").obs;
 
 class AudioTextController extends GetxController {
@@ -43,6 +41,7 @@ class AudioTextController extends GetxController {
   late final ScrollController scrollController;
 
   // Keys for scroll tracking
+
   final List<GlobalKey> paragraphKeys = [];
   final List<GlobalKey> wordKeys = [];
 
@@ -74,6 +73,7 @@ class AudioTextController extends GetxController {
   bool _isSeeking = false;
   bool _isDisposed = false;
   bool _operationInProgress = false;
+  bool audioLoading = false;
   double _speed = 1.0;
   int _position = 0;
   int _duration = 0;
@@ -247,7 +247,7 @@ class AudioTextController extends GetxController {
       final savedPosition = await loadSavedPosition();
       if (savedPosition > 0 && savedPosition < _duration) {
         _position = savedPosition;
-        print('✅ Restoring position to: ${formatTime(savedPosition)}');
+        print('✅ Restoring position to: ${formatTime(_position)}');
 
         if (syncEngine != null) {
           currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
@@ -407,26 +407,26 @@ class AudioTextController extends GetxController {
   // ============================================================
 
   Future<void> saveCurrentPosition() async {
-    if (novelData?.id != null) {
-      await AppPrefs.setInt('${CS.keyLastPosition}_${novelData!.id}', _position);
-      await AppPrefs.setString(CS.keyLastBookId, novelData!.id!);
-      print('Saved position: $_position for book: ${novelData!.id}');
+    if (bookId.isNotEmpty) {
+      await AppPrefs.setInt('${CS.keyLastPosition}_${bookId}', _position);
+      await AppPrefs.setString(CS.keyLastBookId, bookId);
+      print('Saved position: $_position for book: ${bookId}');
     }
   }
 
   Future<int> loadSavedPosition() async {
     final novelId = AppPrefs.getString(CS.keyLastBookId);
-    if (novelId.isNotEmpty) {
-      final position = AppPrefs.getInt('${CS.keyLastPosition}_$novelId');
-      print('Loaded position: $position for book: $novelId');
+    if (bookId.isNotEmpty) {
+      final position = AppPrefs.getInt('${CS.keyLastPosition}_$bookId');
+      print('Loaded position: $position for book: $bookId');
       return position;
     }
     return 0;
   }
 
   Future<void> clearSavedPosition() async {
-    if (novelData?.id != null) {
-      await AppPrefs.remove('${CS.keyLastPosition}_${novelData!.id}');
+    if (bookId.isNotEmpty) {
+      await AppPrefs.remove('${CS.keyLastPosition}_${bookId}');
     }
   }
 
@@ -822,9 +822,14 @@ class AudioTextController extends GetxController {
   // ============================================================
 
   Future<void> play({bool isPositionScrollOnly = false, bool isOnlyPlayAudio = false}) async {
+    // if (isOnlyPlayAudio && isAudioInitCount.value == 0) {
+    //   initializeApp();
+    // }
+    isAudioInitCount++;
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
 
     _operationInProgress = true;
+    audioLoading = true;
 
     try {
       if (audioHandler == null) {
@@ -864,6 +869,7 @@ class AudioTextController extends GetxController {
       _error = 'Playback error: $e';
       update();
     } finally {
+      audioLoading = false;
       _operationInProgress = false;
     }
   }
