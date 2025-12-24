@@ -63,7 +63,7 @@ class HomeController extends GetxController {
       final data = doc.data();
       final novelCategory = CategoriesDataModel.fromJson(data);
       listNovelCategoriesData.add(novelCategory);
-      isDataLoading = false;
+
       update();
     }
   }

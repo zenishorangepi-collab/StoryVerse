@@ -91,7 +91,7 @@ class AudioFiles {
     id = json['id'];
     name = json['name'];
     url = json['url'];
-    audioJsonUrl = json['audioJsonUrl'];
+    audioJsonUrl = json['jsonUrl'];
     duration = json['duration'];
   }
 
@@ -100,7 +100,7 @@ class AudioFiles {
     data['id'] = id;
     data['name'] = name;
     data['url'] = url;
-    data['audioJsonUrl'] = audioJsonUrl;
+    data['jsonUrl'] = audioJsonUrl;
     data['duration'] = duration;
     return data;
   }

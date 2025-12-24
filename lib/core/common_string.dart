@@ -319,6 +319,11 @@ class CS {
   static String keyRecentViews = "recent_views";
   static String keyIsBookListening = "isBookListening";
   static String keyBookInfo = "bookInfo";
+  static const String keyLastPosition = 'last_audio_position';
+  static const String keyLastBookId = 'last_book_id';
+  static const String keyCachedAudioUrl = 'cached_audio_url';
+  static const String keyCachedJsonUrl = 'cached_json_url';
+  static const String keyCachedTranscript = 'cached_transcript';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

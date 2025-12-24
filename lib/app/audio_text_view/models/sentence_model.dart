@@ -1,4 +1,4 @@
-import 'word_data_model.dart';
+import 'package:utsav_interview/app/audio_text_view/models/word_data_model.dart';
 
 class SentenceData {
   final String id;
@@ -16,6 +16,11 @@ class SentenceData {
     } catch (e) {
       throw FormatException('Invalid sentence data: $e');
     }
+  }
+
+  /// ✅ ADD THIS
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'start': start, 'end': end, 'words': words.map((w) => w.toJson()).toList()};
   }
 
   bool get isEmpty => words.isEmpty;

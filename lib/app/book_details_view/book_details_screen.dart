@@ -66,7 +66,10 @@ class BookDetailsScreen extends StatelessWidget {
 
                           Positioned(bottom: 60, child: Text(controller.novelData.bookName ?? "", style: AppTextStyles.heading18WhiteSemiBold).screenPadding()),
 
-                          Positioned(bottom: 40, child: Text(controller.novelData.author?.name ?? "", style: AppTextStyles.body14WhiteMedium).screenPadding()),
+                          Positioned(
+                            bottom: 40,
+                            child: Text("by ${controller.novelData.author?.name}", style: AppTextStyles.body14WhiteMedium).screenPadding(),
+                          ),
                         ],
                       ),
 
@@ -204,7 +207,7 @@ class BookDetailsScreen extends StatelessWidget {
 
           bottomNavigationBar: CommonElevatedButton(
             onTap: () {
-              Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": controller.novelData});
+              Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": controller.novelData, "isInitCall": true});
             },
             title: CS.vPlay,
             icon: Icons.play_arrow_rounded,

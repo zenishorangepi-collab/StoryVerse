@@ -100,7 +100,14 @@ class HomeScreen extends StatelessWidget {
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                             child: ClipRRect(
                                               borderRadius: BorderRadius.circular(2),
-                                              child: Image.asset(controller.listRecents[index].image, height: 60, fit: BoxFit.cover),
+                                              child: CachedNetworkImage(
+                                                height: 60,
+                                                fit: BoxFit.cover,
+                                                imageUrl: controller.listRecents[index].image,
+                                                errorWidget: (context, error, stackTrace) {
+                                                  return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -144,7 +151,6 @@ class HomeScreen extends StatelessWidget {
                   StreamBuilder(
                     stream: controller.listNovelData.stream,
                     builder: (context, novelSnapshot) {
-                      // Show loading indicator while waiting for data
                       if (!novelSnapshot.hasData) {
                         return SliverToBoxAdapter(
                           child: Center(
@@ -155,25 +161,20 @@ class HomeScreen extends StatelessWidget {
                           ),
                         );
                       }
-
                       final activeCategories = controller.getActiveCategoriesOnly();
 
-                      // Show "No data" message if no categories with novels
-                      if (activeCategories.isEmpty) {
-                        return SliverToBoxAdapter(
-                          child: Center(child: Padding(padding: const EdgeInsets.all(20), child: Text(CS.vNoNovelFound, style: AppTextStyles.body14WhiteBold))),
-                        );
-                      }
-
-                      // Show data - Build list of categories with their novels
                       return SliverList(
                         delegate: SliverChildBuilderDelegate((context, categoryIndex) {
                           final category = activeCategories[categoryIndex];
                           final categoryNovels = controller.getNovelsForCategory(category.id ?? "", category.name ?? '');
 
-                          // Skip if no novels (extra safety check)
-                          if (categoryNovels.isEmpty) return const SizedBox.shrink();
-
+                          if (categoryNovels.isEmpty) {
+                            return SliverToBoxAdapter(
+                              child: Center(
+                                child: Padding(padding: const EdgeInsets.all(20), child: Text(CS.vNoNovelFound, style: AppTextStyles.body14WhiteBold)),
+                              ),
+                            );
+                          }
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

@@ -1,4 +1,3 @@
-
 class WordData {
   final String word;
   final int start;
@@ -15,14 +14,15 @@ class WordData {
         throw FormatException('Invalid timestamp: start=$start, end=$end');
       }
 
-      return WordData(
-        word: (json['word'] as String).trim(),
-        start: start,
-        end: end,
-      );
+      return WordData(word: (json['word'] as String).trim(), start: start, end: end);
     } catch (e) {
       throw FormatException('Invalid word data: $e');
     }
+  }
+
+  /// ✅ ADD THIS
+  Map<String, dynamic> toJson() {
+    return {'word': word, 'start': start, 'end': end};
   }
 
   bool containsTime(int timeMs) => timeMs >= start && timeMs < end;
