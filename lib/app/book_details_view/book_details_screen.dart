@@ -190,7 +190,9 @@ class BookDetailsScreen extends StatelessWidget {
                             bookName: bookInfo.value.bookName,
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                             onPlayPause: () {
-                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true).then((value) {
+                                Get.find<AudioTextController>().update();
+                              });
                             },
                             onForward10: () {
                               Get.find<AudioTextController>().skipForward();

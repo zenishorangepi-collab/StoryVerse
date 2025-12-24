@@ -263,7 +263,11 @@ class HomeScreen extends StatelessWidget {
                             bookName: bookInfo.value.bookName,
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                             onPlayPause: () {
-                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                              if (isAudioInitCount.value == 0) {
+                                Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
+                              } else {
+                                Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
+                              }
                             },
                             onForward10: () {
                               Get.find<AudioTextController>().skipForward();

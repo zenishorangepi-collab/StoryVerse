@@ -27,8 +27,12 @@ class AudioTextScreen extends StatelessWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           try {
             if (Get.arguments != null) {
-              if ((Get.arguments["isInitCall"] ?? true)) {}
-              state.controller?.initializeApp();
+              if (isAudioInitCount.value == 0) {
+                state.controller?.initializeApp();
+              }
+              // isAudioInitCount++;
+              // if ((Get.arguments["isInitCall"] ?? true)) {
+              // }
             }
             state.controller?.startListening();
           } catch (e) {
@@ -455,11 +459,13 @@ class AudioTextScreen extends StatelessWidget {
                   tooltip: '${CS.vSkip} -10s',
                 ),
                 const SizedBox(width: 16),
-                IconButton(
-                  icon: Icon(controller.isPlaying ? Icons.pause : Icons.play_arrow_rounded, size: 48, color: AppColors.colorWhite),
-                  onPressed: controller.togglePlayPause,
-                  tooltip: controller.isPlaying ? CS.vPause : CS.vPlay,
-                ),
+                controller.audioLoading
+                    ? SizedBox(width: 30, height: 30, child: CircularProgressIndicator(color: AppColors.colorWhite, strokeWidth: 3))
+                    : IconButton(
+                      icon: Icon(controller.isPlaying ? Icons.pause : Icons.play_arrow_rounded, size: 48, color: AppColors.colorWhite),
+                      onPressed: controller.togglePlayPause,
+                      tooltip: controller.isPlaying ? CS.vPause : CS.vPlay,
+                    ),
                 const SizedBox(width: 16),
                 IconButton(
                   icon: const Icon(Icons.forward_10_rounded, color: AppColors.colorWhite),
