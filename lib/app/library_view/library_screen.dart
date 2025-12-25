@@ -45,9 +45,9 @@ class LibraryScreen extends StatelessWidget {
                           stream: bookInfo.stream,
                           builder: (context, asyncSnapshot) {
                             return MiniAudioPlayer(
-                              bookImage: bookInfo.value.bookImage,
-                              authorName: bookInfo.value.authorName,
-                              bookName: bookInfo.value.bookName,
+                              bookImage: bookInfo.value.bookCoverUrl ?? "",
+                              authorName: bookInfo.value.author?.name ?? "",
+                              bookName: bookInfo.value.bookName ?? "",
                               playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                               onPlayPause: () {
                                 Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);

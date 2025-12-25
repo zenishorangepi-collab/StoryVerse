@@ -28,12 +28,8 @@ class AudioTextScreen extends StatelessWidget {
           try {
             if (Get.arguments != null) {
               if (isAudioInitCount.value == 0) {
-                // await Future.delayed(Duration(seconds: 2));
                 state.controller?.initializeApp();
               }
-              // isAudioInitCount++;
-              // if ((Get.arguments["isInitCall"] ?? true)) {
-              // }
             }
             state.controller?.startListening();
           } catch (e) {

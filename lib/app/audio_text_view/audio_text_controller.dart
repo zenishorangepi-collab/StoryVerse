@@ -24,11 +24,11 @@ RxBool isBookListening = false.obs;
 RxBool isPlayAudio = false.obs;
 RxInt isAudioInitCount = 0.obs;
 
-Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "").obs;
+Rx<NovelsDataModel> bookInfo = NovelsDataModel().obs;
 
 class AudioTextController extends GetxController {
   // Models & Data
-  NovelsDataModel? novelData;
+  NovelsDataModel? novelData = NovelsDataModel();
   TranscriptData? transcript;
   SyncEngine? syncEngine;
   List<ParagraphData> paragraphs = [];
@@ -190,14 +190,16 @@ class AudioTextController extends GetxController {
         bookNme = novelData?.bookName ?? "";
         bookCoverUrl = novelData?.bookCoverUrl ?? "";
         bookSummary = novelData?.summary ?? "";
+        await saveRecentView(novelData!);
       } else {
-        audioUrl = bookInfo.value.audioUrl;
-        textUrl = bookInfo.value.textUrl;
-        bookId = bookInfo.value.bookId;
-        authorNme = bookInfo.value.authorName;
-        bookNme = bookInfo.value.bookName;
-        bookCoverUrl = bookInfo.value.bookImage;
-        bookSummary = bookInfo.value.summary;
+        audioUrl = bookInfo.value.audioFiles?.first.url ?? "";
+        textUrl = bookInfo.value.audioFiles?.first.audioJsonUrl ?? "";
+        bookId = bookInfo.value.id ?? "";
+        authorNme = bookInfo.value.author?.name ?? "";
+        bookNme = bookInfo.value.bookName ?? "";
+        bookCoverUrl = bookInfo.value.bookCoverUrl ?? "";
+        bookSummary = bookInfo.value.summary ?? "";
+        await saveRecentView(bookInfo.value);
       }
 
       print('📌 Book ID: $bookId');
@@ -249,8 +251,6 @@ class AudioTextController extends GetxController {
           currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
         }
       }
-
-      saveRecentView(RecentViewModel(id: bookId, title: bookNme, image: bookCoverUrl, summary: bookSummary, length: formatTime(duration)));
 
       scrollController.addListener(_onUserScroll);
       await _setupNotification();
@@ -373,22 +373,23 @@ class AudioTextController extends GetxController {
   // ============================================================
   // BOOK INFO
   // ============================================================
-  Future<void> saveBookInfo(BookInfoModel model) async {
-    final jsonString = jsonEncode(model.toMap());
-    AppPrefs.setString(CS.keyBookInfo, jsonString);
+  Future<void> saveBookInfo(NovelsDataModel model) async {
+    final jsonString = jsonEncode(model.toJson());
+    await AppPrefs.setString(CS.keyBookInfo, jsonString);
   }
 
-  Future<BookInfoModel> loadBookInfo() async {
+  Future<NovelsDataModel> loadBookInfo() async {
     final jsonString = AppPrefs.getString(CS.keyBookInfo);
+
     if (jsonString.isEmpty) {
-      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      return NovelsDataModel();
     }
 
     try {
-      return BookInfoModel.fromMap(jsonDecode(jsonString));
+      return NovelsDataModel.fromJson(jsonDecode(jsonString));
     } catch (e) {
       print('Error loading book info: $e');
-      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      return NovelsDataModel();
     }
   }
 
@@ -408,17 +409,11 @@ class AudioTextController extends GetxController {
       isBookListening.value = true;
       setIsBookListening(true);
 
-      saveBookInfo(
-        BookInfoModel(
-          authorName: authorNme,
-          bookName: bookNme,
-          bookImage: bookCoverUrl,
-          bookId: bookId,
-          textUrl: textUrl,
-          audioUrl: audioUrl,
-          summary: bookSummary,
-        ),
-      );
+      if (novelData != null) {
+        await saveBookInfo(novelData!);
+      } else {
+        await saveBookInfo(bookInfo.value);
+      }
 
       loadIsBookListening();
       _initializeAudioService();
@@ -506,9 +501,9 @@ class AudioTextController extends GetxController {
   // RECENT VIEWS
   // ============================================================
 
-  Future<void> saveRecentView(RecentViewModel book) async {
+  Future<void> saveRecentView(NovelsDataModel book) async {
     List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews);
-    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
+    List<NovelsDataModel> items = recentList.map((item) => NovelsDataModel.fromJson(jsonDecode(item))).toList();
 
     items.removeWhere((e) => e.id == book.id);
     items.insert(0, book);
@@ -1088,7 +1083,7 @@ class AudioTextController extends GetxController {
       isPlayAudio.value = false;
       await setIsBookListening(false);
 
-      bookInfo.value = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      bookInfo.value = NovelsDataModel();
       await clearBookInfo();
       await resetController();
     } catch (e) {

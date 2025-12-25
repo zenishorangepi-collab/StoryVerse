@@ -12,13 +12,13 @@ class BookDetailsController extends GetxController {
     novelData = Get.arguments;
     audioDuration = secondsToMinSec(novelData.audioFiles?.first.duration ?? 0.0);
   }
+}
 
-  String secondsToMinSec(double seconds) {
-    final int totalSeconds = seconds.floor();
+String secondsToMinSec(double seconds) {
+  final int totalSeconds = seconds.floor();
 
-    final int minutes = totalSeconds ~/ 60;
-    final int remainingSeconds = totalSeconds % 60;
+  final int minutes = totalSeconds ~/ 60;
+  final int remainingSeconds = totalSeconds % 60;
 
-    return '${minutes}m ${remainingSeconds}s';
-  }
+  return '${minutes}m ${remainingSeconds}s';
 }

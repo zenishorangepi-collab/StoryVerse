@@ -24,7 +24,7 @@ class HomeController extends GetxController {
       description: "Cozy stories inspired by countryside living",
     ),
   ];
-  List<RecentViewModel> listRecents = <RecentViewModel>[];
+  List<NovelsDataModel> listRecents = <NovelsDataModel>[];
   RxList<NovelsDataModel> listNovelData = <NovelsDataModel>[].obs;
   RxList<CategoriesDataModel> listNovelCategoriesData = <CategoriesDataModel>[].obs;
   bool isDataLoading = false;
@@ -94,13 +94,14 @@ class HomeController extends GetxController {
     AppPrefs.remove(CS.keyRecentViews);
   }
 
-  Future<List<RecentViewModel>> getRecentViews() async {
-    List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
+  Future<List<NovelsDataModel>> getRecentViews() async {
+    final recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
 
-    // convert JSON to model
-    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
+    final items = <NovelsDataModel>[];
+    for (final item in recentList) {
+      items.add(NovelsDataModel.fromJson(jsonDecode(item)));
+    }
 
-    // reverse to show latest first
-    return items.reversed.toList();
+    return items;
   }
 }
