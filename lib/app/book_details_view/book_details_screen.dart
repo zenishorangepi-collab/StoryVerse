@@ -106,7 +106,7 @@ class BookDetailsScreen extends StatelessWidget {
                       Text(CS.vSummary, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       const SizedBox(height: 5),
                       Text(controller.novelData.summary ?? "", style: AppTextStyles.body14GreyRegular).screenPadding(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       Text(CS.vDetails, style: AppTextStyles.body16WhiteBold).screenPadding(),
                       const SizedBox(height: 10),
                       Row(
@@ -185,14 +185,12 @@ class BookDetailsScreen extends StatelessWidget {
                         stream: bookInfo.stream,
                         builder: (context, asyncSnapshot) {
                           return MiniAudioPlayer(
-                            bookImage: bookInfo.value.bookImage,
-                            authorName: bookInfo.value.authorName,
-                            bookName: bookInfo.value.bookName,
+                            bookImage: bookInfo.value.bookCoverUrl ?? "",
+                            authorName: bookInfo.value.author?.name ?? "",
+                            bookName: bookInfo.value.bookName ?? "",
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                             onPlayPause: () {
-                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true).then((value) {
-                                Get.find<AudioTextController>().update();
-                              });
+                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
                             },
                             onForward10: () {
                               Get.find<AudioTextController>().skipForward();
@@ -209,6 +207,10 @@ class BookDetailsScreen extends StatelessWidget {
 
           bottomNavigationBar: CommonElevatedButton(
             onTap: () {
+              if (bookInfo.value.id != controller.novelData.id && isAudioInitCount.value != 0) {
+                isAudioInitCount.value = 0;
+                Get.find<AudioTextController>().pause();
+              }
               Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": controller.novelData, "isInitCall": true});
             },
             title: CS.vPlay,

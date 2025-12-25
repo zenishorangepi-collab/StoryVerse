@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
+import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
@@ -45,9 +47,9 @@ class LibraryScreen extends StatelessWidget {
                           stream: bookInfo.stream,
                           builder: (context, asyncSnapshot) {
                             return MiniAudioPlayer(
-                              bookImage: bookInfo.value.bookImage,
-                              authorName: bookInfo.value.authorName,
-                              bookName: bookInfo.value.bookName,
+                              bookImage: bookInfo.value.bookCoverUrl ?? "",
+                              authorName: bookInfo.value.author?.name ?? "",
+                              bookName: bookInfo.value.bookName ?? "",
                               playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                               onPlayPause: () {
                                 Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
@@ -193,7 +195,7 @@ class LibraryScreen extends StatelessWidget {
       case LibraryTab.collections:
         return _collectionsView();
       case LibraryTab.archive:
-        return _savedView();
+        return _archived();
       default:
         return _savedView();
     }
@@ -201,79 +203,192 @@ class LibraryScreen extends StatelessWidget {
 
   /// SAVED VIEW
   Widget _savedView() {
-    return ListView(
-      children: [
-        Slidable(
-          key: const ValueKey(0),
+    return GetBuilder<LibraryController>(
+      init: LibraryController(),
+      builder: (controller) {
+        return controller.savedRecents.isEmpty
+            ? Center(child: Text(CS.vNoSavedFound, style: AppTextStyles.body14WhiteMedium))
+            : ListView.builder(
+              itemCount: controller.savedRecents.length,
+              itemBuilder: (context, index) {
+                final book = controller.savedRecents[index];
 
-          /// LEFT SIDE ACTIONS ⬅⬅⬅⬅⬅⬅⬅
-          startActionPane: ActionPane(
-            motion: const BehindMotion(),
-            extentRatio: 0.50,
-            children: [
-              commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
-              commonActionButton(color: AppColors.colorTeal, icon: Icons.remove_circle_outline, label: CS.vRemoveFromQueue, onTap: () {}),
-            ],
-          ),
+                return AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: Slidable(
+                    key: ValueKey(book.id), // ✅ UNIQUE KEY
+                    /// LEFT ACTIONS
+                    startActionPane: ActionPane(
+                      motion: const BehindMotion(),
+                      extentRatio: 0.50,
+                      children: [
+                        commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+                        commonActionButton(color: AppColors.colorTeal, icon: Icons.remove_circle_outline, label: CS.vRemoveFromQueue, onTap: () {}),
+                      ],
+                    ),
 
-          /// RIGHT SIDE ACTIONS ➡➡➡➡➡➡➡
-          endActionPane: ActionPane(
-            motion: const BehindMotion(),
-            extentRatio: 0.75,
-            children: [
-              commonActionButton(color: AppColors.colorDarkGreen, icon: Icons.add, label: CS.vAddToCollection, onTap: () {}),
+                    /// RIGHT ACTIONS
+                    endActionPane: ActionPane(
+                      motion: const BehindMotion(),
+                      extentRatio: 0.5,
+                      children: [
+                        commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
+                        commonActionButton(
+                          color: AppColors.colorBgWhite10,
+                          icon: Icons.archive,
+                          label: CS.vArchive,
+                          onTap: () async {
+                            final slidable = Slidable.of(context);
 
-              commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
+                            // 1️⃣ Close action pane
+                            await slidable?.close();
 
-              commonActionButton(color: AppColors.colorBgWhite10, icon: Icons.archive, label: CS.vArchive, onTap: () {}),
-            ],
-          ),
+                            // 2️⃣ Small delay for animation
+                            await Future.delayed(const Duration(milliseconds: 250));
 
-          /// MAIN CARD (unchanged)
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 15,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                  child: Image.asset(CS.imgBookCover, height: 80),
-                ),
+                            // 3️⃣ Archive + remove item
+                            controller.archiveBook(book.id ?? "");
+                          },
+                        ),
+                      ],
+                    ),
 
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(CS.vBookTitle, style: AppTextStyles.body14WhiteBold),
-
-                      Text("${CS.vAuthorName}\n${CS.vDuration}", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-
-                      const SizedBox(height: 10),
-
-                      Text(
-                        "Deep in the Amazon, Princess seraphine defines her queen and embarks on a quest to discover dshu dfkj dkf",
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.body14GreySemiBold,
+                    /// MAIN CARD
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
                       ),
-
-                      const SizedBox(height: 10),
-
-                      Text("1% 20 mins left", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                    ],
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
+                            child: CachedNetworkImage(
+                              height: 80,
+                              width: 50,
+                              fit: BoxFit.contain,
+                              imageUrl: book.bookCoverUrl ?? "",
+                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
+                                Text(book.author?.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(book.summary ?? "", maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+                );
+              },
+            );
+      },
+    );
+  }
+
+  Widget _archived() {
+    return GetBuilder<LibraryController>(
+      init: LibraryController(),
+      builder: (controller) {
+        return controller.archivedRecents.isEmpty
+            ? Center(child: Text(CS.vNoArchiveFound, style: AppTextStyles.body14WhiteMedium))
+            : ListView.builder(
+              itemCount: controller.archivedRecents.length,
+              itemBuilder: (context, index) {
+                final book = controller.archivedRecents[index];
+
+                return AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: Slidable(
+                    key: ValueKey(book.id), // ✅ UNIQUE KEY
+                    /// RIGHT SIDE ACTIONS ➡➡➡➡➡➡➡
+                    endActionPane: ActionPane(
+                      motion: const BehindMotion(),
+                      extentRatio: 0.3,
+                      dismissible: DismissiblePane(
+                        onDismissed: () {
+                          controller.unArchiveBook(book.id ?? "");
+                        },
+                      ),
+                      children: [
+                        commonActionButton(
+                          color: AppColors.colorBgWhite10,
+                          icon: Icons.unarchive, // better UX icon
+                          label: CS.vRemoveFromArchive,
+                          onTap: () async {
+                            final slidable = Slidable.of(context);
+
+                            // 1️⃣ Close action pane
+                            await slidable?.close();
+
+                            // 2️⃣ Small delay for smooth animation
+                            await Future.delayed(const Duration(milliseconds: 180));
+
+                            // 3️⃣ Unarchive + remove from list
+                            controller.unArchiveBook(book.id ?? "");
+                          },
+                        ),
+                      ],
+                    ),
+
+                    /// MAIN CARD
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
+                            child: CachedNetworkImage(
+                              height: 80,
+                              width: 50,
+                              fit: BoxFit.contain,
+                              imageUrl: book.bookCoverUrl ?? "",
+                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
+                                Text(book.author?.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(book.summary ?? "", maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+      },
     );
   }
 

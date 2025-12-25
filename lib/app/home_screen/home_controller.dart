@@ -9,6 +9,8 @@ import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart'
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
 
+RxList<NovelsDataModel> listRecents = <NovelsDataModel>[].obs;
+
 class HomeController extends GetxController {
   List<CategoryItem> dummyCategoryList = [
     CategoryItem(
@@ -24,7 +26,7 @@ class HomeController extends GetxController {
       description: "Cozy stories inspired by countryside living",
     ),
   ];
-  List<RecentViewModel> listRecents = <RecentViewModel>[];
+
   RxList<NovelsDataModel> listNovelData = <NovelsDataModel>[].obs;
   RxList<CategoriesDataModel> listNovelCategoriesData = <CategoriesDataModel>[].obs;
   bool isDataLoading = false;
@@ -86,7 +88,7 @@ class HomeController extends GetxController {
 
   getRecentList() async {
     // await clearRecentViews();
-    listRecents = await getRecentViews();
+    listRecents.value = await getRecentViews();
     update();
   }
 
@@ -94,13 +96,14 @@ class HomeController extends GetxController {
     AppPrefs.remove(CS.keyRecentViews);
   }
 
-  Future<List<RecentViewModel>> getRecentViews() async {
-    List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
+  Future<List<NovelsDataModel>> getRecentViews() async {
+    final recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
 
-    // convert JSON to model
-    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
+    final items = <NovelsDataModel>[];
+    for (final item in recentList) {
+      items.add(NovelsDataModel.fromJson(jsonDecode(item)));
+    }
 
-    // reverse to show latest first
-    return items.reversed.toList();
+    return items;
   }
 }

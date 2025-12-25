@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
+import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
 import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/home_model.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
@@ -70,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                       style: AppTextStyles.heading24WhiteMedium,
                     ).paddingOnly(top: 25, left: 10),
                   ),
-                  if (controller.listRecents.isNotEmpty)
+                  if (listRecents.isNotEmpty)
                     SliverToBoxAdapter(
                       child: SizedBox(
                         height: 150,
@@ -80,68 +81,88 @@ class HomeScreen extends StatelessWidget {
                             SizedBox(height: 20),
                             Text(CS.vRecentsListening, style: AppTextStyles.body16GreyMedium).screenPadding(),
 
-                            Expanded(
-                              child: ListView.builder(
-                                padding: const EdgeInsets.only(left: 25, top: 20, bottom: 0, right: 16),
-                                scrollDirection: Axis.horizontal,
-                                itemCount: controller.listRecents.length,
-                                itemBuilder: (context, index) {
-                                  return SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.85, // adjusts
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),
-                                          decoration: BoxDecoration(color: AppColors.colorBgGray04, borderRadius: BorderRadius.circular(5)),
-                                          child: Card(
-                                            elevation: 2,
-                                            shadowColor: AppColors.colorBlack,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(2),
-                                              child: CachedNetworkImage(
-                                                height: 60,
-                                                fit: BoxFit.cover,
-                                                imageUrl: controller.listRecents[index].image,
-                                                errorWidget: (context, error, stackTrace) {
-                                                  return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-
-                                        const SizedBox(width: 15),
-
-                                        Expanded(
-                                          child: Column(
-                                            spacing: 3,
+                            StreamBuilder(
+                              stream: listRecents.stream,
+                              builder: (context, asyncSnapshot) {
+                                return Expanded(
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.only(left: 25, top: 20, bottom: 0, right: 16),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: listRecents.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          if (bookInfo.value.id != listRecents[index].id) {
+                                            isAudioInitCount.value = 0;
+                                            Get.find<AudioTextController>().pause();
+                                            Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": listRecents[index], "isInitCall": true})?.then((
+                                              value,
+                                            ) {
+                                              controller.getRecentList();
+                                            });
+                                          } else {
+                                            Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": true});
+                                          }
+                                        },
+                                        child: SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.85, // adjusts
+                                          child: Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(controller.listRecents[index].title, style: AppTextStyles.body14WhiteBold),
-
-                                              Text(
-                                                controller.listRecents[index].summary,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: AppTextStyles.body14GreySemiBold,
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                                                decoration: BoxDecoration(color: AppColors.colorBgGray04, borderRadius: BorderRadius.circular(5)),
+                                                child: Card(
+                                                  elevation: 2,
+                                                  shadowColor: AppColors.colorBlack,
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(2),
+                                                    child: CachedNetworkImage(
+                                                      height: 60,
+                                                      fit: BoxFit.cover,
+                                                      imageUrl: listRecents[index].bookCoverUrl ?? "",
+                                                      errorWidget: (context, error, stackTrace) {
+                                                        return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
 
-                                              Text(
-                                                formatReadableLength(controller.listRecents[index].length),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: AppTextStyles.body14GreySemiBold,
+                                              const SizedBox(width: 15),
+
+                                              Expanded(
+                                                child: Column(
+                                                  spacing: 3,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(listRecents[index].bookName ?? "", style: AppTextStyles.body14WhiteBold),
+
+                                                    Text(
+                                                      listRecents[index].summary ?? "",
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: AppTextStyles.body14GreySemiBold,
+                                                    ),
+
+                                                    Text(
+                                                      secondsToMinSec(listRecents[index].totalAudioLength ?? 0.0),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: AppTextStyles.body14GreySemiBold,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -258,9 +279,9 @@ class HomeScreen extends StatelessWidget {
                         stream: bookInfo.stream,
                         builder: (context, bookSnapshot) {
                           return MiniAudioPlayer(
-                            bookImage: bookInfo.value.bookImage,
-                            authorName: bookInfo.value.authorName,
-                            bookName: bookInfo.value.bookName,
+                            bookImage: bookInfo.value.bookCoverUrl ?? "",
+                            authorName: bookInfo.value.author?.name ?? "",
+                            bookName: bookInfo.value.bookName ?? "",
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                             onPlayPause: () {
                               if (isAudioInitCount.value == 0) {

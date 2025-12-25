@@ -23,6 +23,8 @@ class CS {
   static const String vGender = "Gender";
   static const String vExplore = "Explore";
   static const String vRecents = "Recents";
+  static const String vNoArchiveFound = "No archive found";
+  static const String vNoSavedFound = "No saved found";
   static const String vRecentsListening = "Recents listening";
   static const String vShareLink = "Share link";
   static const String vShareCurrentClip = "Share current clip";
@@ -208,6 +210,7 @@ class CS {
   static const String vText = "Text";
   static const String vCollections = "Collections";
   static const String vArchive = "Archive";
+  static const String vRemoveFromArchive = "Remove from archive";
 
   // Sort
   static const String vSortBy = "Sort by";
@@ -324,6 +327,7 @@ class CS {
   static const String keyCachedAudioUrl = 'cached_audio_url';
   static const String keyCachedJsonUrl = 'cached_json_url';
   static const String keyCachedTranscript = 'cached_transcript';
+  static const String keyArchivedBookIds = 'archived_BookIds';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

@@ -14,6 +14,7 @@ import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
+import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
@@ -24,11 +25,11 @@ RxBool isBookListening = false.obs;
 RxBool isPlayAudio = false.obs;
 RxInt isAudioInitCount = 0.obs;
 
-Rx<BookInfoModel> bookInfo = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "").obs;
+Rx<NovelsDataModel> bookInfo = NovelsDataModel().obs;
 
 class AudioTextController extends GetxController {
   // Models & Data
-  NovelsDataModel? novelData;
+  NovelsDataModel? novelData = NovelsDataModel();
   TranscriptData? transcript;
   SyncEngine? syncEngine;
   List<ParagraphData> paragraphs = [];
@@ -160,10 +161,11 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    scrollController = ScrollController(initialScrollOffset: -10);
+    scrollController.addListener(_onCollapseScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeAudioService();
-      WidgetsBinding.instance.addPostFrameCallback((_) => loadIsBookListening());
-      scrollController = ScrollController(initialScrollOffset: -10)..addListener(_onCollapseScroll);
+      loadIsBookListening();
       if (Get.arguments != null) initializeApp();
     });
   }
@@ -189,32 +191,28 @@ class AudioTextController extends GetxController {
         bookNme = novelData?.bookName ?? "";
         bookCoverUrl = novelData?.bookCoverUrl ?? "";
         bookSummary = novelData?.summary ?? "";
+        await saveRecentView(novelData!);
       } else {
-        audioUrl = bookInfo.value.audioUrl;
-        textUrl = bookInfo.value.textUrl;
-        bookId = bookInfo.value.bookId;
-        authorNme = bookInfo.value.authorName;
-        bookNme = bookInfo.value.bookName;
-        bookCoverUrl = bookInfo.value.bookImage;
-        bookSummary = bookInfo.value.summary;
+        audioUrl = bookInfo.value.audioFiles?.first.url ?? "";
+        textUrl = bookInfo.value.audioFiles?.first.audioJsonUrl ?? "";
+        bookId = bookInfo.value.id ?? "";
+        authorNme = bookInfo.value.author?.name ?? "";
+        bookNme = bookInfo.value.bookName ?? "";
+        bookCoverUrl = bookInfo.value.bookCoverUrl ?? "";
+        bookSummary = bookInfo.value.summary ?? "";
+        await saveRecentView(bookInfo.value);
       }
 
       print('📌 Book ID: $bookId');
       print('📌 Audio URL: $audioUrl');
 
-      // ✅ Step 1: Try to load from cache first
       TranscriptData? cachedTranscript = getCachedTranscript(bookId);
 
       if (cachedTranscript != null) {
-        print('✅ Using cached transcript');
         transcript = cachedTranscript;
         usedCache = true;
       } else {
-        // ✅ Step 2: Load from server if no cache
-        print('🌐 Loading transcript from server...');
         transcript = await fetchJsonData(audioUrl: audioUrl, textUrl: textUrl);
-
-        // ✅ Step 3: Cache the transcript and URLs for next time
         if (transcript != null) {
           await cacheTranscript(bookId: bookId, transcript: transcript!);
           await cacheUrls(bookId: bookId, audioUrl: audioUrl, jsonUrl: textUrl);
@@ -255,8 +253,6 @@ class AudioTextController extends GetxController {
         }
       }
 
-      saveRecentView(RecentViewModel(id: bookId, title: bookNme, image: bookCoverUrl, summary: bookSummary, length: formatTime(duration)));
-
       scrollController.addListener(_onUserScroll);
       await _setupNotification();
 
@@ -264,74 +260,6 @@ class AudioTextController extends GetxController {
 
       print('✅ Initialization completed ${usedCache ? "(from cache)" : "(from server)"}');
     } catch (e, stackTrace) {
-      print('❌ Initialization Error: $e');
-      print('📍 Stack trace: $stackTrace');
-
-      // ✅ TRY TO RECOVER FROM CACHE
-      if (!usedCache) {
-        print('🔄 Attempting to recover from cache...');
-
-        try {
-          // Try cached transcript
-          final cachedTranscript = getCachedTranscript(bookId);
-
-          if (cachedTranscript != null) {
-            print('✅ Successfully loaded from cache after error');
-
-            transcript = cachedTranscript;
-            paragraphs = transcript?.paragraphs ?? [];
-
-            getBookmark();
-            paragraphKeys.clear();
-            wordKeys.clear();
-
-            paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
-
-            for (final paragraph in paragraphs) {
-              final allWords = paragraph.allWords;
-              for (int i = 0; i < allWords.length; i++) {
-                wordKeys.add(GlobalKey());
-              }
-            }
-
-            syncEngine = SyncEngine(paragraphs);
-
-            _duration = transcript?.duration ?? 0;
-
-            // Get cached URLs
-            final cachedUrls = getCachedUrls(bookId);
-            _audioUrl = transcript?.audioUrl ?? cachedUrls['audioUrl'] ?? audioUrl;
-
-            await audioInitialize();
-
-            // Load saved position
-            final savedPosition = await loadSavedPosition();
-            if (savedPosition > 0 && savedPosition < _duration) {
-              _position = savedPosition;
-
-              if (syncEngine != null) {
-                currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
-                currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
-              }
-            }
-
-            saveRecentView(RecentViewModel(id: bookId, title: bookNme, image: bookCoverUrl, summary: bookSummary, length: formatTime(duration)));
-
-            scrollController.addListener(_onUserScroll);
-            await _setupNotification();
-
-            if (!isClosed) update();
-
-            print('✅ Recovery successful - using cached data');
-            return; // Exit successfully
-          } else {
-            print('❌ No cache available for recovery');
-          }
-        } catch (cacheError) {
-          print('❌ Cache recovery failed: $cacheError');
-        }
-      }
-
       // ✅ If cache recovery fails, show error
       hasError = true;
 
@@ -397,8 +325,8 @@ class AudioTextController extends GetxController {
       AppPrefs.remove('${CS.keyCachedAudioUrl}_$bookId'),
       AppPrefs.remove('${CS.keyCachedJsonUrl}_$bookId'),
       AppPrefs.remove('${CS.keyCachedTranscript}_$bookId'),
-      AppPrefs.remove(CS.keyLastBookId),
       AppPrefs.remove('${CS.keyLastPosition}_$bookId'),
+      AppPrefs.remove(CS.keyLastBookId),
     ]);
   }
 
@@ -415,7 +343,6 @@ class AudioTextController extends GetxController {
   }
 
   Future<int> loadSavedPosition() async {
-    final novelId = AppPrefs.getString(CS.keyLastBookId);
     if (bookId.isNotEmpty) {
       final position = AppPrefs.getInt('${CS.keyLastPosition}_$bookId');
       print('Loaded position: $position for book: $bookId');
@@ -447,22 +374,23 @@ class AudioTextController extends GetxController {
   // ============================================================
   // BOOK INFO
   // ============================================================
-  Future<void> saveBookInfo(BookInfoModel model) async {
-    final jsonString = jsonEncode(model.toMap());
-    AppPrefs.setString(CS.keyBookInfo, jsonString);
+  Future<void> saveBookInfo(NovelsDataModel model) async {
+    final jsonString = jsonEncode(model.toJson());
+    await AppPrefs.setString(CS.keyBookInfo, jsonString);
   }
 
-  Future<BookInfoModel> loadBookInfo() async {
+  Future<NovelsDataModel> loadBookInfo() async {
     final jsonString = AppPrefs.getString(CS.keyBookInfo);
+
     if (jsonString.isEmpty) {
-      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      return NovelsDataModel();
     }
 
     try {
-      return BookInfoModel.fromMap(jsonDecode(jsonString));
+      return NovelsDataModel.fromJson(jsonDecode(jsonString));
     } catch (e) {
       print('Error loading book info: $e');
-      return BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      return NovelsDataModel();
     }
   }
 
@@ -482,17 +410,11 @@ class AudioTextController extends GetxController {
       isBookListening.value = true;
       setIsBookListening(true);
 
-      saveBookInfo(
-        BookInfoModel(
-          authorName: authorNme,
-          bookName: bookNme,
-          bookImage: bookCoverUrl,
-          bookId: bookId,
-          textUrl: textUrl,
-          audioUrl: audioUrl,
-          summary: bookSummary,
-        ),
-      );
+      if (novelData != null) {
+        await saveBookInfo(novelData!);
+      } else {
+        await saveBookInfo(bookInfo.value);
+      }
 
       loadIsBookListening();
       _initializeAudioService();
@@ -580,15 +502,34 @@ class AudioTextController extends GetxController {
   // RECENT VIEWS
   // ============================================================
 
-  Future<void> saveRecentView(RecentViewModel book) async {
+  Future<void> saveRecentView(NovelsDataModel book) async {
     List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews);
-    List<RecentViewModel> items = recentList.map((item) => RecentViewModel.fromJson(jsonDecode(item))).toList();
+    List<NovelsDataModel> items = recentList.map((item) => NovelsDataModel.fromJson(jsonDecode(item))).toList();
 
     items.removeWhere((e) => e.id == book.id);
     items.insert(0, book);
     if (items.length > 10) items.removeLast();
 
     AppPrefs.setStringList(CS.keyRecentViews, items.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  Future<void> removeRecentViewByBookId(String bookId) async {
+    if (bookId.isEmpty) return;
+
+    final List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
+
+    // Remove matching bookId
+    recentList.removeWhere((item) {
+      try {
+        final map = jsonDecode(item);
+        return map['id'] == bookId;
+      } catch (_) {
+        return false;
+      }
+    });
+
+    // Save back updated list
+    await AppPrefs.setStringList(CS.keyRecentViews, recentList);
   }
 
   // ------------------------------------------------------------
@@ -1070,6 +1011,8 @@ class AudioTextController extends GetxController {
       _stateSubscription = null;
       _completionSubscription = null;
 
+      scrollController.removeListener(_onUserScroll);
+      scrollController.removeListener(_onCollapseScroll);
       // 2. Stop and dispose audio player
       if (audioPlayer.state != PlayerState.disposed) {
         try {
@@ -1083,6 +1026,7 @@ class AudioTextController extends GetxController {
       }
 
       // 3. Reset audio state
+      isAudioInitCount.value = 0;
       _isPlaying = false;
       _speed = 1.0;
       _position = 0;
@@ -1154,19 +1098,13 @@ class AudioTextController extends GetxController {
     await WidgetsBinding.instance.endOfFrame;
 
     try {
-      // ✅ Save current position before stopping
       await saveCurrentPosition();
-      // 1. Clear book listening state
       isBookListening.value = false;
       isPlayAudio.value = false;
       await setIsBookListening(false);
 
-      // 2. Clear book info
-
-      bookInfo.value = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
+      bookInfo.value = NovelsDataModel();
       await clearBookInfo();
-      await clearBookCache(bookId);
-      // 3. Reset the entire controller
       await resetController();
     } catch (e) {
       print('Error in stopListening: $e');
@@ -1176,12 +1114,16 @@ class AudioTextController extends GetxController {
   /// Alternative: Delete controller completely from GetX
   Future<void> stopListeningAndDelete() async {
     try {
+      listRecents.removeWhere((element) => element.id == bookId);
+      await removeRecentViewByBookId(bookId);
       // 2. Stop listening and reset
       await stopListening();
 
       // 3. Delete from GetX
-      Get.delete<AudioTextController>(force: true);
-      Get.put(AudioTextController(), permanent: true);
+      if (Get.isRegistered<AudioTextController>()) {
+        await Get.delete<AudioTextController>(force: true);
+        Get.put(AudioTextController(), permanent: true);
+      }
     } catch (e) {
       print('Error in stopListeningAndDelete: $e');
     }
@@ -1204,7 +1146,7 @@ class AudioTextController extends GetxController {
   @override
   void onClose() {
     try {
-      scrollController.dispose();
+      // scrollController.dispose();
     } catch (e) {
       print('Error disposing scroll controller: $e');
     }
