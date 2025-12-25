@@ -10,7 +10,7 @@ class BookDetailsController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     novelData = Get.arguments;
-    audioDuration = secondsToMinSec(novelData.audioFiles?.first.duration ?? 0.0);
+    audioDuration = secondsToMinSec(novelData.totalAudioLength ?? 0.0);
   }
 }
 

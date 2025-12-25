@@ -1044,14 +1044,26 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          Container(color: AppColors.colorGrey, height: 40, width: 25),
-
+                          CachedNetworkImage(
+                            height: 40,
+                            width: 25,
+                            fit: BoxFit.fill,
+                            imageUrl: controller.bookCoverUrl,
+                            errorWidget: (context, error, stackTrace) {
+                              return Image.asset(
+                                CS.imgBookCover2,
+                                height: MediaQuery.of(context).size.height,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("dummy When khushal returned", style: AppTextStyles.heading18WhiteRegular),
-                                Text("dummy Saraban", style: AppTextStyles.body14GreyRegular),
+                                Text(controller.bookNme, style: AppTextStyles.heading18WhiteRegular),
+                                Text(controller.authorNme, style: AppTextStyles.body14GreyRegular),
                               ],
                             ),
                           ),

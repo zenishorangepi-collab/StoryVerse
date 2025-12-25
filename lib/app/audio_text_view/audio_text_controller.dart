@@ -14,6 +14,7 @@ import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
+import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
@@ -510,6 +511,25 @@ class AudioTextController extends GetxController {
     if (items.length > 10) items.removeLast();
 
     AppPrefs.setStringList(CS.keyRecentViews, items.map((e) => jsonEncode(e.toJson())).toList());
+  }
+
+  Future<void> removeRecentViewByBookId(String bookId) async {
+    if (bookId.isEmpty) return;
+
+    final List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
+
+    // Remove matching bookId
+    recentList.removeWhere((item) {
+      try {
+        final map = jsonDecode(item);
+        return map['id'] == bookId;
+      } catch (_) {
+        return false;
+      }
+    });
+
+    // Save back updated list
+    await AppPrefs.setStringList(CS.keyRecentViews, recentList);
   }
 
   // ------------------------------------------------------------
@@ -1094,6 +1114,8 @@ class AudioTextController extends GetxController {
   /// Alternative: Delete controller completely from GetX
   Future<void> stopListeningAndDelete() async {
     try {
+      listRecents.removeWhere((element) => element.id == bookId);
+      await removeRecentViewByBookId(bookId);
       // 2. Stop listening and reset
       await stopListening();
 
