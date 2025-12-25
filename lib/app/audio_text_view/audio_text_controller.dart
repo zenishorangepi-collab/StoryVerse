@@ -160,10 +160,11 @@ class AudioTextController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    scrollController = ScrollController(initialScrollOffset: -10);
+    scrollController.addListener(_onCollapseScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeAudioService();
-      WidgetsBinding.instance.addPostFrameCallback((_) => loadIsBookListening());
-      scrollController = ScrollController(initialScrollOffset: -10)..addListener(_onCollapseScroll);
+      loadIsBookListening();
       if (Get.arguments != null) initializeApp();
     });
   }
@@ -202,19 +203,13 @@ class AudioTextController extends GetxController {
       print('📌 Book ID: $bookId');
       print('📌 Audio URL: $audioUrl');
 
-      // ✅ Step 1: Try to load from cache first
       TranscriptData? cachedTranscript = getCachedTranscript(bookId);
 
       if (cachedTranscript != null) {
-        print('✅ Using cached transcript');
         transcript = cachedTranscript;
         usedCache = true;
       } else {
-        // ✅ Step 2: Load from server if no cache
-        print('🌐 Loading transcript from server...');
         transcript = await fetchJsonData(audioUrl: audioUrl, textUrl: textUrl);
-
-        // ✅ Step 3: Cache the transcript and URLs for next time
         if (transcript != null) {
           await cacheTranscript(bookId: bookId, transcript: transcript!);
           await cacheUrls(bookId: bookId, audioUrl: audioUrl, jsonUrl: textUrl);
@@ -264,74 +259,6 @@ class AudioTextController extends GetxController {
 
       print('✅ Initialization completed ${usedCache ? "(from cache)" : "(from server)"}');
     } catch (e, stackTrace) {
-      print('❌ Initialization Error: $e');
-      print('📍 Stack trace: $stackTrace');
-
-      // ✅ TRY TO RECOVER FROM CACHE
-      if (!usedCache) {
-        print('🔄 Attempting to recover from cache...');
-
-        try {
-          // Try cached transcript
-          final cachedTranscript = getCachedTranscript(bookId);
-
-          if (cachedTranscript != null) {
-            print('✅ Successfully loaded from cache after error');
-
-            transcript = cachedTranscript;
-            paragraphs = transcript?.paragraphs ?? [];
-
-            getBookmark();
-            paragraphKeys.clear();
-            wordKeys.clear();
-
-            paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
-
-            for (final paragraph in paragraphs) {
-              final allWords = paragraph.allWords;
-              for (int i = 0; i < allWords.length; i++) {
-                wordKeys.add(GlobalKey());
-              }
-            }
-
-            syncEngine = SyncEngine(paragraphs);
-
-            _duration = transcript?.duration ?? 0;
-
-            // Get cached URLs
-            final cachedUrls = getCachedUrls(bookId);
-            _audioUrl = transcript?.audioUrl ?? cachedUrls['audioUrl'] ?? audioUrl;
-
-            await audioInitialize();
-
-            // Load saved position
-            final savedPosition = await loadSavedPosition();
-            if (savedPosition > 0 && savedPosition < _duration) {
-              _position = savedPosition;
-
-              if (syncEngine != null) {
-                currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
-                currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
-              }
-            }
-
-            saveRecentView(RecentViewModel(id: bookId, title: bookNme, image: bookCoverUrl, summary: bookSummary, length: formatTime(duration)));
-
-            scrollController.addListener(_onUserScroll);
-            await _setupNotification();
-
-            if (!isClosed) update();
-
-            print('✅ Recovery successful - using cached data');
-            return; // Exit successfully
-          } else {
-            print('❌ No cache available for recovery');
-          }
-        } catch (cacheError) {
-          print('❌ Cache recovery failed: $cacheError');
-        }
-      }
-
       // ✅ If cache recovery fails, show error
       hasError = true;
 
@@ -397,8 +324,8 @@ class AudioTextController extends GetxController {
       AppPrefs.remove('${CS.keyCachedAudioUrl}_$bookId'),
       AppPrefs.remove('${CS.keyCachedJsonUrl}_$bookId'),
       AppPrefs.remove('${CS.keyCachedTranscript}_$bookId'),
-      AppPrefs.remove(CS.keyLastBookId),
       AppPrefs.remove('${CS.keyLastPosition}_$bookId'),
+      AppPrefs.remove(CS.keyLastBookId),
     ]);
   }
 
@@ -415,7 +342,6 @@ class AudioTextController extends GetxController {
   }
 
   Future<int> loadSavedPosition() async {
-    final novelId = AppPrefs.getString(CS.keyLastBookId);
     if (bookId.isNotEmpty) {
       final position = AppPrefs.getInt('${CS.keyLastPosition}_$bookId');
       print('Loaded position: $position for book: $bookId');
@@ -1070,6 +996,8 @@ class AudioTextController extends GetxController {
       _stateSubscription = null;
       _completionSubscription = null;
 
+      scrollController.removeListener(_onUserScroll);
+      scrollController.removeListener(_onCollapseScroll);
       // 2. Stop and dispose audio player
       if (audioPlayer.state != PlayerState.disposed) {
         try {
@@ -1083,6 +1011,7 @@ class AudioTextController extends GetxController {
       }
 
       // 3. Reset audio state
+      isAudioInitCount.value = 0;
       _isPlaying = false;
       _speed = 1.0;
       _position = 0;
@@ -1154,19 +1083,13 @@ class AudioTextController extends GetxController {
     await WidgetsBinding.instance.endOfFrame;
 
     try {
-      // ✅ Save current position before stopping
       await saveCurrentPosition();
-      // 1. Clear book listening state
       isBookListening.value = false;
       isPlayAudio.value = false;
       await setIsBookListening(false);
 
-      // 2. Clear book info
-
       bookInfo.value = BookInfoModel(authorName: '', bookName: '', bookImage: '', bookId: '', textUrl: '', audioUrl: '', summary: "");
       await clearBookInfo();
-      await clearBookCache(bookId);
-      // 3. Reset the entire controller
       await resetController();
     } catch (e) {
       print('Error in stopListening: $e');
@@ -1180,8 +1103,10 @@ class AudioTextController extends GetxController {
       await stopListening();
 
       // 3. Delete from GetX
-      Get.delete<AudioTextController>(force: true);
-      Get.put(AudioTextController(), permanent: true);
+      if (Get.isRegistered<AudioTextController>()) {
+        await Get.delete<AudioTextController>(force: true);
+        Get.put(AudioTextController(), permanent: true);
+      }
     } catch (e) {
       print('Error in stopListeningAndDelete: $e');
     }
@@ -1204,7 +1129,7 @@ class AudioTextController extends GetxController {
   @override
   void onClose() {
     try {
-      scrollController.dispose();
+      // scrollController.dispose();
     } catch (e) {
       print('Error disposing scroll controller: $e');
     }

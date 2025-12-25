@@ -190,9 +190,7 @@ class BookDetailsScreen extends StatelessWidget {
                             bookName: bookInfo.value.bookName,
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
                             onPlayPause: () {
-                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true).then((value) {
-                                Get.find<AudioTextController>().update();
-                              });
+                              Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
                             },
                             onForward10: () {
                               Get.find<AudioTextController>().skipForward();
@@ -209,6 +207,10 @@ class BookDetailsScreen extends StatelessWidget {
 
           bottomNavigationBar: CommonElevatedButton(
             onTap: () {
+              if (bookInfo.value.bookId != controller.novelData.id && isAudioInitCount.value != 0) {
+                isAudioInitCount.value = 0;
+                Get.find<AudioTextController>().pause();
+              }
               Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": controller.novelData, "isInitCall": true});
             },
             title: CS.vPlay,

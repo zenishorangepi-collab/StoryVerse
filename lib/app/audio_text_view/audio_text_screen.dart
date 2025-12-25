@@ -24,10 +24,11 @@ class AudioTextScreen extends StatelessWidget {
     return GetBuilder<AudioTextController>(
       init: AudioTextController(),
       initState: (state) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           try {
             if (Get.arguments != null) {
               if (isAudioInitCount.value == 0) {
+                // await Future.delayed(Duration(seconds: 2));
                 state.controller?.initializeApp();
               }
               // isAudioInitCount++;
