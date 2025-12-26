@@ -35,6 +35,19 @@ class AudioTextController extends GetxController {
   List<ParagraphData> paragraphs = [];
   List<BookmarkModel>? listBookmarks;
 
+  // ✅ CHAPTER MANAGEMENT
+  int currentChapterIndex = 0;
+  String currentChapterId = "";
+  List<AudioFiles> allChapters = [];
+  bool isAllChaptersLoaded = false;
+  List<ParagraphData> allParagraphs = [];
+
+  String get currentAudioUrl => allChapters.isNotEmpty ? (allChapters[currentChapterIndex].url ?? "") : "";
+
+  String get currentTextUrl => allChapters.isNotEmpty ? (allChapters[currentChapterIndex].audioJsonUrl ?? "") : "";
+
+  String get currentChapterTitle => allChapters.isNotEmpty ? (allChapters[currentChapterIndex].name ?? "Chapter ${currentChapterIndex + 1}") : "";
+
   // Controllers & Services
   final TextEditingController addNoteController = TextEditingController();
   AudioPlayer audioPlayer = AudioPlayer();
@@ -43,7 +56,7 @@ class AudioTextController extends GetxController {
 
   // Keys for scroll tracking
 
-  final List<GlobalKey> paragraphKeys = [];
+  List<GlobalKey> paragraphKeys = [];
   final List<GlobalKey> wordKeys = [];
 
   // Book metadata
@@ -184,8 +197,7 @@ class AudioTextController extends GetxController {
       }
 
       if (Get.arguments != null && novelData != null) {
-        audioUrl = novelData?.audioFiles?.first.url ?? "";
-        textUrl = novelData?.audioFiles?.first.audioJsonUrl ?? "";
+        allChapters = novelData?.audioFiles ?? [];
         bookId = novelData?.id ?? "";
         authorNme = novelData?.author?.name ?? "";
         bookNme = novelData?.bookName ?? "";
@@ -193,8 +205,7 @@ class AudioTextController extends GetxController {
         bookSummary = novelData?.summary ?? "";
         await saveRecentView(novelData!);
       } else {
-        audioUrl = bookInfo.value.audioFiles?.first.url ?? "";
-        textUrl = bookInfo.value.audioFiles?.first.audioJsonUrl ?? "";
+        allChapters = bookInfo.value.audioFiles ?? [];
         bookId = bookInfo.value.id ?? "";
         authorNme = bookInfo.value.author?.name ?? "";
         bookNme = bookInfo.value.bookName ?? "";
@@ -203,56 +214,13 @@ class AudioTextController extends GetxController {
         await saveRecentView(bookInfo.value);
       }
 
-      print('📌 Book ID: $bookId');
-      print('📌 Audio URL: $audioUrl');
+      final savedData = await loadSavedChapterAndPosition();
+      currentChapterIndex = savedData['chapterIndex'] ?? 0;
+      await loadAudioForChapter(currentChapterIndex);
+      _position = savedData['position'] ?? 0;
 
-      TranscriptData? cachedTranscript = getCachedTranscript(bookId);
-
-      if (cachedTranscript != null) {
-        transcript = cachedTranscript;
-        usedCache = true;
-      } else {
-        transcript = await fetchJsonData(audioUrl: audioUrl, textUrl: textUrl);
-        if (transcript != null) {
-          await cacheTranscript(bookId: bookId, transcript: transcript!);
-          await cacheUrls(bookId: bookId, audioUrl: audioUrl, jsonUrl: textUrl);
-        }
-      }
-
-      paragraphs = transcript?.paragraphs ?? [];
-
-      getBookmark();
-      paragraphKeys.clear();
-      wordKeys.clear();
-
-      paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
-
-      for (final paragraph in paragraphs) {
-        final allWords = paragraph.allWords;
-        for (int i = 0; i < allWords.length; i++) {
-          wordKeys.add(GlobalKey());
-        }
-      }
-
-      syncEngine = SyncEngine(paragraphs);
-
-      _duration = transcript?.duration ?? 0;
-      _audioUrl = transcript?.audioUrl;
-      print('📌 JSON URL: $_audioUrl');
+      await loadAllChapterTextOnce();
       await audioInitialize();
-
-      // Load saved position
-      final savedPosition = await loadSavedPosition();
-      if (savedPosition > 0 && savedPosition < _duration) {
-        _position = savedPosition;
-        print('✅ Restoring position to: ${formatTime(_position)}');
-
-        if (syncEngine != null) {
-          currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
-          currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
-        }
-      }
-
       scrollController.addListener(_onUserScroll);
       await _setupNotification();
 
@@ -260,7 +228,6 @@ class AudioTextController extends GetxController {
 
       print('✅ Initialization completed ${usedCache ? "(from cache)" : "(from server)"}');
     } catch (e, stackTrace) {
-      // ✅ If cache recovery fails, show error
       hasError = true;
 
       if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException') || e.toString().contains('Network')) {
@@ -271,46 +238,121 @@ class AudioTextController extends GetxController {
         errorMessage = 'Failed to load content. Please try again.';
       }
 
-      // Preserve URLs even on error
-      if (audioUrl.isNotEmpty) {
-        _audioUrl = audioUrl;
-      }
-
       update();
     }
   }
 
-  // ============================================================
-  // CACHE MANAGEMENT
-  // ============================================================
+  // ✅ NEW: Load chapter transcript
+  Future<void> loadAllChapterTextOnce() async {
+    if (isAllChaptersLoaded) return;
 
-  Future<void> cacheUrls({required String bookId, required String audioUrl, required String jsonUrl}) async {
-    await AppPrefs.setString('${CS.keyCachedAudioUrl}_$bookId', audioUrl);
-    await AppPrefs.setString('${CS.keyCachedJsonUrl}_$bookId', jsonUrl);
-    print('💾 Cached URLs for book: $bookId');
+    allParagraphs.clear();
+
+    for (int i = 0; i < allChapters.length; i++) {
+      final chapter = allChapters[i];
+
+      TranscriptData data;
+
+      final cached = getCachedTranscript(bookId, chapter.id ?? "");
+      if (cached != null) {
+        data = cached;
+      } else {
+        data = await fetchJsonData(textUrl: chapter.audioJsonUrl, audioUrl: chapter.url);
+        await cacheTranscript(bookId: bookId, chapterId: chapter.id ?? "", transcript: data);
+      }
+
+      for (final p in data.paragraphs ?? []) {
+        p.chapterId = chapter.id ?? "";
+        p.chapterIndex = i;
+        allParagraphs.add(p);
+      }
+    }
+
+    paragraphs = allParagraphs;
+    paragraphKeys.clear();
+    wordKeys.clear();
+
+    paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
+
+    for (final paragraph in paragraphs) {
+      final allWords = paragraph.allWords;
+      for (int i = 0; i < allWords.length; i++) {
+        wordKeys.add(GlobalKey());
+      }
+    }
+
+    syncEngine = SyncEngine(paragraphs);
+
+    isAllChaptersLoaded = true;
+    update();
   }
 
-  Map<String, String?> getCachedUrls(String bookId) {
-    final audio = AppPrefs.getString('${CS.keyCachedAudioUrl}_$bookId');
-    final json = AppPrefs.getString('${CS.keyCachedJsonUrl}_$bookId');
-    return {'audioUrl': audio.isEmpty ? null : audio, 'jsonUrl': json.isEmpty ? null : json};
+  Future<void> loadAudioForChapter(int index) async {
+    currentChapterIndex = index;
+    currentChapterId = allChapters[index].id ?? "";
+
+    _audioUrl = allChapters[index].url;
+    // _duration = transcript?.duration ?? 0;
+
+    await audioPlayer.stop();
+    await audioPlayer.setSourceUrl(_audioUrl!);
+
+    // 🔥 wait for duration from player
+    final d = await audioPlayer.getDuration();
+    _duration = d?.inMilliseconds ?? 0;
+
+    // await _setupNotification();
   }
 
-  Future<void> cacheTranscript({required String bookId, required TranscriptData transcript}) async {
+  // ✅ NEW: Switch to next/previous chapter
+  Future<void> switchChapter(int newChapterIndex) async {
+    if (newChapterIndex < 0 || newChapterIndex >= allChapters.length) return;
+
+    await pause();
+    await saveCurrentPosition();
+
+    _position = 0;
+    currentWordIndex = -1;
+    currentParagraphIndex = -1;
+
+    await loadAllChapterTextOnce();
+
+    if (scrollController.hasClients) {
+      scrollController.jumpTo(0);
+    }
+  }
+
+  Future<void> nextChapter() async {
+    if (currentChapterIndex < allChapters.length - 1) {
+      await switchChapter(currentChapterIndex + 1);
+    }
+  }
+
+  Future<void> previousChapter() async {
+    if (currentChapterIndex > 0) {
+      await switchChapter(currentChapterIndex - 1);
+    }
+  }
+
+  // ============================================================
+  // CACHE MANAGEMENT (Chapter-wise)
+  // ============================================================
+
+  Future<void> cacheTranscript({required String bookId, required String chapterId, required TranscriptData transcript}) async {
     final jsonString = jsonEncode(transcript.toJson());
-    await AppPrefs.setString('${CS.keyCachedTranscript}_$bookId', jsonString);
-    print('💾 Cached transcript for book: $bookId');
+    await AppPrefs.setString('${CS.keyCachedTranscript}_${bookId}_$chapterId', jsonString);
+    print('💾 Cached transcript for book: $bookId, chapter: $chapterId');
   }
 
-  TranscriptData? getCachedTranscript(String bookId) {
-    final jsonString = AppPrefs.getString('${CS.keyCachedTranscript}_$bookId');
+  TranscriptData? getCachedTranscript(String bookId, String chapterId) {
+    final jsonString = AppPrefs.getString('${CS.keyCachedTranscript}_${bookId}_$chapterId');
     if (jsonString.isEmpty) return null;
 
     try {
       final decoded = jsonDecode(jsonString);
       if (decoded is String) {
         print('⚠️ Old invalid cache detected. Clearing...');
-        AppPrefs.remove('${CS.keyCachedTranscript}_$bookId');
+        AppPrefs.remove('${CS.keyCachedTranscript}_${bookId}_$chapterId');
         return null;
       }
       return TranscriptData.fromJson(decoded as Map<String, dynamic>);
@@ -321,40 +363,146 @@ class AudioTextController extends GetxController {
   }
 
   Future<void> clearBookCache(String bookId) async {
-    await Future.wait([
-      AppPrefs.remove('${CS.keyCachedAudioUrl}_$bookId'),
-      AppPrefs.remove('${CS.keyCachedJsonUrl}_$bookId'),
-      AppPrefs.remove('${CS.keyCachedTranscript}_$bookId'),
-      AppPrefs.remove('${CS.keyLastPosition}_$bookId'),
-      AppPrefs.remove(CS.keyLastBookId),
-    ]);
+    // Clear all chapter caches
+    for (var chapter in allChapters) {
+      await AppPrefs.remove('${CS.keyCachedTranscript}_${bookId}_${chapter.id}');
+    }
+    await AppPrefs.remove('${CS.keyLastPosition}_$bookId');
+    await AppPrefs.remove('${CS.keyLastChapter}_$bookId');
+    await AppPrefs.remove(CS.keyLastBookId);
   }
 
   // ============================================================
-  // POSITION MANAGEMENT
+  // POSITION MANAGEMENT (Chapter-wise)
   // ============================================================
 
   Future<void> saveCurrentPosition() async {
     if (bookId.isNotEmpty) {
-      await AppPrefs.setInt('${CS.keyLastPosition}_${bookId}', _position);
-      await AppPrefs.setString(CS.keyLastBookId, bookId);
-      print('Saved position: $_position for book: ${bookId}');
+      final data = jsonEncode({'chapterIndex': currentChapterIndex, 'chapterId': currentChapterId, 'position': _position});
+      await AppPrefs.setString('${CS.keyLastPosition}_$bookId', data);
+      print('💾 Saved position: $_position for chapter: $currentChapterIndex');
     }
   }
 
-  Future<int> loadSavedPosition() async {
-    if (bookId.isNotEmpty) {
-      final position = AppPrefs.getInt('${CS.keyLastPosition}_$bookId');
-      print('Loaded position: $position for book: $bookId');
-      return position;
+  Future<Map<String, dynamic>> loadSavedChapterAndPosition() async {
+    if (bookId.isEmpty) return {'chapterIndex': 0, 'position': 0};
+
+    final jsonString = AppPrefs.getString('${CS.keyLastPosition}_$bookId');
+    if (jsonString.isEmpty) return {'chapterIndex': 0, 'position': 0};
+
+    try {
+      final data = jsonDecode(jsonString);
+      print('📂 Loaded position: ${data['position']} for chapter: ${data['chapterIndex']}');
+      return {'chapterIndex': data['chapterIndex'] ?? 0, 'position': data['position'] ?? 0};
+    } catch (e) {
+      print('❌ Error loading saved position: $e');
+      return {'chapterIndex': 0, 'position': 0};
     }
-    return 0;
   }
 
   Future<void> clearSavedPosition() async {
     if (bookId.isNotEmpty) {
-      await AppPrefs.remove('${CS.keyLastPosition}_${bookId}');
+      await AppPrefs.remove('${CS.keyLastPosition}_$bookId');
     }
+  }
+
+  // ============================================================
+  // BOOKMARK MANAGEMENT (Chapter-wise)
+  // ============================================================
+
+  Future<void> addNoteBookmark() async {
+    listBookmarks = await getBookmarksPrefs();
+
+    for (var i = 0; i < (listBookmarks?.length ?? 0); i++) {
+      if (paragraphs[currentParagraphIndex].id == listBookmarks?[i].id && listBookmarks?[i].chapterId == currentChapterId) {
+        listBookmarks?[i].note = addNoteController.text;
+      }
+    }
+
+    await saveBookmarkList(listBookmarks ?? []);
+    update();
+  }
+
+  Future<void> bookmark() async {
+    final paragraphId = paragraphs[currentParagraphIndex].id;
+    bool exists = listBookmarks?.any((e) => e.id == paragraphId && e.chapterId == currentChapterId) ?? false;
+
+    if (exists) return;
+
+    final newItem = BookmarkModel(
+      id: paragraphId,
+      chapterId: currentChapterId,
+      chapterIndex: currentChapterIndex,
+      chapterTitle: currentChapterTitle,
+      paragraph: paragraphs[currentParagraphIndex].allWords.map((e) => e.word).join(" "),
+      note: "",
+      startTime: formatTime(paragraphs[currentParagraphIndex].allWords.first.start),
+      endTime: formatTime(paragraphs[currentParagraphIndex].allWords.last.start),
+    );
+
+    await saveBookmark(data: newItem);
+    paragraphs[currentParagraphIndex].isBookmarked = true;
+    update();
+  }
+
+  Future<void> getBookmark() async {
+    listBookmarks = await getBookmarksPrefs();
+    for (var p in paragraphs) {
+      p.isBookmarked = listBookmarks?.any((b) => b.id == p.id && b.chapterId == currentChapterId) ?? false;
+    }
+    update();
+  }
+
+  Future<void> saveBookmark({required BookmarkModel data}) async {
+    final list = AppPrefs.getStringList(CS.keyBookmarks);
+    list.add(jsonEncode(data.toJson()));
+    await AppPrefs.setStringList(CS.keyBookmarks, list);
+  }
+
+  Future<List<BookmarkModel>> getBookmarksPrefs() async {
+    final list = AppPrefs.getStringList(CS.keyBookmarks);
+    return list.map((e) => BookmarkModel.fromJson(jsonDecode(e))).toList();
+  }
+
+  Future<void> deleteBookmark(int index) async {
+    try {
+      isBookMarkDelete = true;
+      update();
+
+      listBookmarks?.removeAt(index);
+      await saveBookmarkList(listBookmarks ?? []);
+
+      // Reload current chapter
+      await loadAllChapterTextOnce();
+    } finally {
+      isBookMarkDelete = false;
+      update();
+    }
+  }
+
+  Future<void> saveBookmarkList(List<BookmarkModel> list) async {
+    final jsonList = list.map((e) => jsonEncode(e.toJson())).toList();
+    await AppPrefs.setStringList(CS.keyBookmarks, jsonList);
+  }
+
+  // ✅ NEW: Navigate to bookmark
+  Future<void> navigateToBookmark(BookmarkModel bookmark) async {
+    if (bookmark.chapterIndex != currentChapterIndex) {
+      await switchChapter(bookmark.chapterIndex ?? 0);
+    }
+
+    // Parse time string to milliseconds
+    final timeMs = _parseTimeToMs(bookmark.startTime ?? "00:00");
+    await seek(timeMs);
+  }
+
+  int _parseTimeToMs(String time) {
+    final parts = time.split(':');
+    if (parts.length != 2) return 0;
+
+    final minutes = int.tryParse(parts[0]) ?? 0;
+    final seconds = int.tryParse(parts[1]) ?? 0;
+    return (minutes * 60 + seconds) * 1000;
   }
 
   // ============================================================
@@ -372,12 +520,13 @@ class AudioTextController extends GetxController {
 
   Future<void> _setupNotification() async {
     if (audioHandler == null) return;
-    await audioHandler?.loadAndPlay(audioUrl: audioUrl, title: bookNme, artist: authorNme, artUri: bookCoverUrl);
+    await audioHandler?.loadAndPlay(audioUrl: currentAudioUrl, title: "$bookNme - $currentChapterTitle", artist: authorNme, artUri: bookCoverUrl);
   }
 
   // ============================================================
   // BOOK INFO
   // ============================================================
+
   Future<void> saveBookInfo(NovelsDataModel model) async {
     final jsonString = jsonEncode(model.toJson());
     await AppPrefs.setString(CS.keyBookInfo, jsonString);
@@ -385,10 +534,7 @@ class AudioTextController extends GetxController {
 
   Future<NovelsDataModel> loadBookInfo() async {
     final jsonString = AppPrefs.getString(CS.keyBookInfo);
-
-    if (jsonString.isEmpty) {
-      return NovelsDataModel();
-    }
+    if (jsonString.isEmpty) return NovelsDataModel();
 
     try {
       return NovelsDataModel.fromJson(jsonDecode(jsonString));
@@ -427,82 +573,6 @@ class AudioTextController extends GetxController {
   }
 
   // ============================================================
-  // BOOKMARK MANAGEMENT
-  // ============================================================
-
-  Future<void> addNoteBookmark() async {
-    listBookmarks = await getBookmarksPrefs();
-
-    for (var i = 0; i < (listBookmarks?.length ?? 0); i++) {
-      if (paragraphs[currentParagraphIndex].id == listBookmarks?[i].id) {
-        listBookmarks?[i].note = addNoteController.text;
-      }
-    }
-
-    await saveBookmarkList(listBookmarks ?? []);
-    update();
-  }
-
-  Future<void> bookmark() async {
-    final paragraphId = paragraphs[currentParagraphIndex].id;
-    bool exists = listBookmarks?.any((e) => e.id == paragraphId) ?? false;
-    if (exists) return;
-
-    final newItem = BookmarkModel(
-      id: paragraphId,
-      paragraph: paragraphs[currentParagraphIndex].allWords.map((e) => e.word).join(" "),
-      note: "",
-      startTime: formatTime(paragraphs[currentParagraphIndex].allWords.first.start),
-      endTime: formatTime(paragraphs[currentParagraphIndex].allWords.last.start),
-    );
-
-    await saveBookmark(data: newItem);
-    paragraphs[currentParagraphIndex].isBookmarked = true;
-    update();
-  }
-
-  Future<void> getBookmark() async {
-    listBookmarks = await getBookmarksPrefs();
-    for (var p in paragraphs) {
-      p.isBookmarked = listBookmarks?.any((b) => b.id == p.id) ?? false;
-    }
-    update();
-  }
-
-  Future<void> saveBookmark({required BookmarkModel data}) async {
-    final list = AppPrefs.getStringList(CS.keyBookmarks);
-    list.add(jsonEncode(data.toJson()));
-    await AppPrefs.setStringList(CS.keyBookmarks, list);
-  }
-
-  Future<List<BookmarkModel>> getBookmarksPrefs() async {
-    final list = AppPrefs.getStringList(CS.keyBookmarks);
-    return list.map((e) => BookmarkModel.fromJson(jsonDecode(e))).toList();
-  }
-
-  Future<void> deleteBookmark(int index) async {
-    try {
-      isBookMarkDelete = true;
-      update();
-
-      listBookmarks?.removeAt(index);
-      await saveBookmarkList(listBookmarks ?? []);
-
-      transcript = await fetchJsonData(audioUrl: audioUrl, textUrl: textUrl);
-      paragraphs = transcript?.paragraphs ?? [];
-      await getBookmark();
-    } finally {
-      isBookMarkDelete = false;
-      update();
-    }
-  }
-
-  Future<void> saveBookmarkList(List<BookmarkModel> list) async {
-    final jsonList = list.map((e) => jsonEncode(e.toJson())).toList();
-    await AppPrefs.setStringList(CS.keyBookmarks, jsonList);
-  }
-
-  // ============================================================
   // RECENT VIEWS
   // ============================================================
 
@@ -522,7 +592,6 @@ class AudioTextController extends GetxController {
 
     final List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
 
-    // Remove matching bookId
     recentList.removeWhere((item) {
       try {
         final map = jsonDecode(item);
@@ -532,31 +601,28 @@ class AudioTextController extends GetxController {
       }
     });
 
-    // Save back updated list
     await AppPrefs.setStringList(CS.keyRecentViews, recentList);
   }
 
   // ------------------------------------------------------------
   // Collapse AppBar on Scroll
   // ------------------------------------------------------------
+
   void _onCollapseScroll() {
     if (!scrollController.hasClients) return;
     if (scrollController.position.isScrollingNotifier.value) {
       isScrolling = true;
       suppressAutoScroll = true;
-
-      // If you need collapse logic
       isCollapsed = scrollController.offset > 60;
-
-      update(["scrollButton"]); // update only button
+      update(["scrollButton"]);
     }
+
     final px = scrollController.position.pixels;
     if (px > 40 && !isCollapsed) {
       isCollapsed = true;
       update();
     } else if (px <= 40 && isCollapsed) {
       isCollapsed = false;
-
       update();
     }
   }
@@ -564,10 +630,10 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Detect manual scroll
   // ------------------------------------------------------------
+
   void _onUserScroll() {
     if (!scrollController.hasClients) return;
 
-    // capture original behaviour: userScrollDirection used to decide debounce
     final direction = scrollController.position.userScrollDirection;
 
     if (direction != ScrollDirection.idle) {
@@ -582,6 +648,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Position listener → highlight + auto-scroll
   // ------------------------------------------------------------
+
   void onAudioPositionUpdate() {
     if (!scrollController.hasClients || suppressAutoScroll || syncEngine == null) return;
 
@@ -602,7 +669,6 @@ class AudioTextController extends GetxController {
     if (index < 0 || index >= wordKeys.length) return;
     final key = wordKeys[index];
 
-    // quick check: if context is not ready, wait a short time and recheck
     if (key.currentContext == null) {
       await Future.delayed(const Duration(milliseconds: 40));
       if (key.currentContext == null) return;
@@ -610,9 +676,7 @@ class AudioTextController extends GetxController {
 
     try {
       await Scrollable.ensureVisible(key.currentContext!, duration: const Duration(milliseconds: 200), alignment: 0.4, curve: Curves.easeOutCubic);
-    } catch (_) {
-      // swallow errors as original
-    }
+    } catch (_) {}
   }
 
   void scrollToCurrentParagraph(int index) {
@@ -623,19 +687,13 @@ class AudioTextController extends GetxController {
     final context = key.currentContext;
 
     if (context != null) {
-      scrollController.animateTo(
-        scrollController.offset, // Adjust padding as original
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-      );
+      scrollController.animateTo(scrollController.offset, duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
     } else {
-      // Offscreen paragraph → fallback estimation
       _scrollToIndexFallback(index);
     }
   }
 
   void _scrollToIndexFallback(int index) {
-    // Estimate height per paragraph or store heights dynamically
     const double estimatedParagraphHeight = 180.0;
     final position = index * estimatedParagraphHeight;
 
@@ -645,6 +703,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Audio Initialization
   // ------------------------------------------------------------
+
   Future<void> audioInitialize() async {
     if (_isInitialized || _isDisposed) return;
 
@@ -656,10 +715,11 @@ class AudioTextController extends GetxController {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
         await audioPlayer.setSourceUrl(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
-        // ✅ Fix subscriptions
+
         _positionSubscription?.cancel();
         _stateSubscription?.cancel();
         _completionSubscription?.cancel();
+
         _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
         _stateSubscription = audioPlayer.onPlayerStateChanged.listen(_onStateStream);
         _completionSubscription = audioPlayer.onPlayerComplete.listen((_) => _handleCompletion());
@@ -679,11 +739,19 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Audio Stream handlers
   // ------------------------------------------------------------
-  void _handleCompletion() {
+
+  void _handleCompletion() async {
     _isPlaying = false;
     _hasPlayedOnce = true;
     _position = _duration;
     _lastDriftCheck = null;
+
+    if (currentChapterIndex < allChapters.length - 1) {
+      currentChapterIndex++;
+      await loadAudioForChapter(currentChapterIndex);
+      await play();
+    }
+
     update();
   }
 
@@ -700,7 +768,7 @@ class AudioTextController extends GetxController {
       }
 
       _checkDrift();
-      // ✅ Save position every 5 seconds
+
       final now = DateTime.now();
       if (_lastPositionSave == null || now.difference(_lastPositionSave!) > Duration(seconds: 5)) {
         saveCurrentPosition();
@@ -730,13 +798,13 @@ class AudioTextController extends GetxController {
     }
 
     _lastScrollTime = now;
-
     scrollToCurrentParagraph(index);
   }
 
   // ------------------------------------------------------------
   // Drift correction
   // ------------------------------------------------------------
+
   void _checkDrift() {
     if (!_isPlaying || _isSeeking) return;
 
