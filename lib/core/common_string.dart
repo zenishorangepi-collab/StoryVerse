@@ -323,6 +323,7 @@ class CS {
   static String keyIsBookListening = "isBookListening";
   static String keyBookInfo = "bookInfo";
   static const String keyLastPosition = 'last_audio_position';
+  static const String keyLastChapter = 'last_audio_Chapter';
   static const String keyLastBookId = 'last_book_id';
   static const String keyCachedAudioUrl = 'cached_audio_url';
   static const String keyCachedJsonUrl = 'cached_json_url';

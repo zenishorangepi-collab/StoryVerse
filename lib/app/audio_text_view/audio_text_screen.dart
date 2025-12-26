@@ -236,9 +236,9 @@ class AudioTextScreen extends StatelessWidget {
 
   /// new
   Widget _buildTranscriptView(context, AudioTextController controller) {
-    final paragraphs = controller.transcript?.paragraphs;
+    final paragraphs = controller.paragraphs;
 
-    if (paragraphs == null) {
+    if (paragraphs.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -390,6 +390,9 @@ class AudioTextScreen extends StatelessWidget {
   /// new
   Widget _buildControlPanel(BuildContext context, AudioTextController controller) {
     // final theme = Theme.of(Get.context!);
+    final double max = controller.duration > 0 ? controller.duration.toDouble() : 1.0;
+
+    final value = controller.position.clamp(0, max);
 
     return Container(
       padding: EdgeInsets.only(top: 10),
@@ -409,8 +412,8 @@ class AudioTextScreen extends StatelessWidget {
               min: 0,
               allowedInteraction: SliderInteraction.slideOnly,
               padding: EdgeInsets.all(5),
-              max: controller.duration.toDouble(),
-              value: controller.position.toDouble(),
+              max: max.toDouble(),
+              value: value.toDouble(),
               activeColor: AppColors.colorWhite,
               inactiveColor: AppColors.colorBgGray02,
               overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
