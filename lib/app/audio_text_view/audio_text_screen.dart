@@ -28,6 +28,8 @@ class AudioTextScreen extends StatelessWidget {
           try {
             if (Get.arguments != null) {
               if (isAudioInitCount.value == 0) {
+                state.controller?.isAllChaptersLoaded = false;
+                state.controller?.paragraphs.clear();
                 state.controller?.initializeApp();
               }
             }
