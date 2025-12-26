@@ -25,7 +25,7 @@ class SubscriptionScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 80),
+                      SizedBox(height: !isArguments ? 40 : 80),
 
                       /// Top preview cards
                       ScrollLoopAutoScroll(
@@ -140,7 +140,7 @@ class SubscriptionScreen extends StatelessWidget {
                     textStyle: AppTextStyles.body16WhiteMedium,
                   ).screenPadding(),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
             ],
           ),
         );

@@ -362,7 +362,11 @@ class AudioTextController extends GetxController {
   // ============================================================
 
   Future<void> _initializeAudioService() async {
+    if (!AudioNotificationService.isInitialized) {
+      await AudioNotificationService.initialize();
+    }
     audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
+    print('✅ Audio handler ready: ${audioHandler != null}');
     update();
   }
 
@@ -652,7 +656,10 @@ class AudioTextController extends GetxController {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
         await audioPlayer.setSourceUrl(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
-
+        // ✅ Fix subscriptions
+        _positionSubscription?.cancel();
+        _stateSubscription?.cancel();
+        _completionSubscription?.cancel();
         _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
         _stateSubscription = audioPlayer.onPlayerStateChanged.listen(_onStateStream);
         _completionSubscription = audioPlayer.onPlayerComplete.listen((_) => _handleCompletion());
@@ -775,10 +782,8 @@ class AudioTextController extends GetxController {
     try {
       if (audioHandler == null) {
         startListening();
-        await audioHandler?.play();
-      } else {
-        await audioHandler?.play();
       }
+      await audioHandler?.play();
 
       if (currentParagraphIndex == -1 && !isOnlyPlayAudio) {
         await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
