@@ -41,6 +41,8 @@ class AudioTextController extends GetxController {
   List<AudioFiles> allChapters = [];
   bool isAllChaptersLoaded = false;
   List<ParagraphData> allParagraphs = [];
+  List<ParagraphData> uiParagraphs = [];
+  List<ParagraphData> syncParagraphs = [];
 
   String get currentAudioUrl => allChapters.isNotEmpty ? (allChapters[currentChapterIndex].url ?? "") : "";
 
@@ -57,7 +59,7 @@ class AudioTextController extends GetxController {
   // Keys for scroll tracking
 
   List<GlobalKey> paragraphKeys = [];
-  final List<GlobalKey> wordKeys = [];
+  List<GlobalKey> wordKeys = [];
 
   // Book metadata
   String bookNme = "";
@@ -213,13 +215,20 @@ class AudioTextController extends GetxController {
         bookSummary = bookInfo.value.summary ?? "";
         await saveRecentView(bookInfo.value);
       }
-
+      audioLoading = true;
+      await loadAllChapterTextOnce();
       final savedData = await loadSavedChapterAndPosition();
       currentChapterIndex = savedData['chapterIndex'] ?? 0;
-      await loadAudioForChapter(currentChapterIndex);
       _position = savedData['position'] ?? 0;
 
-      await loadAllChapterTextOnce();
+      await loadAudioForChapter(currentChapterIndex);
+
+      // if (_position > -1) {
+      //   _operationInProgress = false;
+      //   await seek(_position, isPlay: false);
+      // }
+
+      audioLoading = false;
       await audioInitialize();
       scrollController.addListener(_onUserScroll);
       await _setupNotification();
@@ -267,47 +276,107 @@ class AudioTextController extends GetxController {
         allParagraphs.add(p);
       }
     }
+    uiParagraphs = allParagraphs;
+    await getBookmark();
 
-    paragraphs = allParagraphs;
-    paragraphKeys.clear();
-    wordKeys.clear();
-
-    paragraphKeys.addAll(List.generate(paragraphs.length, (_) => GlobalKey()));
-
-    for (final paragraph in paragraphs) {
-      final allWords = paragraph.allWords;
-      for (int i = 0; i < allWords.length; i++) {
-        wordKeys.add(GlobalKey());
-      }
-    }
-
-    syncEngine = SyncEngine(paragraphs);
+    buildUiKeysOnce(); // UI only
+    _updateSyncForCurrentChapter(); // audio only
 
     isAllChaptersLoaded = true;
     update();
   }
+
+  void _updateSyncForCurrentChapter() {
+    syncParagraphs = allParagraphs.where((p) => p.chapterIndex == currentChapterIndex).toList();
+
+    syncEngine = SyncEngine(syncParagraphs);
+
+    _buildSyncIndexMap();
+    _buildSyncWordIndexMap();
+
+    currentWordIndex = -1;
+    currentParagraphIndex = -1;
+  }
+
+  late List<int> syncToUiParagraphIndex;
+
+  void _buildSyncIndexMap() {
+    syncToUiParagraphIndex = [];
+
+    for (int i = 0; i < uiParagraphs.length; i++) {
+      if (uiParagraphs[i].chapterIndex == currentChapterIndex) {
+        syncToUiParagraphIndex.add(i);
+      }
+    }
+  }
+
+  void _buildSyncWordIndexMap() {
+    syncToUiWordIndex = [];
+
+    for (int p = 0; p < uiParagraphs.length; p++) {
+      if (uiParagraphs[p].chapterIndex == currentChapterIndex) {
+        for (int w = 0; w < uiParagraphs[p].allWords.length; w++) {
+          syncToUiWordIndex.add(_getGlobalWordIndex(p, w));
+        }
+      }
+    }
+  }
+
+  int _getGlobalWordIndex(int paragraphIndex, int wordIndex) {
+    int count = 0;
+    for (int i = 0; i < paragraphIndex; i++) {
+      count += uiParagraphs[i].allWords.length;
+    }
+    return count + wordIndex;
+  }
+
+  // void _updateParagraphsForCurrentChapter() {
+  //   syncParagraphs = allParagraphs.where((p) => p.chapterIndex == currentChapterIndex).toList();
+  //
+  //   syncEngine = SyncEngine(syncParagraphs);
+  //
+  //   _buildSyncIndexMap();
+  //   _buildSyncWordIndexMap();
+  //
+  //   currentWordIndex = -1;
+  //   currentParagraphIndex = -1;
+  // }
 
   Future<void> loadAudioForChapter(int index) async {
     currentChapterIndex = index;
     currentChapterId = allChapters[index].id ?? "";
 
     _audioUrl = allChapters[index].url;
-    // _duration = transcript?.duration ?? 0;
 
     await audioPlayer.stop();
     await audioPlayer.setSourceUrl(_audioUrl!);
 
-    // 🔥 wait for duration from player
     final d = await audioPlayer.getDuration();
     _duration = d?.inMilliseconds ?? 0;
 
-    // await _setupNotification();
+    // ✅ FIX: Update paragraphs to only show current chapter
+    _updateSyncForCurrentChapter();
+    await Future.delayed(const Duration(milliseconds: 50));
+    update();
+  }
+
+  void buildUiKeysOnce() {
+    paragraphKeys.clear();
+    wordKeys.clear();
+
+    for (final paragraph in uiParagraphs) {
+      paragraphKeys.add(GlobalKey());
+
+      for (final _ in paragraph.allWords) {
+        wordKeys.add(GlobalKey());
+      }
+    }
   }
 
   // ✅ NEW: Switch to next/previous chapter
   Future<void> switchChapter(int newChapterIndex) async {
     if (newChapterIndex < 0 || newChapterIndex >= allChapters.length) return;
-
+    audioLoading = true;
     await pause();
     await saveCurrentPosition();
 
@@ -315,11 +384,14 @@ class AudioTextController extends GetxController {
     currentWordIndex = -1;
     currentParagraphIndex = -1;
 
-    await loadAllChapterTextOnce();
+    // Load the new chapter's audio and paragraphs
+    await loadAudioForChapter(newChapterIndex);
 
-    if (scrollController.hasClients) {
-      scrollController.jumpTo(0);
-    }
+    // if (scrollController.hasClients) {
+    //   scrollController.jumpTo(0);
+    // }
+    audioLoading = false;
+    update();
   }
 
   Future<void> nextChapter() async {
@@ -414,7 +486,9 @@ class AudioTextController extends GetxController {
     listBookmarks = await getBookmarksPrefs();
 
     for (var i = 0; i < (listBookmarks?.length ?? 0); i++) {
-      if (paragraphs[currentParagraphIndex].id == listBookmarks?[i].id && listBookmarks?[i].chapterId == currentChapterId) {
+      final p = uiParagraphs[currentParagraphIndex];
+
+      if (p.id == listBookmarks?[i].id && listBookmarks?[i].chapterId == p.chapterId) {
         listBookmarks?[i].note = addNoteController.text;
       }
     }
@@ -424,39 +498,61 @@ class AudioTextController extends GetxController {
   }
 
   Future<void> bookmark() async {
-    final paragraphId = paragraphs[currentParagraphIndex].id;
-    bool exists = listBookmarks?.any((e) => e.id == paragraphId && e.chapterId == currentChapterId) ?? false;
+    if (currentParagraphIndex < 0 || currentParagraphIndex >= uiParagraphs.length) {
+      return;
+    }
+
+    final paragraph = uiParagraphs[currentParagraphIndex];
+    final paragraphId = paragraph.id;
+
+    final exists = listBookmarks?.any((e) => e.id == paragraphId && e.chapterId == paragraph.chapterId) ?? false;
 
     if (exists) return;
 
     final newItem = BookmarkModel(
-      id: paragraphId,
-      chapterId: currentChapterId,
-      chapterIndex: currentChapterIndex,
-      chapterTitle: currentChapterTitle,
-      paragraph: paragraphs[currentParagraphIndex].allWords.map((e) => e.word).join(" "),
-      note: "",
-      startTime: formatTime(paragraphs[currentParagraphIndex].allWords.first.start),
-      endTime: formatTime(paragraphs[currentParagraphIndex].allWords.last.start),
+      id: paragraph.id,
+      bookId: bookId,
+      chapterId: paragraph.chapterId!,
+      chapterIndex: paragraph.chapterIndex!,
+      chapterTitle: allChapters[paragraph.chapterIndex!].name ?? '',
+      paragraph: paragraph.allWords.map((e) => e.word).join(' '),
+      note: '',
+      startTime: formatTime(paragraph.allWords.first.start),
+      endTime: formatTime(paragraph.allWords.last.start),
     );
 
     await saveBookmark(data: newItem);
-    paragraphs[currentParagraphIndex].isBookmarked = true;
+
+    // update UI state
+    paragraph.isBookmarked = true;
     update();
   }
 
   Future<void> getBookmark() async {
-    listBookmarks = await getBookmarksPrefs();
-    for (var p in paragraphs) {
-      p.isBookmarked = listBookmarks?.any((b) => b.id == p.id && b.chapterId == currentChapterId) ?? false;
+    final all = await getBookmarksPrefs();
+
+    // 🔥 filter by book
+    listBookmarks = all.where((b) => b.bookId == bookId).toList();
+
+    for (final p in uiParagraphs) {
+      p.isBookmarked = listBookmarks?.any((b) => b.id == p.id && b.chapterId == p.chapterId && b.bookId == bookId) ?? false;
     }
+
     update();
   }
 
   Future<void> saveBookmark({required BookmarkModel data}) async {
     final list = AppPrefs.getStringList(CS.keyBookmarks);
-    list.add(jsonEncode(data.toJson()));
-    await AppPrefs.setStringList(CS.keyBookmarks, list);
+
+    final exists = list.any((e) {
+      final m = jsonDecode(e);
+      return m['id'] == data.id && m['chapterId'] == data.chapterId && m['bookId'] == data.bookId;
+    });
+
+    if (!exists) {
+      list.add(jsonEncode(data.toJson()));
+      await AppPrefs.setStringList(CS.keyBookmarks, list);
+    }
   }
 
   Future<List<BookmarkModel>> getBookmarksPrefs() async {
@@ -470,10 +566,14 @@ class AudioTextController extends GetxController {
       update();
 
       listBookmarks?.removeAt(index);
-      await saveBookmarkList(listBookmarks ?? []);
 
-      // Reload current chapter
-      await loadAllChapterTextOnce();
+      final all = await getBookmarksPrefs();
+
+      final filtered = all.where((b) => b.bookId != bookId).toList()..addAll(listBookmarks ?? []);
+
+      await saveBookmarkList(filtered);
+
+      await getBookmark();
     } finally {
       isBookMarkDelete = false;
       update();
@@ -649,19 +749,38 @@ class AudioTextController extends GetxController {
   // Position listener → highlight + auto-scroll
   // ------------------------------------------------------------
 
+  // void onAudioPositionUpdate() {
+  //   if (!scrollController.hasClients || suppressAutoScroll || syncEngine == null) return;
+  //
+  //   final newIndex = syncEngine!.findWordIndexAtTime(position);
+  //   if (newIndex < 0) return;
+  //
+  //   currentWordIndex = newIndex;
+  //   currentParagraphIndex = syncEngine!.getParagraphIndex(newIndex);
+  //
+  //   if (newIndex != -1) {
+  //     scrollToCurrentWord(newIndex);
+  //   }
+  //
+  //   update();
+  // }
+
   void onAudioPositionUpdate() {
-    if (!scrollController.hasClients || suppressAutoScroll || syncEngine == null) return;
+    if (syncEngine == null) return;
 
-    final newIndex = syncEngine!.findWordIndexAtTime(position);
-    if (newIndex < 0) return;
+    final syncWordIndex = syncEngine!.findWordIndexAtTime(position);
+    if (syncWordIndex < 0) return;
 
-    currentWordIndex = newIndex;
-    currentParagraphIndex = syncEngine!.getParagraphIndex(newIndex);
+    final syncParagraphIndex = syncEngine!.getParagraphIndex(syncWordIndex);
 
-    if (newIndex != -1) {
-      scrollToCurrentWord(newIndex);
+    currentParagraphIndex = syncToUiParagraphIndex[syncParagraphIndex];
+    currentWordIndex = syncToUiWordIndex[syncWordIndex];
+    // currentWordIndex = _syncWordToUiWordIndex(syncWordIndex);
+
+    if (syncWordIndex != -1) {
+      scrollToCurrentWord(currentWordIndex);
     }
-
+    // scrollToCurrentParagraph(currentParagraphIndex);
     update();
   }
 
@@ -692,6 +811,16 @@ class AudioTextController extends GetxController {
       _scrollToIndexFallback(index);
     }
   }
+
+  // void scrollToCurrentParagraph(int index) {
+  //   if (!scrollController.hasClients) return;
+  //   if (index < 0 || index >= paragraphKeys.length) return;
+  //
+  //   final context = paragraphKeys[index].currentContext;
+  //   if (context == null) return;
+  //
+  //   Scrollable.ensureVisible(context, duration: const Duration(milliseconds: 300), alignment: 0.15, curve: Curves.easeOut);
+  // }
 
   void _scrollToIndexFallback(int index) {
     const double estimatedParagraphHeight = 180.0;
@@ -739,6 +868,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Audio Stream handlers
   // ------------------------------------------------------------
+  late List<int> syncToUiWordIndex;
 
   void _handleCompletion() async {
     _isPlaying = false;
@@ -747,9 +877,9 @@ class AudioTextController extends GetxController {
     _lastDriftCheck = null;
 
     if (currentChapterIndex < allChapters.length - 1) {
-      currentChapterIndex++;
-      await loadAudioForChapter(currentChapterIndex);
-      await play();
+      await switchChapter(currentChapterIndex + 1);
+      await audioInitialize();
+      await play(isOnlyPlayAudio: true);
     }
 
     update();
@@ -920,6 +1050,29 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   // Seek
   // ------------------------------------------------------------
+
+  Future<void> seekToWord({required ParagraphData paragraph, required int wordIndexInParagraph, required int positionMs}) async {
+    if (paragraph.chapterIndex == null) return;
+
+    // 🔁 Switch chapter if needed
+    if (paragraph.chapterIndex != currentChapterIndex) {
+      audioLoading = true;
+      await switchChapter(paragraph.chapterIndex!);
+      await Future.delayed(const Duration(milliseconds: 120));
+
+      // 🛡️ Safety
+      if (wordIndexInParagraph < 0 || wordIndexInParagraph >= paragraph.allWords.length) {
+        return;
+      }
+
+      final startMs = paragraph.allWords[wordIndexInParagraph].start;
+      await seek(startMs);
+      audioLoading = false;
+    } else {
+      await seek(positionMs);
+    }
+  }
+
   Future<void> seek(int positionMs, {bool isPlay = false}) async {
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
 
@@ -938,14 +1091,21 @@ class AudioTextController extends GetxController {
       await Future.delayed(const Duration(milliseconds: 100));
 
       if (syncEngine != null) {
-        currentWordIndex = syncEngine!.findWordIndexAtTime(_position);
-        currentParagraphIndex = syncEngine!.getParagraphIndex(currentWordIndex);
+        final syncWord = syncEngine!.findWordIndexAtTime(_position);
+        final syncPara = syncEngine!.getParagraphIndex(syncWord);
+
+        currentParagraphIndex = syncToUiParagraphIndex[syncPara];
+        currentWordIndex = syncToUiWordIndex[syncWord];
+        // currentWordIndex = _syncWordToUiWordIndex(syncWord);
 
         if (wordKeys.isNotEmpty) {
           if (isPlay) {
             safeScrollToParagraph(currentParagraphIndex);
           } else {
-            scrollToCurrentWord(currentWordIndex);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              // scrollToCurrentWord(currentWordIndex);
+              onAudioPositionUpdate();
+            });
           }
         }
       }

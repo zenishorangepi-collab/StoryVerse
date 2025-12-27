@@ -60,19 +60,23 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       final word = allWords[i];
       final localIndex = i;
 
-      final key = widget.controller.wordKeys[widget.globalWordStartIndex + localIndex];
+      final globalWordIndex = widget.globalWordStartIndex + localIndex;
+
+      final isCurrentWord = widget.isCurrentParagraph && widget.currentWordIndex == localIndex;
+
+      final key = widget.controller.wordKeys[globalWordIndex];
+
+      // final key = widget.controller.wordKeys[widget.globalWordStartIndex + localIndex];
       final wordWidget = Container(
         key: key,
+
         child: GestureDetector(
           onTap: () => widget.onWordTap(word.start),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-            decoration: BoxDecoration(
-              color: i == widget.currentWordIndex ? widget.colorAudioTextBg : Colors.transparent,
-              borderRadius: BorderRadius.circular(4),
-            ),
+            decoration: BoxDecoration(color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent, borderRadius: BorderRadius.circular(4)),
             child: Text(word.word, style: AppTextStyles.audioTextFontOnly(color: AppColors.colorWhite)),
           ),
         ),

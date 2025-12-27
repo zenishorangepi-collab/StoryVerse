@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
+import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -238,7 +239,7 @@ class AudioTextScreen extends StatelessWidget {
 
   /// new
   Widget _buildTranscriptView(context, AudioTextController controller) {
-    final paragraphs = controller.paragraphs;
+    final paragraphs = controller.uiParagraphs;
 
     if (paragraphs.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -350,43 +351,93 @@ class AudioTextScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 70),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
-                    final paragraph = paragraphs[index];
+                    // ✅ Track chapter changes
+                    int currentChapterIndex = -1;
+                    int adjustedIndex = index;
 
-                    final isCurrentParagraph = index == controller.currentParagraphIndex;
-                    final wordIndexInParagraph =
-                        isCurrentParagraph && controller.syncEngine != null
-                            ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, index)
-                            : null;
+                    // Count chapter headers before this index
+                    for (int i = 0; i < paragraphs.length && adjustedIndex >= 0; i++) {
+                      if (paragraphs[i].chapterIndex != currentChapterIndex) {
+                        if (adjustedIndex == 0) {
+                          // Show chapter header
+                          currentChapterIndex = paragraphs[i].chapterIndex ?? 0;
+                          return Row(
+                            children: [
+                              // Icon(Icons.library_books, color: AppColors.colorWhite),
+                              // SizedBox(width: 12),
+                              Text("Chapter ${currentChapterIndex + 1}", style: AppTextStyles.heading20WhiteSemiBold),
+                            ],
+                          ).paddingSymmetric(horizontal: 10, vertical: 15);
+                        }
+                        adjustedIndex--;
+                        currentChapterIndex = paragraphs[i].chapterIndex ?? 0;
+                      }
 
-                    int globalWordStartIndex = 0;
-                    for (int p = 0; p < index; p++) {
-                      globalWordStartIndex += paragraphs[p].allWords.length; // Use allWords
+                      if (adjustedIndex == 0) {
+                        // Show paragraph
+                        final paragraph = paragraphs[i];
+
+                        // final isCurrentParagraph = i == controller.currentParagraphIndex;
+                        // final wordIndexInParagraph =
+                        //     isCurrentParagraph && controller.syncEngine != null
+                        //         ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, i)
+                        //         : null;
+
+                        int globalWordStartIndex = 0;
+                        for (int p = 0; p < i; p++) {
+                          globalWordStartIndex += paragraphs[p].allWords.length;
+                        }
+
+                        final isCurrentParagraph = i == controller.currentParagraphIndex;
+
+                        final wordIndexInParagraph = isCurrentParagraph ? controller.currentWordIndex - globalWordStartIndex : null;
+                        return ParagraphWidget(
+                          paragraph: paragraph,
+                          paragraphIndex: i,
+                          currentWordIndex: wordIndexInParagraph,
+                          isCurrentParagraph: isCurrentParagraph,
+                          onWordTap: (start) async {
+                            if (paragraphs[i].isBookmarked ?? false) {
+                              openBookmarkedSheet(context, start, i);
+                            } else {
+                              // controller.seek(start);
+
+                              controller.seekToWord(positionMs: start, paragraph: paragraph, wordIndexInParagraph: wordIndexInParagraph ?? 0);
+                            }
+                          },
+                          widgetKey: controller.paragraphKeys[i],
+                          controller: controller,
+                          globalWordStartIndex: globalWordStartIndex,
+                          colorAudioTextBg: controller.colorAudioTextBg,
+                          colorAudioTextParagraphBg: controller.colorAudioTextParagraphBg,
+                        );
+                      }
+                      adjustedIndex--;
                     }
 
-                    return ParagraphWidget(
-                      paragraph: paragraph,
-                      paragraphIndex: index,
-                      currentWordIndex: wordIndexInParagraph,
-                      isCurrentParagraph: isCurrentParagraph,
-                      onWordTap: (start) {
-                        if (paragraphs[index].isBookmarked ?? false) {
-                          openBookmarkedSheet(context, start, index);
-                        } else {
-                          controller.seek(start);
-                        }
-                      },
-                      widgetKey: controller.paragraphKeys[index],
-                      controller: controller,
-                      globalWordStartIndex: globalWordStartIndex,
-                      colorAudioTextBg: controller.colorAudioTextBg,
-                      colorAudioTextParagraphBg: controller.colorAudioTextParagraphBg,
-                    );
-                  }, childCount: paragraphs.length),
+                    return SizedBox.shrink();
+                  }, childCount: _calculateTotalItems(controller, paragraphs)),
                 ),
               ),
             ],
           ),
         );
+  }
+
+  int _calculateTotalItems(AudioTextController controller, List<ParagraphData> paragraphs) {
+    int count = 0;
+    int currentChapter = -1;
+
+    for (var paragraph in paragraphs) {
+      // Add chapter header when chapter changes
+      if (paragraph.chapterIndex != currentChapter) {
+        count++; // Chapter header
+        currentChapter = paragraph.chapterIndex ?? -1;
+      }
+      count++; // Paragraph
+    }
+
+    return count;
   }
 
   /// new
