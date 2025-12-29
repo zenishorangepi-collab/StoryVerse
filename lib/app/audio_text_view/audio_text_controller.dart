@@ -219,17 +219,12 @@ class AudioTextController extends GetxController {
       await loadAllChapterTextOnce();
       final savedData = await loadSavedChapterAndPosition();
       currentChapterIndex = savedData['chapterIndex'] ?? 0;
-      _position = savedData['position'] ?? 0;
-
       await loadAudioForChapter(currentChapterIndex);
-
-      // if (_position > -1) {
-      //   _operationInProgress = false;
-      //   await seek(_position, isPlay: false);
-      // }
+      _position = savedData['position'] ?? 0;
 
       audioLoading = false;
       await audioInitialize();
+
       scrollController.addListener(_onUserScroll);
       await _setupNotification();
 
@@ -248,6 +243,194 @@ class AudioTextController extends GetxController {
       }
 
       update();
+    }
+  }
+
+  Future<void> scrollToPositionFast(int positionMs) async {
+    if (!scrollController.hasClients || syncEngine == null) return;
+
+    try {
+      // Disable auto-scroll
+      suppressAutoScroll = true;
+
+      // Check if we already set the indices
+      if (currentWordIndex < 0 || currentParagraphIndex < 0) {
+        final syncWord = syncEngine!.findWordIndexAtTime(positionMs);
+        if (syncWord < 0) {
+          suppressAutoScroll = false;
+          return;
+        }
+
+        final syncPara = syncEngine!.getParagraphIndex(syncWord);
+        if (syncPara >= syncToUiParagraphIndex.length) {
+          suppressAutoScroll = false;
+          return;
+        }
+
+        currentParagraphIndex = syncToUiParagraphIndex[syncPara];
+        currentWordIndex = syncToUiWordIndex[syncWord];
+      }
+
+      print('📍 Fast scroll to position: $positionMs ms');
+      print('   Word: $currentWordIndex, Paragraph: $currentParagraphIndex');
+
+      // Quick check for keys availability (max 200ms wait)
+      int attempts = 0;
+      while ((wordKeys.isEmpty || currentWordIndex >= wordKeys.length) && attempts < 4) {
+        await Future.delayed(const Duration(milliseconds: 50));
+        attempts++;
+      }
+
+      if (currentWordIndex >= 0 && currentWordIndex < wordKeys.length) {
+        final key = wordKeys[currentWordIndex];
+
+        // Quick context check (max 150ms)
+        attempts = 0;
+        while (key.currentContext == null && attempts < 3) {
+          await Future.delayed(const Duration(milliseconds: 50));
+          attempts++;
+        }
+
+        if (key.currentContext != null) {
+          // Instant scroll with no animation for faster response
+          await Scrollable.ensureVisible(
+            key.currentContext!,
+            duration: const Duration(milliseconds: 200), // Faster animation
+            alignment: 0.3,
+            curve: Curves.easeOut, // Simpler curve
+          );
+          print('✅ Fast scrolled to word');
+        } else {
+          // Immediate fallback
+          _scrollToParagraphInstant(currentParagraphIndex);
+        }
+      } else {
+        _scrollToParagraphInstant(currentParagraphIndex);
+      }
+
+      // Shorter delay before re-enabling
+      await Future.delayed(const Duration(milliseconds: 300));
+      suppressAutoScroll = false;
+
+      update();
+    } catch (e) {
+      print('❌ Error in fast scroll: $e');
+      suppressAutoScroll = false;
+    }
+  }
+
+  void _scrollToParagraphInstant(int paragraphIndex) {
+    if (!scrollController.hasClients) return;
+
+    if (paragraphIndex >= 0 && paragraphIndex < paragraphKeys.length) {
+      final paraKey = paragraphKeys[paragraphIndex];
+
+      if (paraKey.currentContext != null) {
+        Scrollable.ensureVisible(paraKey.currentContext!, duration: const Duration(milliseconds: 200), alignment: 0.25, curve: Curves.easeOut);
+        print('✅ Instant scroll to paragraph');
+      } else {
+        // Calculate and jump immediately
+        const double avgParagraphHeight = 180.0;
+        final offset = (paragraphIndex * avgParagraphHeight).clamp(0.0, scrollController.position.maxScrollExtent);
+
+        scrollController.jumpTo(offset); // Instant jump, no animation
+        print('✅ Instant jump to offset: $offset');
+      }
+    }
+  }
+
+  Future<void> scrollToPosition(int positionMs) async {
+    if (!scrollController.hasClients || syncEngine == null) return;
+
+    try {
+      // Find word and paragraph at this position
+      final syncWord = syncEngine!.findWordIndexAtTime(positionMs);
+      if (syncWord < 0) return;
+
+      final syncPara = syncEngine!.getParagraphIndex(syncWord);
+
+      // Map to UI indices
+      if (syncPara >= syncToUiParagraphIndex.length) return;
+
+      currentParagraphIndex = syncToUiParagraphIndex[syncPara];
+      currentWordIndex = syncToUiWordIndex[syncWord];
+
+      print('📍 Scrolling to position: $positionMs ms');
+      print('   Word index: $currentWordIndex, Paragraph: $currentParagraphIndex');
+
+      // Disable auto-scroll temporarily
+      suppressAutoScroll = true;
+
+      // Quick validation - reduced wait time
+      if (wordKeys.isEmpty || currentWordIndex >= wordKeys.length) {
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // If still not ready, use paragraph fallback
+        if (wordKeys.isEmpty || currentWordIndex >= wordKeys.length) {
+          await _scrollToParagraphFallback(currentParagraphIndex);
+          await Future.delayed(const Duration(milliseconds: 300));
+          suppressAutoScroll = false;
+          update();
+          return;
+        }
+      }
+
+      // Scroll to the word
+      final key = wordKeys[currentWordIndex];
+
+      // Single quick context check instead of polling
+      if (key.currentContext != null) {
+        await Scrollable.ensureVisible(
+          key.currentContext!,
+          duration: const Duration(milliseconds: 300), // Reduced from 400ms
+          alignment: 0.35,
+          curve: Curves.easeOutCubic,
+        );
+        print('✅ Scrolled to word successfully');
+      } else {
+        // Immediate fallback if context not available
+        await _scrollToParagraphFallback(currentParagraphIndex);
+      }
+
+      // Re-enable auto-scroll after shorter delay
+      await Future.delayed(const Duration(milliseconds: 400)); // Reduced from 600ms
+      suppressAutoScroll = false;
+
+      update();
+    } catch (e) {
+      print('❌ Error scrolling to position: $e');
+      suppressAutoScroll = false;
+    }
+  }
+
+  // ✅ ADD THIS HELPER METHOD - Fallback scroll to paragraph
+  Future<void> _scrollToParagraphFallback(int paragraphIndex) async {
+    if (!scrollController.hasClients) return;
+
+    if (paragraphIndex >= 0 && paragraphIndex < paragraphKeys.length) {
+      final paraKey = paragraphKeys[paragraphIndex];
+
+      int attempts = 0;
+      while (paraKey.currentContext == null && attempts < 20) {
+        await Future.delayed(const Duration(milliseconds: 50));
+        attempts++;
+      }
+
+      if (paraKey.currentContext != null) {
+        await Scrollable.ensureVisible(paraKey.currentContext!, duration: const Duration(milliseconds: 400), alignment: 0.25, curve: Curves.easeOutCubic);
+        print('✅ Scrolled to paragraph (fallback)');
+      } else {
+        // Last resort: calculate approximate offset
+        const double avgParagraphHeight = 180.0;
+        final offset = paragraphIndex * avgParagraphHeight;
+
+        await scrollController.animateTo(
+          offset.clamp(0.0, scrollController.position.maxScrollExtent),
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+        );
+        print('✅ Scrolled to calculated offset (last resort)');
+      }
     }
   }
 
@@ -286,7 +469,7 @@ class AudioTextController extends GetxController {
     update();
   }
 
-  void _updateSyncForCurrentChapter() {
+  void _updateSyncForCurrentChapter({bool resetIndices = true}) {
     syncParagraphs = allParagraphs.where((p) => p.chapterIndex == currentChapterIndex).toList();
 
     syncEngine = SyncEngine(syncParagraphs);
@@ -294,8 +477,10 @@ class AudioTextController extends GetxController {
     _buildSyncIndexMap();
     _buildSyncWordIndexMap();
 
-    currentWordIndex = -1;
-    currentParagraphIndex = -1;
+    if (resetIndices) {
+      currentWordIndex = -1;
+      currentParagraphIndex = -1;
+    }
   }
 
   late List<int> syncToUiParagraphIndex;
@@ -613,13 +798,25 @@ class AudioTextController extends GetxController {
     if (!AudioNotificationService.isInitialized) {
       await AudioNotificationService.initialize();
     }
-    audioHandler = AudioNotificationService.audioHandler as AudioPlayerHandler?;
-    print('✅ Audio handler ready: ${audioHandler != null}');
+
+    // Safe type casting with proper type check
+    final handler = AudioNotificationService.audioHandler;
+    if (handler is AudioPlayerHandler) {
+      audioHandler = handler;
+      print('✅ Audio handler ready: ${audioHandler != null}');
+    } else {
+      audioHandler = null;
+      print('⚠️ Audio handler is not AudioPlayerHandler type');
+    }
     update();
   }
 
   Future<void> _setupNotification() async {
-    if (audioHandler == null) return;
+    if (audioHandler == null) {
+      print('⚠️ Cannot setup notification: audioHandler is null');
+      return;
+    }
+    audioHandler!.connectPlayer(audioPlayer);
     await audioHandler?.loadAndPlay(audioUrl: currentAudioUrl, title: "$bookNme - $currentChapterTitle", artist: authorNme, artUri: bookCoverUrl);
   }
 
@@ -665,10 +862,14 @@ class AudioTextController extends GetxController {
       } else {
         await saveBookInfo(bookInfo.value);
       }
-
+      // if (_position > -1) {
+      //   _operationInProgress = false;
+      //   await seek(_position, isPlay: true);
+      // }
       loadIsBookListening();
-      _initializeAudioService();
-      _setupNotification();
+
+      // await _initializeAudioService();
+      // await _setupNotification();
     });
   }
 
@@ -766,21 +967,22 @@ class AudioTextController extends GetxController {
   // }
 
   void onAudioPositionUpdate() {
-    if (syncEngine == null) return;
+    if (!scrollController.hasClients || suppressAutoScroll || syncEngine == null) return;
 
     final syncWordIndex = syncEngine!.findWordIndexAtTime(position);
     if (syncWordIndex < 0) return;
 
-    final syncParagraphIndex = syncEngine!.getParagraphIndex(syncWordIndex);
+    final syncPara = syncEngine!.getParagraphIndex(syncWordIndex);
 
-    currentParagraphIndex = syncToUiParagraphIndex[syncParagraphIndex];
-    currentWordIndex = syncToUiWordIndex[syncWordIndex];
-    // currentWordIndex = _syncWordToUiWordIndex(syncWordIndex);
+    final uiWord = syncToUiWordIndex[syncWordIndex];
+    final uiPara = syncToUiParagraphIndex[syncPara];
 
-    if (syncWordIndex != -1) {
-      scrollToCurrentWord(currentWordIndex);
-    }
-    // scrollToCurrentParagraph(currentParagraphIndex);
+    if (uiWord == currentWordIndex) return;
+
+    currentWordIndex = uiWord;
+    currentParagraphIndex = uiPara;
+
+    scrollToCurrentWord(uiWord);
     update();
   }
 
@@ -981,11 +1183,11 @@ class AudioTextController extends GetxController {
       if (audioHandler == null) {
         startListening();
       }
-      await audioHandler?.play();
+      // await audioHandler?.play();
 
-      if (currentParagraphIndex == -1 && !isOnlyPlayAudio) {
-        await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
-      }
+      // if (currentParagraphIndex == -1 && !isOnlyPlayAudio) {
+      //   await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
+      // }
 
       if (_position >= _duration - 100) {
         _position = 0;
@@ -997,13 +1199,14 @@ class AudioTextController extends GetxController {
         await seek(_position, isPlay: true);
       }
 
-      if (!_hasPlayedOnce) {
-        await audioPlayer.play(UrlSource(_audioUrl!));
-        _hasPlayedOnce = true;
-      } else {
-        await audioPlayer.resume();
+      if (!isPositionScrollOnly) {
+        if (!_hasPlayedOnce) {
+          await audioPlayer.play(UrlSource(_audioUrl!));
+          _hasPlayedOnce = true;
+        } else {
+          await audioPlayer.resume();
+        }
       }
-
       _isPlaying = true;
       isPlayAudio.value = true;
       _lastDriftCheck = DateTime.now();
@@ -1026,7 +1229,7 @@ class AudioTextController extends GetxController {
     try {
       _isPlaying = false;
       isPlayAudio.value = false;
-      await audioHandler?.pause();
+      // await audioHandler?.pause();
       await audioPlayer.pause();
       _lastDriftCheck = null;
       await saveCurrentPosition();
@@ -1100,11 +1303,12 @@ class AudioTextController extends GetxController {
 
         if (wordKeys.isNotEmpty) {
           if (isPlay) {
+            // await scrollToPosition(_position);
             safeScrollToParagraph(currentParagraphIndex);
           } else {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              // scrollToCurrentWord(currentWordIndex);
-              onAudioPositionUpdate();
+              scrollToCurrentWord(currentWordIndex);
+              // onAudioPositionUpdate();
             });
           }
         }
@@ -1126,12 +1330,12 @@ class AudioTextController extends GetxController {
   }
 
   Future<void> skipForward() async {
-    await audioHandler?.skipToNext();
+    // await audioHandler?.skipToNext();
     await seek(_position + 10000);
   }
 
   Future<void> skipBackward() async {
-    await audioHandler?.skipToPrevious();
+    // await audioHandler?.skipToPrevious();
     await seek(_position - 10000);
   }
 
@@ -1300,7 +1504,8 @@ class AudioTextController extends GetxController {
       // 7. Clear transcript and sync data
       transcript = null;
       syncEngine = null;
-      paragraphs.clear();
+      uiParagraphs.clear();
+      allParagraphs.clear();
 
       // 8. Clear bookmarks
       listBookmarks?.clear();

@@ -47,27 +47,37 @@ class AudioNotificationService {
 // ============================================================
 
 class AudioPlayerHandler extends BaseAudioHandler {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  AudioPlayer? _audioPlayer; // ✅ Reference to external player
   Duration? _currentDuration;
 
-  AudioPlayerHandler() {
-    _init();
+  // ✅ Connect external player
+  void connectPlayer(AudioPlayer player) {
+    print('🔗 Connecting external player to handler');
+    _audioPlayer = player;
+    _initListeners();
   }
 
-  void _init() {
+  void _initListeners() {
+    if (_audioPlayer == null) {
+      print('⚠️ External player is null, cannot init listeners');
+      return;
+    }
+
+    print('👂 Setting up listeners for external player');
+
     // Listen to player state changes
-    _audioPlayer.onPlayerStateChanged.listen((state) {
+    _audioPlayer!.onPlayerStateChanged.listen((state) {
       final playing = state == PlayerState.playing;
       _updatePlaybackState(playing);
     });
 
     // Listen to position changes
-    _audioPlayer.onPositionChanged.listen((position) {
+    _audioPlayer!.onPositionChanged.listen((position) {
       playbackState.add(playbackState.value.copyWith(updatePosition: position));
     });
 
     // Listen to duration changes
-    _audioPlayer.onDurationChanged.listen((duration) {
+    _audioPlayer!.onDurationChanged.listen((duration) {
       _currentDuration = duration;
       final newMediaItem = mediaItem.value?.copyWith(duration: duration);
       if (newMediaItem != null) {
@@ -77,7 +87,8 @@ class AudioPlayerHandler extends BaseAudioHandler {
     });
 
     // Listen to completion
-    _audioPlayer.onPlayerComplete.listen((_) {
+    _audioPlayer!.onPlayerComplete.listen((_) {
+      print('✅ Audio completed');
       _updatePlaybackState(false);
     });
   }
@@ -112,92 +123,90 @@ class AudioPlayerHandler extends BaseAudioHandler {
 
   Future<void> loadAndPlay({required String audioUrl, required String title, required String artist, String? artUri}) async {
     try {
+      print('📱 Loading notification metadata');
       // Set media item for notification
       mediaItem.add(
         MediaItem(id: audioUrl, album: 'Phone speaker', title: title, artist: artist, artUri: artUri != null && artUri.isNotEmpty ? Uri.parse(artUri) : null),
       );
 
-      // Load audio source
-      await _audioPlayer.setSourceUrl(audioUrl);
-      await _audioPlayer.setReleaseMode(ReleaseMode.stop);
-
       _updatePlaybackState(false);
-      print('✅ Audio loaded in notification service');
+      print('✅ Notification metadata loaded');
     } catch (e) {
-      print('❌ Error loading audio: $e');
+      print('❌ Error loading metadata: $e');
     }
   }
 
-  AudioPlayer get audioPlayer => _audioPlayer;
-
+  // ✅ Notification controls - just update UI, don't control playback
   @override
   Future<void> play() async {
-    try {
-      await _audioPlayer.resume();
-      _updatePlaybackState(true);
-    } catch (e) {
-      print('❌ Play error: $e');
+    print('▶️ Notification play button pressed');
+    if (_audioPlayer != null) {
+      await _audioPlayer!.resume();
     }
   }
 
   @override
   Future<void> pause() async {
-    try {
-      await _audioPlayer.pause();
-      _updatePlaybackState(false);
-    } catch (e) {
-      print('❌ Pause error: $e');
+    print('⏸️ Notification pause button pressed');
+    if (_audioPlayer != null) {
+      await _audioPlayer!.pause();
     }
   }
 
   @override
   Future<void> stop() async {
-    try {
-      await _audioPlayer.stop();
-      _updatePlaybackState(false);
-      await super.stop();
-    } catch (e) {
-      print('❌ Stop error: $e');
+    print('⏹️ Notification stop button pressed');
+    if (_audioPlayer != null) {
+      await _audioPlayer!.stop();
     }
+    _updatePlaybackState(false);
+    await super.stop();
   }
 
   @override
   Future<void> seek(Duration position) async {
-    try {
-      await _audioPlayer.seek(position);
-      playbackState.add(playbackState.value.copyWith(updatePosition: position));
-    } catch (e) {
-      print('❌ Seek error: $e');
+    print('⏩ Seek to: $position');
+    if (_audioPlayer != null) {
+      await _audioPlayer!.seek(position);
     }
   }
 
   @override
   Future<void> rewind() async {
-    final current = await _audioPlayer.getCurrentPosition();
+    print('⏪ Rewind 15 seconds');
+    if (_audioPlayer == null) return;
+
+    final current = await _audioPlayer!.getCurrentPosition();
     final newPosition = (current ?? Duration.zero) - const Duration(seconds: 15);
     final seekPosition = newPosition.isNegative ? Duration.zero : newPosition;
-    await seek(seekPosition);
+    await _audioPlayer!.seek(seekPosition);
   }
 
   @override
   Future<void> fastForward() async {
-    final current = await _audioPlayer.getCurrentPosition();
+    print('⏩ Fast forward 15 seconds');
+    if (_audioPlayer == null) return;
+
+    final current = await _audioPlayer!.getCurrentPosition();
     final newPosition = (current ?? Duration.zero) + const Duration(seconds: 15);
 
     Duration seekPosition = newPosition;
     if (_currentDuration != null && newPosition > _currentDuration!) {
       seekPosition = _currentDuration!;
     }
-    await seek(seekPosition);
+    await _audioPlayer!.seek(seekPosition);
   }
 
   @override
   Future<void> setSpeed(double speed) async {
-    await _audioPlayer.setPlaybackRate(speed);
+    print('🏃 Set speed: $speed');
+    if (_audioPlayer == null) return;
+    await _audioPlayer!.setPlaybackRate(speed);
     playbackState.add(playbackState.value.copyWith(speed: speed));
   }
 
   Future<void> dispose() async {
-    await _audioPlayer.dispose();
+    print('🗑️ Disposing handler');
+    _audioPlayer = null;
   }
 }
