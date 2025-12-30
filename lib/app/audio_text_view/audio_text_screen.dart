@@ -30,8 +30,9 @@ class AudioTextScreen extends StatelessWidget {
             if (Get.arguments != null) {
               if (isAudioInitCount.value == 0) {
                 state.controller?.isAllChaptersLoaded = false;
-                state.controller?.uiParagraphs.clear();
-                state.controller?.allParagraphs.clear();
+                // state.controller?.uiParagraphs.clear();
+                // state.controller?.allParagraphs.clear();
+                // state.controller?.update();
                 state.controller?.initializeApp();
                 isAudioInitCount.value = 1;
               }
@@ -380,20 +381,20 @@ class AudioTextScreen extends StatelessWidget {
                         // Show paragraph
                         final paragraph = paragraphs[i];
 
-                        // final isCurrentParagraph = i == controller.currentParagraphIndex;
-                        // final wordIndexInParagraph =
-                        //     isCurrentParagraph && controller.syncEngine != null
-                        //         ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, i)
-                        //         : null;
+                        final isCurrentParagraph = i == controller.currentParagraphIndex;
+                        final wordIndexInParagraph =
+                            isCurrentParagraph && controller.syncEngine != null
+                                ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, i)
+                                : null;
 
                         int globalWordStartIndex = 0;
                         for (int p = 0; p < i; p++) {
                           globalWordStartIndex += paragraphs[p].allWords.length;
                         }
-
-                        final isCurrentParagraph = i == controller.currentParagraphIndex;
-
-                        final wordIndexInParagraph = isCurrentParagraph ? controller.currentWordIndex - globalWordStartIndex : null;
+                        //
+                        // final isCurrentParagraph = i == controller.currentParagraphIndex;
+                        //
+                        // final wordIndexInParagraph = isCurrentParagraph ? controller.currentWordIndex - globalWordStartIndex : null;
                         return ParagraphWidget(
                           paragraph: paragraph,
                           paragraphIndex: i,
@@ -1242,7 +1243,6 @@ class AudioTextScreen extends StatelessWidget {
     return showDialog(
       context: context,
       barrierDismissible: true,
-
       builder: (context) {
         return AlertDialog(
           // insetPadding: EdgeInsets.zero,
@@ -1624,7 +1624,7 @@ class AudioTextScreen extends StatelessWidget {
           init: AudioTextController(),
           builder: (controller) {
             return AlertDialog(
-              backgroundColor: AppColors.colorGreyDivider,
+              backgroundColor: AppColors.colorBgGray02,
               title: Text(CS.vDeleteBookmark, style: AppTextStyles.heading20WhiteSemiBold),
               shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
               contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
