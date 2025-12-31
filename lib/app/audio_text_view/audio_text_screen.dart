@@ -1133,17 +1133,18 @@ class AudioTextScreen extends StatelessWidget {
                       Expanded(
                         child: ListView(
                           children: [
-                            Row(
-                              spacing: 5,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildActionBox(assetPath: CS.icChat, label: CS.vVoiceChat, iconSize: 20),
-                                buildActionBox(assetPath: CS.icContents, label: CS.vContents, iconSize: 20),
-                                buildActionBox(assetPath: CS.icSleepTimer, label: CS.vSleepTimer, iconSize: 20),
-                              ],
-                            ),
-                            SizedBox(height: 20),
+                            // Row(
+                            //   spacing: 5,
+                            //   crossAxisAlignment: CrossAxisAlignment.start,
+                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //   children: [
+                            //     buildActionBox(assetPath: CS.icChat, label: CS.vVoiceChat, iconSize: 20),
+                            //     buildActionBox(assetPath: CS.icContents, label: CS.vContents, iconSize: 20),
+                            //     buildActionBox(assetPath: CS.icSleepTimer, label: CS.vSleepTimer, iconSize: 20),
+                            //   ],
+                            // ),
+                            // SizedBox(height: 20),
+                            Divider(color: AppColors.colorGreyDivider),
                             commonListTile(
                               assetPath: controller.isHideText ? CS.icShowList : CS.icHeadphone,
                               title: controller.isHideText ? CS.vShowText : CS.vHideText,
@@ -1161,32 +1162,32 @@ class AudioTextScreen extends StatelessWidget {
                                 openPreferencesSheet(context);
                               },
                             ),
-                            commonListTile(
-                              icon: Icons.keyboard_voice,
-                              title: CS.vVoices,
-                              onTap: () {
-                                Get.back();
-                                Get.toNamed(AppRoutes.voiceScreen);
-                              },
-                            ),
-                            commonListTile(
-                              assetPath: CS.icVoiceScapes,
-                              title: CS.vSoundScapes,
-                              onTap: () {
-                                Get.back();
-                                Get.toNamed(AppRoutes.soundSpacesScreen);
-                              },
-                            ),
-                            commonListTile(assetPath: CS.icPronunciation, title: CS.vPronunciations, onTap: () {}),
+                            // commonListTile(
+                            //   icon: Icons.keyboard_voice,
+                            //   title: CS.vVoices,
+                            //   onTap: () {
+                            //     Get.back();
+                            //     Get.toNamed(AppRoutes.voiceScreen);
+                            //   },
+                            // ),
+                            // commonListTile(
+                            //   assetPath: CS.icVoiceScapes,
+                            //   title: CS.vSoundScapes,
+                            //   onTap: () {
+                            //     Get.back();
+                            //     Get.toNamed(AppRoutes.soundSpacesScreen);
+                            //   },
+                            // ),
+                            // commonListTile(assetPath: CS.icPronunciation, title: CS.vPronunciations, onTap: () {}),
                             Divider(color: AppColors.colorGreyDivider),
-                            commonListTile(
-                              assetPath: CS.icContents,
-                              title: CS.vContents,
-                              onTap: () {
-                                Get.back();
-                                openContentsSheet(context);
-                              },
-                            ),
+                            // commonListTile(
+                            //   assetPath: CS.icContents,
+                            //   title: CS.vContents,
+                            //   onTap: () {
+                            //     Get.back();
+                            //     openContentsSheet(context);
+                            //   },
+                            // ),
                             commonListTile(
                               assetPath: CS.icBookmark,
                               title: CS.vBookmarks,
