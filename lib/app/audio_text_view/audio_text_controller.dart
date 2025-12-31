@@ -176,15 +176,14 @@ class AudioTextController extends GetxController {
   // LIFECYCLE
   // ============================================================
   double lastScrollOffset = 0.0;
+  Timer? _scrollSaveTimer;
 
   @override
   void onInit() {
     super.onInit();
     scrollController = ScrollController();
     scrollController.addListener(_onCollapseScroll);
-    scrollController.addListener(() {
-      lastScrollOffset = scrollController.offset;
-    });
+    scrollController.addListener(_onScrollPositionChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeAudioService();
       loadIsBookListening();
@@ -193,9 +192,65 @@ class AudioTextController extends GetxController {
     });
   }
 
-  void scrollToSavedPosition() {
-    if (scrollController.hasClients) {
-      scrollController.jumpTo(lastScrollOffset);
+  void restoreScrollPosition() {
+    if (!scrollController.hasClients) {
+      // Retry after a short delay if not ready
+      Future.delayed(const Duration(milliseconds: 100), () {
+        restoreScrollPosition();
+      });
+      return;
+    }
+
+    if (lastScrollOffset > 0) {
+      final maxScroll = scrollController.position.maxScrollExtent;
+      final safeOffset = lastScrollOffset.clamp(0.0, maxScroll);
+
+      scrollController.jumpTo(safeOffset);
+      print('✅ Restored scroll position: $safeOffset');
+    }
+  }
+
+  void _onScrollPositionChanged() {
+    if (!scrollController.hasClients) return;
+    if (!suppressAutoScroll) {
+      lastScrollOffset = scrollController.offset;
+
+      // Debounce saving to avoid too many writes
+      _scrollSaveTimer?.cancel();
+      _scrollSaveTimer = Timer(const Duration(milliseconds: 500), () {
+        _saveScrollPosition();
+      });
+    }
+  }
+
+  // void scrollToSavedPosition() {
+  //   if (scrollController.hasClients) {
+  //     scrollController.jumpTo(lastScrollOffset);
+  //   }
+  // }
+
+  Future<void> _saveScrollPosition() async {
+    if (bookId.isEmpty) return;
+
+    try {
+      await AppPrefs.setDouble('${CS.keyScrollPosition}$bookId', lastScrollOffset);
+      print('💾 Saved scroll position: $lastScrollOffset for book: $bookId');
+    } catch (e) {
+      print('❌ Error saving scroll position: $e');
+    }
+  }
+
+  // ✅ NEW: Load scroll position from preferences
+  Future<double> _loadScrollPosition() async {
+    if (bookId.isEmpty) return 0.0;
+
+    try {
+      final position = AppPrefs.getDouble('${CS.keyScrollPosition}$bookId');
+      print('📖 Loaded scroll position: $position for book: $bookId');
+      return position;
+    } catch (e) {
+      print('❌ Error loading scroll position: $e');
+      return 0.0;
     }
   }
 
@@ -204,7 +259,10 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> initializeApp() async {
     bool usedCache = false;
-    scrollToSavedPosition();
+    lastScrollOffset = await _loadScrollPosition();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      restoreScrollPosition();
+    });
     try {
       if (Get.arguments != null) {
         novelData = Get.arguments["novelData"];
@@ -243,7 +301,7 @@ class AudioTextController extends GetxController {
 
       scrollController.addListener(_onUserScroll);
       await _setupNotification();
-
+      onAudioPositionUpdate();
       if (!isClosed) update();
 
       print('✅ Initialization completed ${usedCache ? "(from cache)" : "(from server)"}');
@@ -264,7 +322,10 @@ class AudioTextController extends GetxController {
 
   void startListening() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      scrollToSavedPosition();
+      lastScrollOffset = await _loadScrollPosition();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        restoreScrollPosition();
+      });
       isBookListening.value = true;
       setIsBookListening(true);
 
@@ -507,6 +568,7 @@ class AudioTextController extends GetxController {
     audioLoading = true;
     await pause();
     await saveCurrentPosition();
+    await _saveScrollPosition();
 
     _position = 0;
     currentWordIndex = -1;
@@ -1148,7 +1210,8 @@ class AudioTextController extends GetxController {
 
       if (_position > -1) {
         _operationInProgress = false;
-        await seek(_position, isPlay: true);
+        restoreScrollPosition();
+        // await seek(_position, isPlay: true);
       }
 
       if (!isPositionScrollOnly) {
@@ -1553,6 +1616,8 @@ class AudioTextController extends GetxController {
   @override
   void onClose() {
     try {
+      _scrollSaveTimer?.cancel();
+      _saveScrollPosition();
       // scrollController.dispose();
     } catch (e) {
       print('Error disposing scroll controller: $e');

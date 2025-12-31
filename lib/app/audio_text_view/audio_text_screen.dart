@@ -172,7 +172,7 @@ class AudioTextScreen extends StatelessWidget {
                           controller.isScrolling = false;
                           controller.update(["scrollButton"]);
 
-                          await controller.play(isPositionScrollOnly: true);
+                          controller.restoreScrollPosition();
                         },
                         child: AnimatedOpacity(
                           duration: Duration(milliseconds: 400),
@@ -381,20 +381,20 @@ class AudioTextScreen extends StatelessWidget {
                         // Show paragraph
                         final paragraph = paragraphs[i];
 
-                        final isCurrentParagraph = i == controller.currentParagraphIndex;
-                        final wordIndexInParagraph =
-                            isCurrentParagraph && controller.syncEngine != null
-                                ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, i)
-                                : null;
+                        // final isCurrentParagraph = i == controller.currentParagraphIndex;
+                        // final wordIndexInParagraph =
+                        //     isCurrentParagraph && controller.syncEngine != null
+                        //         ? controller.syncEngine?.getWordIndexInParagraph(controller.currentWordIndex, i)
+                        //         : null;
 
                         int globalWordStartIndex = 0;
                         for (int p = 0; p < i; p++) {
                           globalWordStartIndex += paragraphs[p].allWords.length;
                         }
-                        //
-                        // final isCurrentParagraph = i == controller.currentParagraphIndex;
-                        //
-                        // final wordIndexInParagraph = isCurrentParagraph ? controller.currentWordIndex - globalWordStartIndex : null;
+
+                        final isCurrentParagraph = i == controller.currentParagraphIndex;
+
+                        final wordIndexInParagraph = isCurrentParagraph ? controller.currentWordIndex - globalWordStartIndex : null;
                         return ParagraphWidget(
                           paragraph: paragraph,
                           paragraphIndex: i,
