@@ -8,15 +8,12 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:utsav_interview/app/audio_text_view/audio_notification_service/notification_service.dart';
-import 'package:utsav_interview/app/audio_text_view/models/book_info_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/bookmark_model.dart';
-
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/models/transcript_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/services/sync_enginge_service.dart';
 import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
-import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
@@ -77,7 +74,6 @@ class AudioTextController extends GetxController {
   bool isCollapsed = false;
   bool isScrolling = false;
   bool suppressAutoScroll = false;
-  Timer? _scrollEndTimer;
   bool hasError = false;
   bool isBookMarkDelete = false;
   String? errorMessage;
@@ -206,7 +202,7 @@ class AudioTextController extends GetxController {
       final safeOffset = lastScrollOffset.clamp(0.0, maxScroll);
 
       scrollController.jumpTo(safeOffset);
-      print('✅ Restored scroll position: $safeOffset');
+      debugPrint('✅ Restored scroll position: $safeOffset');
     }
   }
 
@@ -234,9 +230,9 @@ class AudioTextController extends GetxController {
 
     try {
       await AppPrefs.setDouble('${CS.keyScrollPosition}$bookId', lastScrollOffset);
-      print('💾 Saved scroll position: $lastScrollOffset for book: $bookId');
+      debugPrint('💾 Saved scroll position: $lastScrollOffset for book: $bookId');
     } catch (e) {
-      print('❌ Error saving scroll position: $e');
+      debugPrint('❌ Error saving scroll position: $e');
     }
   }
 
@@ -246,10 +242,10 @@ class AudioTextController extends GetxController {
 
     try {
       final position = AppPrefs.getDouble('${CS.keyScrollPosition}$bookId');
-      print('📖 Loaded scroll position: $position for book: $bookId');
+      debugPrint('📖 Loaded scroll position: $position for book: $bookId');
       return position;
     } catch (e) {
-      print('❌ Error loading scroll position: $e');
+      debugPrint('❌ Error loading scroll position: $e');
       return 0.0;
     }
   }
@@ -304,8 +300,8 @@ class AudioTextController extends GetxController {
       onAudioPositionUpdate();
       if (!isClosed) update();
 
-      print('✅ Initialization completed ${usedCache ? "(from cache)" : "(from server)"}');
-    } catch (e, stackTrace) {
+      debugPrint('✅ Initialization completed ${usedCache == true ? "(from cache)" : "(from server)"}');
+    } catch (e) {
       hasError = true;
 
       if (e.toString().contains('SocketException') || e.toString().contains('TimeoutException') || e.toString().contains('Network')) {
@@ -361,8 +357,8 @@ class AudioTextController extends GetxController {
       currentParagraphIndex = syncToUiParagraphIndex[syncPara];
       currentWordIndex = syncToUiWordIndex[syncWord];
 
-      print('📍 Scrolling to position: $positionMs ms');
-      print('   Word index: $currentWordIndex, Paragraph: $currentParagraphIndex');
+      debugPrint('📍 Scrolling to position: $positionMs ms');
+      debugPrint('   Word index: $currentWordIndex, Paragraph: $currentParagraphIndex');
 
       // Disable auto-scroll temporarily
       suppressAutoScroll = true;
@@ -392,7 +388,7 @@ class AudioTextController extends GetxController {
           alignment: 0.4,
           curve: Curves.easeOutCubic,
         );
-        print('✅ Scrolled to word successfully');
+        debugPrint('✅ Scrolled to word successfully');
       } else {
         // Immediate fallback if context not available
         await _scrollToParagraphFallback(currentParagraphIndex);
@@ -404,7 +400,7 @@ class AudioTextController extends GetxController {
 
       update();
     } catch (e) {
-      print('❌ Error scrolling to position: $e');
+      debugPrint('❌ Error scrolling to position: $e');
       suppressAutoScroll = false;
     }
   }
@@ -424,7 +420,7 @@ class AudioTextController extends GetxController {
 
       if (paraKey.currentContext != null) {
         await Scrollable.ensureVisible(paraKey.currentContext!, duration: const Duration(milliseconds: 400), alignment: 0.4, curve: Curves.easeOutCubic);
-        print('✅ Scrolled to paragraph (fallback)');
+        debugPrint('✅ Scrolled to paragraph (fallback)');
       } else {
         // Last resort: calculate approximate offset
         const double avgParagraphHeight = 180.0;
@@ -435,7 +431,7 @@ class AudioTextController extends GetxController {
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeOutCubic,
         );
-        print('✅ Scrolled to calculated offset (last resort)');
+        debugPrint('✅ Scrolled to calculated offset (last resort)');
       }
     }
   }
@@ -459,7 +455,7 @@ class AudioTextController extends GetxController {
         await cacheTranscript(bookId: bookId, chapterId: chapter.id ?? "", transcript: data);
       }
 
-      for (final p in data.paragraphs ?? []) {
+      for (final p in data.paragraphs) {
         p.chapterId = chapter.id ?? "";
         p.chapterIndex = i;
         allParagraphs.add(p);
@@ -603,7 +599,7 @@ class AudioTextController extends GetxController {
   Future<void> cacheTranscript({required String bookId, required String chapterId, required TranscriptData transcript}) async {
     final jsonString = jsonEncode(transcript.toJson());
     await AppPrefs.setString('${CS.keyCachedTranscript}_${bookId}_$chapterId', jsonString);
-    print('💾 Cached transcript for book: $bookId, chapter: $chapterId');
+    debugPrint('💾 Cached transcript for book: $bookId, chapter: $chapterId');
   }
 
   TranscriptData? getCachedTranscript(String bookId, String chapterId) {
@@ -613,13 +609,13 @@ class AudioTextController extends GetxController {
     try {
       final decoded = jsonDecode(jsonString);
       if (decoded is String) {
-        print('⚠️ Old invalid cache detected. Clearing...');
+        debugPrint('⚠️ Old invalid cache detected. Clearing...');
         AppPrefs.remove('${CS.keyCachedTranscript}_${bookId}_$chapterId');
         return null;
       }
       return TranscriptData.fromJson(decoded as Map<String, dynamic>);
     } catch (e) {
-      print('❌ Error loading cached transcript: $e');
+      debugPrint('❌ Error loading cached transcript: $e');
       return null;
     }
   }
@@ -642,7 +638,6 @@ class AudioTextController extends GetxController {
     if (bookId.isNotEmpty) {
       final data = jsonEncode({'chapterIndex': currentChapterIndex, 'chapterId': currentChapterId, 'position': _position});
       await AppPrefs.setString('${CS.keyLastPosition}_$bookId', data);
-      print('💾 Saved position: $_position for chapter: $currentChapterIndex');
     }
   }
 
@@ -787,11 +782,11 @@ class AudioTextController extends GetxController {
   // ✅ NEW: Navigate to bookmark
   Future<void> navigateToBookmark(BookmarkModel bookmark) async {
     if (bookmark.chapterIndex != currentChapterIndex) {
-      await switchChapter(bookmark.chapterIndex ?? 0);
+      await switchChapter(bookmark.chapterIndex);
     }
 
     // Parse time string to milliseconds
-    final timeMs = _parseTimeToMs(bookmark.startTime ?? "00:00");
+    final timeMs = _parseTimeToMs(bookmark.startTime);
     await seek(timeMs);
   }
 
@@ -817,17 +812,17 @@ class AudioTextController extends GetxController {
     final handler = AudioNotificationService.audioHandler;
     if (handler is AudioPlayerHandler) {
       audioHandler = handler;
-      print('✅ Audio handler ready: ${audioHandler != null}');
+      debugPrint('✅ Audio handler ready: ${audioHandler != null}');
     } else {
       audioHandler = null;
-      print('⚠️ Audio handler is not AudioPlayerHandler type');
+      debugPrint('⚠️ Audio handler is not AudioPlayerHandler type');
     }
     update();
   }
 
   Future<void> _setupNotification() async {
     if (audioHandler == null) {
-      print('⚠️ Cannot setup notification: audioHandler is null');
+      debugPrint('⚠️ Cannot setup notification: audioHandler is null');
       return;
     }
     audioHandler!.connectPlayer(audioPlayer);
@@ -850,7 +845,7 @@ class AudioTextController extends GetxController {
     try {
       return NovelsDataModel.fromJson(jsonDecode(jsonString));
     } catch (e) {
-      print('Error loading book info: $e');
+      debugPrint('Error loading book info: $e');
       return NovelsDataModel();
     }
   }
@@ -859,7 +854,7 @@ class AudioTextController extends GetxController {
 
   Future<void> setIsBookListening(bool value) async => await AppPrefs.setBool(CS.keyIsBookListening, value);
 
-  Future<bool> getIsBookListening() async => await AppPrefs.getBool(CS.keyIsBookListening);
+  Future<bool> getIsBookListening() async => AppPrefs.getBool(CS.keyIsBookListening);
 
   Future<void> loadIsBookListening() async {
     isBookListening.value = await getIsBookListening();
@@ -884,7 +879,7 @@ class AudioTextController extends GetxController {
   Future<void> removeRecentViewByBookId(String bookId) async {
     if (bookId.isEmpty) return;
 
-    final List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews) ?? [];
+    final List<String> recentList = AppPrefs.getStringList(CS.keyRecentViews);
 
     recentList.removeWhere((item) {
       try {
@@ -975,7 +970,7 @@ class AudioTextController extends GetxController {
   // }
 
   void onAudioPositionUpdate() {
-    if (!scrollController.hasClients || suppressAutoScroll || syncEngine == null) return;
+    if (!scrollController.hasClients || syncEngine == null) return;
 
     final syncWordIndex = syncEngine!.findWordIndexAtTime(position);
     if (syncWordIndex < 0) return;
@@ -994,8 +989,9 @@ class AudioTextController extends GetxController {
 
     currentWordIndex = uiWord;
     currentParagraphIndex = uiPara;
-
-    scrollToCurrentWord(uiWord);
+    if (!suppressAutoScroll) {
+      scrollToCurrentWord(uiWord);
+    }
     update();
   }
 
@@ -1108,9 +1104,7 @@ class AudioTextController extends GetxController {
     if ((_position - newPos).abs() > 100) {
       _position = newPos;
 
-      if (!suppressAutoScroll) {
-        onAudioPositionUpdate();
-      }
+      onAudioPositionUpdate();
 
       _checkDrift();
 
@@ -1187,7 +1181,7 @@ class AudioTextController extends GetxController {
     // if (isOnlyPlayAudio && isAudioInitCount.value == 0) {
     //   initializeApp();
     // }
-    isAudioInitCount++;
+
     if (_isDisposed || !_isInitialized || _operationInProgress) return;
 
     _operationInProgress = true;
@@ -1210,8 +1204,13 @@ class AudioTextController extends GetxController {
 
       if (_position > -1) {
         _operationInProgress = false;
-        restoreScrollPosition();
-        // await seek(_position, isPlay: true);
+
+        if (isAudioInitCount.value == 1) {
+          await seek(_position, isPlay: true);
+        } else {
+          print(isAudioInitCount.value);
+          restoreScrollPosition();
+        }
       }
 
       if (!isPositionScrollOnly) {
@@ -1234,6 +1233,7 @@ class AudioTextController extends GetxController {
       audioLoading = false;
       _operationInProgress = false;
     }
+    isAudioInitCount++;
   }
 
   Future<void> pause() async {
@@ -1296,7 +1296,7 @@ class AudioTextController extends GetxController {
 
     _operationInProgress = true;
     _isSeeking = true;
-
+    audioLoading = true;
     // suppressAutoScroll = true;
 
     try {
@@ -1345,7 +1345,7 @@ class AudioTextController extends GetxController {
           }
         }
       }
-
+      audioLoading = false;
       update();
     } catch (e) {
       _error = 'Seek error: $e';
@@ -1456,11 +1456,11 @@ class AudioTextController extends GetxController {
         jsonData['audioUrl'] = audioUrl ?? "";
         return TranscriptData.fromJson(jsonData);
       } else {
-        print('Failed to fetch. Status: ${response.statusCode}');
+        debugPrint('Failed to fetch. Status: ${response.statusCode}');
         throw Exception('Failed to fetch. Status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
+      debugPrint('Error: $e');
       throw Exception('Error: $e');
     }
   }
@@ -1490,7 +1490,7 @@ class AudioTextController extends GetxController {
           await audioPlayer.stop();
           await audioPlayer.dispose();
         } catch (e) {
-          print('Error disposing audio player: $e');
+          debugPrint('Error disposing audio player: $e');
         }
       }
 
@@ -1552,14 +1552,14 @@ class AudioTextController extends GetxController {
         try {
           scrollController.jumpTo(0);
         } catch (e) {
-          print('Error resetting scroll: $e');
+          debugPrint('Error resetting scroll: $e');
         }
       }
 
       // 11. Update UI
       update();
     } catch (e) {
-      print('Error in resetController: $e');
+      debugPrint('Error in resetController: $e');
     }
   }
 
@@ -1577,7 +1577,7 @@ class AudioTextController extends GetxController {
       await clearBookInfo();
       await resetController();
     } catch (e) {
-      print('Error in stopListening: $e');
+      debugPrint('Error in stopListening: $e');
     }
   }
 
@@ -1595,7 +1595,7 @@ class AudioTextController extends GetxController {
         Get.put(AudioTextController(), permanent: true);
       }
     } catch (e) {
-      print('Error in stopListeningAndDelete: $e');
+      debugPrint('Error in stopListeningAndDelete: $e');
     }
   }
 
@@ -1605,7 +1605,7 @@ class AudioTextController extends GetxController {
       await stopListening();
       Get.back();
     } catch (e) {
-      print('Error handling back: $e');
+      debugPrint('Error handling back: $e');
       Get.back(); // Go back anyway
     }
   }
@@ -1620,7 +1620,7 @@ class AudioTextController extends GetxController {
       _saveScrollPosition();
       // scrollController.dispose();
     } catch (e) {
-      print('Error disposing scroll controller: $e');
+      debugPrint('Error disposing scroll controller: $e');
     }
     super.onClose();
   }
