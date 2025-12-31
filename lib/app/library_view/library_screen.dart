@@ -8,6 +8,7 @@ import 'package:utsav_interview/app/book_details_view/book_details_controller.da
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
+import 'package:utsav_interview/routes/app_routes.dart';
 import '../../core/common_string.dart';
 import 'library_controller.dart';
 
@@ -415,59 +416,90 @@ class LibraryScreen extends StatelessWidget {
 
   /// COLLECTIONS VIEW
   Widget _collectionsView() {
-    return ListView(
-      children: [
-        Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5),
+    return GetBuilder<LibraryController>(
+      init: LibraryController(),
+      builder: (controller) {
+        return ListView(
+          children: [
+            Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5),
 
-        commonListTile(imageHeight: 30, title: CS.vCreateCollection, icon: Icons.add, style: AppTextStyles.body16WhiteBold),
-        Divider(color: AppColors.colorGreyDivider),
-        commonListTile(
-          title: CS.vDownloaded,
-          icon: Icons.download,
-          trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
-          style: AppTextStyles.body16WhiteBold,
-        ),
-        Divider(color: AppColors.colorGreyDivider),
-        // Text(CS.vByType, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5, top: 15),
-        // commonListTile(
-        //   title: CS.vBooks,
-        //   icon: Icons.book,
-        //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
-        //   style: AppTextStyles.body16WhiteBold,
-        // ),
-        //
-        // Divider(color: AppColors.colorGreyDivider),
-        // commonListTile(
-        //   title: CS.vGenFm,
-        //   icon: Icons.auto_awesome,
-        //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
-        //   style: AppTextStyles.body16WhiteBold,
-        // ),
-        //
-        // Divider(color: AppColors.colorGreyDivider),
-        // commonListTile(
-        //   title: CS.vImports,
-        //   icon: Icons.grid_view,
-        //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
-        //   style: AppTextStyles.body16WhiteBold,
-        // ),
-        //
-        // Divider(color: AppColors.colorGreyDivider),
-        // commonListTile(
-        //   title: CS.vLinks,
-        //   icon: Icons.link,
-        //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
-        //   style: AppTextStyles.body16WhiteBold,
-        // ),
-        // Divider(color: AppColors.colorGreyDivider),
-        // commonListTile(
-        //   title: CS.vText,
-        //   icon: Icons.text_fields,
-        //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
-        //   style: AppTextStyles.body16WhiteBold,
-        // ),
-        // Divider(color: AppColors.colorGreyDivider),
-      ],
-    ).screenPadding();
+            commonListTile(
+              onTap: () {
+                Get.toNamed(AppRoutes.createCollectionScreen);
+              },
+              imageHeight: 30,
+              title: CS.vCreateACollection,
+              icon: Icons.add,
+              style: AppTextStyles.body16WhiteBold,
+            ),
+            Divider(color: AppColors.colorGreyDivider),
+            if (controller.listCollection.isNotEmpty)
+              if (controller.listCollection.isNotEmpty)
+                ...List.generate(controller.listCollection.length, (index) {
+                  return Column(
+                    children: [
+                      commonListTile(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.collectionScreen, arguments: controller.listCollection[index]);
+                        },
+                        imageHeight: 30,
+                        title: controller.listCollection[index].name,
+                        icon: controller.icon(controller.listCollection[index].iconType),
+                        style: AppTextStyles.body16WhiteBold,
+                      ),
+                      Divider(color: AppColors.colorGreyDivider),
+                    ],
+                  );
+                }),
+            commonListTile(
+              title: CS.vDownloaded,
+              icon: Icons.download,
+              trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
+              style: AppTextStyles.body16WhiteBold,
+            ),
+            Divider(color: AppColors.colorGreyDivider),
+            // Text(CS.vByType, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5, top: 15),
+            // commonListTile(
+            //   title: CS.vBooks,
+            //   icon: Icons.book,
+            //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
+            //   style: AppTextStyles.body16WhiteBold,
+            // ),
+            //
+            // Divider(color: AppColors.colorGreyDivider),
+            // commonListTile(
+            //   title: CS.vGenFm,
+            //   icon: Icons.auto_awesome,
+            //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
+            //   style: AppTextStyles.body16WhiteBold,
+            // ),
+            //
+            // Divider(color: AppColors.colorGreyDivider),
+            // commonListTile(
+            //   title: CS.vImports,
+            //   icon: Icons.grid_view,
+            //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
+            //   style: AppTextStyles.body16WhiteBold,
+            // ),
+            //
+            // Divider(color: AppColors.colorGreyDivider),
+            // commonListTile(
+            //   title: CS.vLinks,
+            //   icon: Icons.link,
+            //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
+            //   style: AppTextStyles.body16WhiteBold,
+            // ),
+            // Divider(color: AppColors.colorGreyDivider),
+            // commonListTile(
+            //   title: CS.vText,
+            //   icon: Icons.text_fields,
+            //   trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
+            //   style: AppTextStyles.body16WhiteBold,
+            // ),
+            // Divider(color: AppColors.colorGreyDivider),
+          ],
+        ).screenPadding();
+      },
+    );
   }
 }
