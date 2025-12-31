@@ -184,7 +184,7 @@ class AudioTextController extends GetxController {
       _initializeAudioService();
       loadIsBookListening();
 
-      if (Get.arguments != null) initializeApp();
+      // if (Get.arguments != null) initializeApp();
     });
   }
 
@@ -1548,13 +1548,13 @@ class AudioTextController extends GetxController {
       wordKeys.clear();
 
       // 10. Reset scroll controller (don't dispose yet)
-      if (scrollController.hasClients) {
-        try {
-          scrollController.jumpTo(0);
-        } catch (e) {
-          debugPrint('Error resetting scroll: $e');
-        }
-      }
+      // if (scrollController.hasClients) {
+      //   try {
+      //     scrollController.jumpTo(0);
+      //   } catch (e) {
+      //     debugPrint('Error resetting scroll: $e');
+      //   }
+      // }
 
       // 11. Update UI
       update();
