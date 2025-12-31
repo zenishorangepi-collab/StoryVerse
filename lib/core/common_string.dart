@@ -329,6 +329,7 @@ class CS {
   static const String keyCachedJsonUrl = 'cached_json_url';
   static const String keyCachedTranscript = 'cached_transcript';
   static const String keyArchivedBookIds = 'archived_BookIds';
+  static const String keyScrollPosition = 'scroll_position_';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

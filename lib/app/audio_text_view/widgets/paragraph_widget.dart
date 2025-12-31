@@ -11,12 +11,12 @@ class ParagraphWidget extends StatefulWidget {
   final bool isCurrentParagraph;
   final Function(int) onWordTap;
   final AudioTextController controller;
-  final GlobalKey widgetKey;
+  GlobalKey widgetKey;
   final int globalWordStartIndex;
   final Color? colorAudioTextParagraphBg;
   final Color? colorAudioTextBg;
 
-  const ParagraphWidget({
+  ParagraphWidget({
     required this.paragraph,
     required this.paragraphIndex,
     required this.currentWordIndex,
@@ -27,7 +27,6 @@ class ParagraphWidget extends StatefulWidget {
     required this.globalWordStartIndex,
     required this.colorAudioTextParagraphBg,
     required this.colorAudioTextBg,
-    super.key,
   });
 
   @override
@@ -76,6 +75,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+
             decoration: BoxDecoration(color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent, borderRadius: BorderRadius.circular(4)),
             child: Text(word.word, style: AppTextStyles.audioTextFontOnly(color: AppColors.colorWhite)),
           ),

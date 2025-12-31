@@ -30,8 +30,11 @@ class AudioTextScreen extends StatelessWidget {
             if (Get.arguments != null) {
               if (isAudioInitCount.value == 0) {
                 state.controller?.isAllChaptersLoaded = false;
-                state.controller?.paragraphs.clear();
+                // state.controller?.uiParagraphs.clear();
+                // state.controller?.allParagraphs.clear();
+                // state.controller?.update();
                 state.controller?.initializeApp();
+                isAudioInitCount.value = 1;
               }
             }
             state.controller?.startListening();
@@ -168,7 +171,8 @@ class AudioTextScreen extends StatelessWidget {
                         onTap: () async {
                           controller.isScrolling = false;
                           controller.update(["scrollButton"]);
-                          await controller.play(isPositionScrollOnly: true);
+
+                          controller.restoreScrollPosition();
                         },
                         child: AnimatedOpacity(
                           duration: Duration(milliseconds: 400),
@@ -969,7 +973,7 @@ class AudioTextScreen extends StatelessWidget {
 
                 // ---------------- DESCRIPTION ----------------
                 Text(
-                  controller.paragraphs[controller.currentParagraphIndex].allWords.map((e) => e.word).join(" "),
+                  controller.uiParagraphs[controller.currentParagraphIndex].allWords.map((e) => e.word).join(" "),
                   style: AppTextStyles.body16WhiteBold,
                 ).paddingSymmetric(horizontal: 20),
 
@@ -1239,7 +1243,6 @@ class AudioTextScreen extends StatelessWidget {
     return showDialog(
       context: context,
       barrierDismissible: true,
-
       builder: (context) {
         return AlertDialog(
           // insetPadding: EdgeInsets.zero,
@@ -1621,7 +1624,7 @@ class AudioTextScreen extends StatelessWidget {
           init: AudioTextController(),
           builder: (controller) {
             return AlertDialog(
-              backgroundColor: AppColors.colorGreyDivider,
+              backgroundColor: AppColors.colorBgGray02,
               title: Text(CS.vDeleteBookmark, style: AppTextStyles.heading20WhiteSemiBold),
               shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
               contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1711,13 +1714,13 @@ class AudioTextScreen extends StatelessWidget {
 
                                 // controller.listBookmarks = await controller.getBookmarksPrefs();
 
-                                for (var p in controller.paragraphs) {
-                                  if (controller.paragraphs[index].id == p.id) {
+                                for (var p in controller.uiParagraphs) {
+                                  if (controller.uiParagraphs[index].id == p.id) {
                                     p.isBookmarked = false;
                                   }
                                 }
                                 for (var i = 0; i < (controller.listBookmarks?.length ?? 0); i++) {
-                                  if (controller.paragraphs[index].id == controller.listBookmarks?[i].id) {
+                                  if (controller.uiParagraphs[index].id == controller.listBookmarks?[i].id) {
                                     controller.listBookmarks?.removeAt(i);
                                   }
                                 }
