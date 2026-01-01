@@ -1204,7 +1204,15 @@ class AudioTextScreen extends StatelessWidget {
                             commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
                             commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
                             Divider(color: AppColors.colorGreyDivider),
-                            commonListTile(assetPath: CS.icPlus, title: CS.vAddToCollection, onTap: () {}, imageHeight: 18),
+                            commonListTile(
+                              assetPath: CS.icPlus,
+                              title: CS.vAddToCollection,
+                              onTap: () {
+                                Get.back();
+                                Get.toNamed(AppRoutes.addToCollection, arguments: {"novelData": controller.novelData ?? bookInfo.value});
+                              },
+                              imageHeight: 18,
+                            ),
                             commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
                             commonListTile(
                               assetPath: CS.icDelete,

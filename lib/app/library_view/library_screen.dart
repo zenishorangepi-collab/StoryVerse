@@ -79,6 +79,7 @@ class LibraryScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(CS.vLibrary, style: AppTextStyles.heading24WhiteMedium),
+
         Row(
           children: [
             commonCircleButton(
@@ -90,59 +91,59 @@ class LibraryScreen extends StatelessWidget {
               isBackButton: false,
               iconColor: AppColors.colorWhite,
             ),
-            PopupMenuButton<SortType>(
-              offset: Offset(0, 50),
-              color: AppColors.colorBgGray04,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
-              icon: commonCircleButton(
-                padding: 8,
-                icon: Icon(Icons.more_horiz, color: AppColors.colorWhite, size: 18),
-                isBackButton: false,
-                iconColor: AppColors.colorWhite,
-              ),
-              onSelected: controller.changeSort,
-              itemBuilder:
-                  (_) => [
-                    PopupMenuItem(enabled: false, height: 30, child: Text(CS.vSortBy, style: AppTextStyles.body14GreyRegular)),
-                    const PopupMenuDivider(height: 1),
-                    PopupMenuItem(
-                      value: SortType.recentlyAdded,
-                      child: Row(
-                        children: [
-                          Expanded(flex: 5, child: Text(CS.vRecentlyAdded, style: AppTextStyles.body14WhiteMedium)),
-                          if (controller.selectedSort == SortType.recentlyAdded) Expanded(child: Icon(Icons.check, color: AppColors.colorWhite, size: 18)),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuDivider(height: 1),
-                    PopupMenuItem(
-                      value: SortType.recentlyListened,
-                      child: Row(
-                        children: [
-                          Expanded(flex: 5, child: Text(CS.vRecentlyListened, style: AppTextStyles.body14WhiteMedium)),
-                          if (controller.selectedSort == SortType.recentlyListened) Expanded(child: Icon(Icons.check, color: AppColors.colorWhite, size: 18)),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuDivider(height: 1),
-                    PopupMenuItem(
-                      value: SortType.progress,
-                      child: Row(
-                        children: [
-                          Expanded(flex: 5, child: Text(CS.vProgress, style: AppTextStyles.body14WhiteMedium)),
-                          if (controller.selectedSort == SortType.progress)
-                            Expanded(
-                              flex: 4,
-                              child: Align(
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.check, color: AppColors.colorWhite, size: 18).paddingOnly(right: 10),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-            ),
+            // PopupMenuButton<SortType>(
+            //   offset: Offset(0, 50),
+            //   color: AppColors.colorBgGray04,
+            //   shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(10)),
+            //   icon: commonCircleButton(
+            //     padding: 8,
+            //     icon: Icon(Icons.more_horiz, color: AppColors.colorWhite, size: 18),
+            //     isBackButton: false,
+            //     iconColor: AppColors.colorWhite,
+            //   ),
+            //   onSelected: controller.changeSort,
+            //   itemBuilder:
+            //       (_) => [
+            //         PopupMenuItem(enabled: false, height: 30, child: Text(CS.vSortBy, style: AppTextStyles.body14GreyRegular)),
+            //         const PopupMenuDivider(height: 1),
+            //         PopupMenuItem(
+            //           value: SortType.recentlyAdded,
+            //           child: Row(
+            //             children: [
+            //               Expanded(flex: 5, child: Text(CS.vRecentlyAdded, style: AppTextStyles.body14WhiteMedium)),
+            //               if (controller.selectedSort == SortType.recentlyAdded) Expanded(child: Icon(Icons.check, color: AppColors.colorWhite, size: 18)),
+            //             ],
+            //           ),
+            //         ),
+            //         const PopupMenuDivider(height: 1),
+            //         PopupMenuItem(
+            //           value: SortType.recentlyListened,
+            //           child: Row(
+            //             children: [
+            //               Expanded(flex: 5, child: Text(CS.vRecentlyListened, style: AppTextStyles.body14WhiteMedium)),
+            //               if (controller.selectedSort == SortType.recentlyListened) Expanded(child: Icon(Icons.check, color: AppColors.colorWhite, size: 18)),
+            //             ],
+            //           ),
+            //         ),
+            //         const PopupMenuDivider(height: 1),
+            //         PopupMenuItem(
+            //           value: SortType.progress,
+            //           child: Row(
+            //             children: [
+            //               Expanded(flex: 5, child: Text(CS.vProgress, style: AppTextStyles.body14WhiteMedium)),
+            //               if (controller.selectedSort == SortType.progress)
+            //                 Expanded(
+            //                   flex: 4,
+            //                   child: Align(
+            //                     alignment: Alignment.centerRight,
+            //                     child: Icon(Icons.check, color: AppColors.colorWhite, size: 18).paddingOnly(right: 10),
+            //                   ),
+            //                 ),
+            //             ],
+            //           ),
+            //         ),
+            //       ],
+            // ),
           ],
         ),
       ],
@@ -220,21 +221,22 @@ class LibraryScreen extends StatelessWidget {
                   child: Slidable(
                     key: ValueKey(book.id), // ✅ UNIQUE KEY
                     /// LEFT ACTIONS
-                    startActionPane: ActionPane(
-                      motion: const BehindMotion(),
-                      extentRatio: 0.50,
-                      children: [
-                        commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
-                        commonActionButton(color: AppColors.colorTeal, icon: Icons.remove_circle_outline, label: CS.vRemoveFromQueue, onTap: () {}),
-                      ],
-                    ),
+                    // startActionPane: ActionPane(
+                    //   motion: const BehindMotion(),
+                    //   extentRatio: 0.50,
+                    //   children: [
+                    //     commonActionButton(color: AppColors.colorTeal, icon: Icons.remove_circle_outline, label: CS.vRemoveFromQueue, onTap: () {}),
+                    //   ],
+                    // ),
 
                     /// RIGHT ACTIONS
                     endActionPane: ActionPane(
                       motion: const BehindMotion(),
                       extentRatio: 0.5,
                       children: [
-                        commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
+                        // commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
+                        commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+
                         commonActionButton(
                           color: AppColors.colorBgWhite10,
                           icon: Icons.archive,
@@ -393,27 +395,6 @@ class LibraryScreen extends StatelessWidget {
     );
   }
 
-  commonActionButton({Color? color, IconData? icon, String? label, VoidCallback? onTap}) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          decoration: BoxDecoration(color: color),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: AppColors.colorWhite),
-              const SizedBox(height: 5),
-              Text(label ?? "", textAlign: TextAlign.center, style: AppTextStyles.body14WhiteMedium),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// COLLECTIONS VIEW
   Widget _collectionsView() {
     return GetBuilder<LibraryController>(
@@ -427,30 +408,30 @@ class LibraryScreen extends StatelessWidget {
               onTap: () {
                 Get.toNamed(AppRoutes.createCollectionScreen);
               },
-              imageHeight: 30,
+              imageHeight: 25,
               title: CS.vCreateACollection,
               icon: Icons.add,
               style: AppTextStyles.body16WhiteBold,
             ),
             Divider(color: AppColors.colorGreyDivider),
+
             if (controller.listCollection.isNotEmpty)
-              if (controller.listCollection.isNotEmpty)
-                ...List.generate(controller.listCollection.length, (index) {
-                  return Column(
-                    children: [
-                      commonListTile(
-                        onTap: () {
-                          Get.toNamed(AppRoutes.collectionScreen, arguments: controller.listCollection[index]);
-                        },
-                        imageHeight: 30,
-                        title: controller.listCollection[index].name,
-                        icon: controller.icon(controller.listCollection[index].iconType),
-                        style: AppTextStyles.body16WhiteBold,
-                      ),
-                      Divider(color: AppColors.colorGreyDivider),
-                    ],
-                  );
-                }),
+              ...List.generate(controller.listCollection.length, (index) {
+                return Column(
+                  children: [
+                    commonListTile(
+                      onTap: () {
+                        Get.toNamed(AppRoutes.collectionScreen, arguments: controller.listCollection[index]);
+                      },
+                      imageHeight: 25,
+                      title: controller.listCollection[index].name,
+                      icon: icon(controller.listCollection[index].iconType),
+                      style: AppTextStyles.body16WhiteBold,
+                    ),
+                    Divider(color: AppColors.colorGreyDivider),
+                  ],
+                );
+              }),
             commonListTile(
               title: CS.vDownloaded,
               icon: Icons.download,

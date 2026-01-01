@@ -215,6 +215,7 @@ class CS {
   static const String vText = "Text";
   static const String vCollections = "Collections";
   static const String vArchive = "Archive";
+  static const String vRemove = "Remove";
   static const String vRemoveFromArchive = "Remove from archive";
 
   // Sort

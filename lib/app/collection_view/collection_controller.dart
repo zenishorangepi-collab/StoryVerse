@@ -53,7 +53,7 @@ class CollectionController extends GetxController {
   getNovelData() async {
     listNovelData.clear();
     listNovelData.value = await getNovelsByCollectionId(collection?.id ?? "");
-    print(listNovelData.length);
+
     update();
   }
 
@@ -79,5 +79,6 @@ class CollectionController extends GetxController {
     data[collectionId] = list;
 
     await AppPrefs.setString(CS.keyCollectionBooks, jsonEncode(data));
+    getNovelData();
   }
 }

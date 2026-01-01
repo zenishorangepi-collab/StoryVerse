@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
 import 'package:utsav_interview/app/collection_view/collection_controller.dart';
@@ -23,12 +24,24 @@ class CollectionScreen extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: const BackButton(),
+            leadingWidth: 40,
+            leading: commonCircleButton(
+              onTap: () {
+                Get.back();
+              },
+              padding: 8,
+              icon: Icon(Icons.arrow_back_ios, color: AppColors.colorWhite, size: 15).paddingOnly(left: 2),
+              isBackButton: false,
+
+              iconColor: AppColors.colorWhite,
+              bgColor: AppColors.colorChipBackground,
+            ).paddingOnly(left: 10),
+
             actions: [
               commonCircleButton(
                 padding: 4,
                 onTap: () async {
-                  final result = await Get.toNamed(AppRoutes.addToCollection, arguments: controller.collection?.id);
+                  final result = await Get.toNamed(AppRoutes.addToCollection, arguments: {"collectionId": controller.collection?.id});
                   if (result != null) {
                     controller.getNovelData();
                   }
@@ -72,6 +85,7 @@ class CollectionScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 10),
                     Text(controller.collection?.name ?? "", style: AppTextStyles.heading24WhiteMedium),
                     if (controller.listNovelData.isEmpty) const SizedBox(height: 80),
                     controller.listNovelData.isEmpty
@@ -89,7 +103,7 @@ class CollectionScreen extends StatelessWidget {
                               CommonElevatedButton(
                                 title: CS.vAddContent,
                                 onTap: () async {
-                                  final result = await Get.toNamed(AppRoutes.addToCollection, arguments: controller.collection?.id);
+                                  final result = await Get.toNamed(AppRoutes.addToCollection, arguments: {"collectionId": controller.collection?.id});
                                   if (result != null) {
                                     controller.getNovelData();
                                   }
@@ -105,49 +119,74 @@ class CollectionScreen extends StatelessWidget {
                             itemBuilder: (_, index) {
                               final book = controller.listNovelData[index];
 
-                              return GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 1)),
-                                  ),
-                                  child: Row(
-                                    spacing: 15,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                              return AnimatedSize(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                child: Slidable(
+                                  key: ValueKey(book.id), // ✅ UNIQUE KEY
+                                  /// RIGHT ACTIONS
+                                  endActionPane: ActionPane(
+                                    motion: const BehindMotion(),
+                                    extentRatio: 0.5,
                                     children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                                        decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                                        child: CachedNetworkImage(
-                                          height: 100,
-                                          width: 50,
-                                          fit: BoxFit.contain,
-                                          imageUrl: book.bookCoverUrl ?? "",
-                                          errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                                        ),
-                                      ),
-
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
-                                            Text(
-                                              book.author?.name ?? "",
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: AppTextStyles.body14GreySemiBold,
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(book.summary ?? "", maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                                            const SizedBox(height: 10),
-                                            Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
-                                          ],
-                                        ),
+                                      commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+                                      commonActionButton(
+                                        color: AppColors.colorRed,
+                                        icon: Icons.delete_outline,
+                                        label: CS.vRemove,
+                                        onTap: () async {
+                                          controller.removeNovelFromCollection(collectionId: controller.collection?.id ?? "", novelId: book.id ?? "");
+                                        },
                                       ),
                                     ],
+                                  ),
+
+                                  /// MAIN CARD
+                                  child: GestureDetector(
+                                    onTap: () {},
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 1)),
+                                      ),
+                                      child: Row(
+                                        spacing: 15,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                                            decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
+                                            child: CachedNetworkImage(
+                                              height: 100,
+                                              width: 50,
+                                              fit: BoxFit.contain,
+                                              imageUrl: book.bookCoverUrl ?? "",
+                                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                            ),
+                                          ),
+
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
+                                                Text(
+                                                  book.author?.name ?? "",
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: AppTextStyles.body14GreySemiBold,
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Text(book.summary ?? "", maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                                const SizedBox(height: 10),
+                                                Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );

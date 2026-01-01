@@ -1,14 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:utsav_interview/app/add_collection_view/add_collection_controller.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
+import 'package:utsav_interview/app/library_view/library_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
+import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/common_textfield.dart';
+import 'package:utsav_interview/core/pref.dart';
+import 'package:utsav_interview/routes/app_routes.dart';
 
 class AddToCollectionScreen extends StatelessWidget {
   const AddToCollectionScreen({super.key});
@@ -22,26 +26,74 @@ class AddToCollectionScreen extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: const Color(0xFF2B2B2B),
             elevation: 0,
-            leading: const BackButton(),
+            leadingWidth: 40,
+            leading: commonCircleButton(
+              onTap: () {
+                Get.back();
+              },
+              padding: 8,
+              icon: Icon(Icons.arrow_back_ios, color: AppColors.colorWhite, size: 15).paddingOnly(left: 2),
+              isBackButton: false,
+
+              iconColor: AppColors.colorWhite,
+              bgColor: AppColors.colorChipBackground,
+            ).paddingOnly(left: 10),
             title: Text(CS.vAddToCollection),
-            centerTitle: true,
           ),
 
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: CommonTextFormField(
-                  controller: controller.searchController,
-                  hint: CS.vSearch,
-                  prefix: Image.asset(CS.icSearch, height: 5, width: 5, color: AppColors.colorGrey).paddingAll(12),
-                ),
-              ),
-              Expanded(child: _list(controller)),
-              _bottomButton(controller),
-              SizedBox(height: 50),
-            ],
-          ),
+          body:
+              controller.novelData != null
+                  ? Column(
+                    children: [
+                      commonListTile(
+                        onTap: () {
+                          Get.toNamed(AppRoutes.createCollectionScreen, arguments: true);
+                        },
+                        imageHeight: 30,
+                        title: CS.vCreateACollection,
+                        icon: Icons.add,
+                        style: AppTextStyles.body16WhiteBold,
+                      ),
+                      Divider(color: AppColors.colorGreyDivider),
+                      if (controller.listCollection.isNotEmpty)
+                        ...List.generate(controller.listCollection.length, (index) {
+                          return Column(
+                            children: [
+                              commonListTile(
+                                onTap: () async {
+                                  await controller.addNovelToCollection(
+                                    collectionId: controller.listCollection[index].id,
+                                    novelId: controller.novelData?.id ?? "",
+                                    novel: controller.novelData ?? NovelsDataModel(),
+                                  );
+                                  Get.back();
+                                },
+                                imageHeight: 30,
+                                title: controller.listCollection[index].name,
+                                icon: icon(controller.listCollection[index].iconType),
+                                style: AppTextStyles.body16WhiteBold,
+                              ),
+                              Divider(color: AppColors.colorGreyDivider),
+                            ],
+                          );
+                        }),
+                    ],
+                  )
+                  : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: CommonTextFormField(
+                          controller: controller.searchController,
+                          hint: CS.vSearch,
+                          prefix: Image.asset(CS.icSearch, height: 5, width: 5, color: AppColors.colorGrey).paddingAll(12),
+                        ),
+                      ),
+                      Expanded(child: _list(controller)),
+                      _bottomButton(controller),
+                      SizedBox(height: 50),
+                    ],
+                  ),
         );
       },
     );
@@ -123,6 +175,7 @@ class AddToCollectionScreen extends StatelessWidget {
           onTap:
               controller.isButtonEnabled
                   ? () async {
+                    AppPrefs.remove(CS.keyCollectionBooks);
                     for (var element in controller.listSelectedNovel) {
                       await controller.saveNovelToCollection(collectionId: controller.collectionId, novel: element);
                     }
@@ -135,13 +188,4 @@ class AddToCollectionScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Book {
-  final String id;
-  final String title;
-  final String author;
-  final String progress;
-
-  _Book(this.id, this.title, this.author, this.progress);
 }

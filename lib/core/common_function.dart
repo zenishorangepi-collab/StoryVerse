@@ -152,3 +152,24 @@ String formatReadableLength(String rawTime) {
 
   return rawTime;
 }
+
+commonActionButton({Color? color, IconData? icon, String? label, VoidCallback? onTap}) {
+  return Expanded(
+    child: InkWell(
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        decoration: BoxDecoration(color: color),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.colorWhite),
+            const SizedBox(height: 5),
+            Text(label ?? "", textAlign: TextAlign.center, style: AppTextStyles.body14WhiteMedium),
+          ],
+        ),
+      ),
+    ),
+  );
+}

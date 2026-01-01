@@ -12,6 +12,33 @@ enum LibraryTab { saved, collections, archive }
 
 enum SortType { recentlyAdded, recentlyListened, progress }
 
+IconData icon(iconType) {
+  switch (iconType) {
+    case 'folder':
+      return Icons.folder_outlined;
+    case 'bookmark':
+      return Icons.bookmark_outline;
+    case 'edit':
+      return Icons.edit_outlined;
+    case 'article':
+      return Icons.article_outlined;
+    case 'mic':
+      return Icons.mic_outlined;
+    case 'photo':
+      return Icons.photo_outlined;
+    case 'star':
+      return Icons.star_outline;
+    case 'palette':
+      return Icons.palette_outlined;
+    case 'music':
+      return Icons.music_note_outlined;
+    case 'restaurant':
+      return Icons.restaurant_outlined;
+    default:
+      return Icons.folder_outlined;
+  }
+}
+
 class LibraryController extends GetxController {
   LibraryTab selectedTab = LibraryTab.saved;
   SortType selectedSort = SortType.recentlyListened;
@@ -21,33 +48,6 @@ class LibraryController extends GetxController {
   List<NovelsDataModel> savedRecents = [];
   List<NovelsDataModel> archivedRecents = [];
   List<CollectionModel> listCollection = [];
-
-  IconData icon(iconType) {
-    switch (iconType) {
-      case 'folder':
-        return Icons.folder_outlined;
-      case 'bookmark':
-        return Icons.bookmark_outline;
-      case 'edit':
-        return Icons.edit_outlined;
-      case 'article':
-        return Icons.article_outlined;
-      case 'mic':
-        return Icons.mic_outlined;
-      case 'photo':
-        return Icons.photo_outlined;
-      case 'star':
-        return Icons.star_outline;
-      case 'palette':
-        return Icons.palette_outlined;
-      case 'music':
-        return Icons.music_note_outlined;
-      case 'restaurant':
-        return Icons.restaurant_outlined;
-      default:
-        return Icons.folder_outlined;
-    }
-  }
 
   @override
   void onInit() {
