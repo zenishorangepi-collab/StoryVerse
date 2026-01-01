@@ -266,7 +266,7 @@ class HomeScreen extends StatelessWidget {
                     },
                   ),
                 ],
-              ),
+              ).paddingOnly(bottom: isBookListening.value ? 60 : 0),
               StreamBuilder(
                 stream: isBookListening.stream,
                 builder: (context, snap) {

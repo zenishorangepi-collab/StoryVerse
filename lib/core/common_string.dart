@@ -168,7 +168,12 @@ class CS {
   static const String vSignOutMessage = "Are you sure you want to sign out of your account?";
   static const String vNoCancel = "No, Cancel";
   static const String vYesSignOut = "Yes, Sign Out";
+  static const String vSaveToCollection = 'Save to collection';
   static const String vHoursListening = "Hours of listening remaining";
+  static const String vEmptyCollectionMessage =
+      "Your collection is currently empty, start adding items by tapping the button below or from the more menu on any thing you’re listening to";
+
+  static const String vAddContent = 'Add content';
 
   // Titles
   static const vChooseWhatWorks = "Choose what works for you.";
@@ -210,6 +215,7 @@ class CS {
   static const String vText = "Text";
   static const String vCollections = "Collections";
   static const String vArchive = "Archive";
+  static const String vRemove = "Remove";
   static const String vRemoveFromArchive = "Remove from archive";
 
   // Sort
@@ -224,7 +230,7 @@ class CS {
   static const String vDuration = "2 hrs";
 
   // Collections
-  static const String vCreateCollection = "Create a personal collection";
+  static const String vCreateACollection = "Create a collection";
   static const String vDownloaded = "Downloaded";
   static const String vGenFm = "GenFM";
   static const String vYourCollections = "Your collections";
@@ -232,6 +238,10 @@ class CS {
   static const String vImports = "Imports";
   static const String vLinks = "Links";
   static const String vEdit = "Edit";
+  static const String vPickAnIcon = 'Pick an icon';
+  static const String vNameYourCollection = 'Name your collection';
+  static const String vUpdateCollection = 'Update collection';
+  static const String vCreateCollection = 'Create collection';
   static const String vListenFromHere = "Listen from here";
   static const String vArchivedItems = "Archived items";
   static String vTermsDesc =
@@ -269,8 +279,10 @@ class CS {
   static const String vContinueFree = "Continue with Free";
   static const String vUltraMonthly = "Ultra Monthly";
   static const String vNoNovelFound = "No novel found";
-
+  static const String vEditCollection = 'Edit collection';
   static const String vWhyJoinUltra = "Why join Ultra?";
+  static const String vOrganizeSavedContent = "Organize your saved content into easy to find lists";
+
   static const String vWhyJoinDesc = "Join thousands who are listening with Ultra.";
   static const String vAwarded = "Awarded Apple’s “App of the Day”";
   static const String vAwardedDesc = "Featured by Apple for an immersive listening experience.";
@@ -330,6 +342,8 @@ class CS {
   static const String keyCachedTranscript = 'cached_transcript';
   static const String keyArchivedBookIds = 'archived_BookIds';
   static const String keyScrollPosition = 'scroll_position_';
+  static const String keyCollections = 'collections';
+  static const String keyCollectionBooks = 'collection_books';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

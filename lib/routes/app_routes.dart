@@ -3,11 +3,17 @@ import 'package:utsav_interview/app/account_delete_view/account_delete_binding.d
 import 'package:utsav_interview/app/account_delete_view/account_delete_screen.dart';
 import 'package:utsav_interview/app/account_view/account_binding.dart';
 import 'package:utsav_interview/app/account_view/account_screen.dart';
+import 'package:utsav_interview/app/add_collection_view/add_collection_binding.dart';
+import 'package:utsav_interview/app/add_collection_view/add_collection_screen.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_binding.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_screen.dart';
 import 'package:utsav_interview/app/auth_options_view/authoptions_screen.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_binding.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_screen.dart';
+import 'package:utsav_interview/app/collection_view/collection_binding.dart';
+import 'package:utsav_interview/app/collection_view/collection_screen.dart';
+import 'package:utsav_interview/app/create_collection_view/create_collection_binding.dart';
+import 'package:utsav_interview/app/create_collection_view/create_collection_screen.dart';
 import 'package:utsav_interview/app/dob_view/dob_binding.dart';
 import 'package:utsav_interview/app/dob_view/dob_screen.dart';
 import 'package:utsav_interview/app/home_screen/home_binding.dart';
@@ -42,26 +48,29 @@ import '../app/splash_screen/splash_binding.dart';
 import '../app/splash_screen/splash_screen.dart';
 
 class AppRoutes {
-  static String splashScreen = "/splashScreen";
-  static String homeScreen = "/homeScreen";
-  static String libraryScreen = "/libraryScreen";
-  static String tabBarScreen = "/tabBarScreen";
-  static String audioTextScreen = "/audioTextScreen";
-  static String soundSpacesScreen = "/soundSpacesScreen";
-  static String voiceScreen = "/voiceScreen";
-  static String authOptionsScreen = "/authOptionsScreen";
-  static String loginScreen = "/loginScreen";
-  static String onboardingScreen = "/onboardingScreen";
-  static String bookDetailsScreen = "/bookDetailsScreen";
-  static String dobScreen = "/dobScreen";
-  static String preference = "/preference";
-  static String interests = "/interests";
-  static String referral = "/referral";
-  static String subscription = "/subscription";
-  static String accountScreen = "/accountScreen";
-  static String deleteAccount = "/deleteAccount";
-  static String planScreen = "/planScreen";
-  static String referScreen = "/referScreen";
+  static const String splashScreen = "/splashScreen";
+  static const String homeScreen = "/homeScreen";
+  static const String libraryScreen = "/libraryScreen";
+  static const String tabBarScreen = "/tabBarScreen";
+  static const String audioTextScreen = "/audioTextScreen";
+  static const String soundSpacesScreen = "/soundSpacesScreen";
+  static const String voiceScreen = "/voiceScreen";
+  static const String authOptionsScreen = "/authOptionsScreen";
+  static const String loginScreen = "/loginScreen";
+  static const String onboardingScreen = "/onboardingScreen";
+  static const String bookDetailsScreen = "/bookDetailsScreen";
+  static const String dobScreen = "/dobScreen";
+  static const String preference = "/preference";
+  static const String interests = "/interests";
+  static const String referral = "/referral";
+  static const String subscription = "/subscription";
+  static const String accountScreen = "/accountScreen";
+  static const String deleteAccount = "/deleteAccount";
+  static const String planScreen = "/planScreen";
+  static const String referScreen = "/referScreen";
+  static const String createCollectionScreen = '/create-collection';
+  static const String collectionScreen = '/collectionScreen';
+  static const String addToCollection = '/addToCollection';
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
@@ -81,6 +90,9 @@ class AppRoutes {
     GetPage(name: deleteAccount, page: () => const DeleteAccountScreen(), binding: DeleteAccountBinding()),
     GetPage(name: planScreen, page: () => const PlanScreen(), binding: PlanBinding()),
     GetPage(name: referScreen, page: () => const ReferScreen(), binding: ReferBinding()),
+    GetPage(name: createCollectionScreen, page: () => CreateCollectionScreen(), binding: CreateCollectionBinding()),
+    GetPage(name: collectionScreen, page: () => CollectionScreen(), binding: CollectionBinding()),
+    GetPage(name: addToCollection, page: () => const AddToCollectionScreen(), binding: AddToCollectionBinding()),
 
     GetPage(
       name: voiceScreen,

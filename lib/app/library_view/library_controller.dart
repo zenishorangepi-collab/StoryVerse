@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/create_collection_view/create_collection_model.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
@@ -8,6 +11,33 @@ import 'package:utsav_interview/core/pref.dart';
 enum LibraryTab { saved, collections, archive }
 
 enum SortType { recentlyAdded, recentlyListened, progress }
+
+IconData icon(iconType) {
+  switch (iconType) {
+    case 'folder':
+      return Icons.folder_outlined;
+    case 'bookmark':
+      return Icons.bookmark_outline;
+    case 'edit':
+      return Icons.edit_outlined;
+    case 'article':
+      return Icons.article_outlined;
+    case 'mic':
+      return Icons.mic_outlined;
+    case 'photo':
+      return Icons.photo_outlined;
+    case 'star':
+      return Icons.star_outline;
+    case 'palette':
+      return Icons.palette_outlined;
+    case 'music':
+      return Icons.music_note_outlined;
+    case 'restaurant':
+      return Icons.restaurant_outlined;
+    default:
+      return Icons.folder_outlined;
+  }
+}
 
 class LibraryController extends GetxController {
   LibraryTab selectedTab = LibraryTab.saved;
@@ -17,13 +47,31 @@ class LibraryController extends GetxController {
   RxList<String> archivedBookIds = <String>[].obs;
   List<NovelsDataModel> savedRecents = [];
   List<NovelsDataModel> archivedRecents = [];
+  List<CollectionModel> listCollection = [];
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
     archivedBookIds.value = AppPrefs.getStringList(CS.keyArchivedBookIds) ?? [];
+    getCollection();
     loadRecents();
+  }
+
+  void addCollection(CollectionModel collection) {
+    listCollection.add(collection);
+    update();
+  }
+
+  Future<List<CollectionModel>> getAllCollections() async {
+    final jsonList = AppPrefs.getStringList(CS.keyCollections);
+    return jsonList.map((json) => CollectionModel.fromJson(jsonDecode(json))).toList();
+  }
+
+  getCollection() async {
+    listCollection.clear();
+    listCollection = await getAllCollections();
+    update();
   }
 
   Future<void> loadRecents() async {
