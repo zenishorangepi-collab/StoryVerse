@@ -1,6 +1,7 @@
 class CS {
   /// String
   static String vAppName = "Tera Novel";
+  static const String heroTag = 'searchHero';
   static String vPlay = "Play";
   static String vPause = "Pause";
   static String vSkip = "Skip";

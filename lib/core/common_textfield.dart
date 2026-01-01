@@ -13,9 +13,11 @@ class CommonTextFormField extends StatelessWidget {
   final int minLines;
   final bool enabled;
   final Color? fillColor;
+  final double radius;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final void Function()? onTap;
+  final double height;
 
   const CommonTextFormField({
     super.key,
@@ -28,44 +30,48 @@ class CommonTextFormField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.maxLines = 1,
     this.minLines = 1,
+    this.radius = 12,
     this.enabled = true,
     this.validator,
     this.onChanged,
     this.onTap,
     this.fillColor,
+    this.height = 50,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscure,
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      minLines: minLines,
-      enabled: enabled,
-      validator: validator,
-      onChanged: onChanged,
-      onTap: onTap,
-      cursorColor: AppColors.colorWhite,
-      style: const TextStyle(fontSize: 16, color: AppColors.colorWhite),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        hintStyle: TextStyle(color: AppColors.colorGrey),
-        labelStyle: TextStyle(color: AppColors.colorGrey),
+    return SizedBox(
+      height: height,
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        minLines: minLines,
+        enabled: enabled,
+        validator: validator,
+        onChanged: onChanged,
+        onTap: onTap,
+        cursorColor: AppColors.colorWhite,
+        style: const TextStyle(fontSize: 16, color: AppColors.colorWhite),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          hintStyle: TextStyle(color: AppColors.colorGrey),
+          labelStyle: TextStyle(color: AppColors.colorGrey),
+          prefixIcon: prefix,
+          suffixIcon: suffix,
 
-        prefixIcon: prefix,
-        suffixIcon: suffix,
+          filled: true,
+          fillColor: fillColor ?? AppColors.colorTransparent,
 
-        filled: true,
-        fillColor: fillColor ?? AppColors.colorTransparent,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
 
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.colorBgWhite10)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.colorBgWhite10)),
-        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppColors.colorRed)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius), borderSide: BorderSide(color: AppColors.colorBgWhite10)),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius), borderSide: BorderSide(color: AppColors.colorBgWhite10)),
+          errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(radius), borderSide: BorderSide(color: AppColors.colorRed)),
+        ),
       ),
     );
   }

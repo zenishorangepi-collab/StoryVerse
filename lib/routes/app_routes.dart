@@ -1,3 +1,5 @@
+import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/account_delete_view/account_delete_binding.dart';
 import 'package:utsav_interview/app/account_delete_view/account_delete_screen.dart';
@@ -34,6 +36,9 @@ import 'package:utsav_interview/app/refer_view/refer_binding.dart';
 import 'package:utsav_interview/app/refer_view/refer_screen.dart';
 import 'package:utsav_interview/app/referral_view/referral_binding.dart';
 import 'package:utsav_interview/app/referral_view/referral_screen.dart';
+import 'package:utsav_interview/app/search_view/search_binding.dart';
+import 'package:utsav_interview/app/search_view/search_controller.dart';
+import 'package:utsav_interview/app/search_view/search_screen.dart';
 
 import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_binding.dart';
 import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_screen.dart';
@@ -71,6 +76,7 @@ class AppRoutes {
   static const String createCollectionScreen = '/create-collection';
   static const String collectionScreen = '/collectionScreen';
   static const String addToCollection = '/addToCollection';
+  static const String searchScreen = '/searchScreen';
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
@@ -93,6 +99,7 @@ class AppRoutes {
     GetPage(name: createCollectionScreen, page: () => CreateCollectionScreen(), binding: CreateCollectionBinding()),
     GetPage(name: collectionScreen, page: () => CollectionScreen(), binding: CollectionBinding()),
     GetPage(name: addToCollection, page: () => const AddToCollectionScreen(), binding: AddToCollectionBinding()),
+    GetPage(name: searchScreen, page: () => const SearchScreen(), binding: SearchBinding(), customTransition: _HeroFadeTransition()),
 
     GetPage(
       name: voiceScreen,
@@ -116,4 +123,18 @@ class AppRoutes {
       transitionDuration: Duration(milliseconds: 300),
     ),
   ];
+}
+
+class _HeroFadeTransition extends CustomTransition {
+  @override
+  Widget buildTransition(
+    BuildContext context,
+    Curve? curve,
+    Alignment? alignment,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return FadeTransition(opacity: Tween<double>(begin: 0.1, end: 1.0).animate(animation), child: child);
+  }
 }

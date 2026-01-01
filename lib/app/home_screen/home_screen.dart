@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
               CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    expandedHeight: 60,
+                    expandedHeight: 20,
                     floating: true,
                     // shows AppBar when scrolling down
                     snap: true,
@@ -40,16 +40,21 @@ class HomeScreen extends StatelessWidget {
                     elevation: 0,
                     actions: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 20, top: 25),
+                        padding: const EdgeInsets.only(right: 20, top: 20),
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Get.toNamed(AppRoutes.searchScreen);
+                          },
 
-                          child: Container(
-                            width: 34,
-                            height: 34,
-                            padding: EdgeInsets.all(6),
-                            decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
-                            child: Image.asset(CS.icSearch),
+                          child: Hero(
+                            tag: CS.heroTag,
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              padding: EdgeInsets.all(6),
+                              decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
+                              child: Image.asset(CS.icSearch),
+                            ),
                           ),
                         ),
                       ),
@@ -69,7 +74,7 @@ class HomeScreen extends StatelessWidget {
                     title: Text(
                       "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}",
                       style: AppTextStyles.heading24WhiteMedium,
-                    ).paddingOnly(top: 25, left: 10),
+                    ).paddingOnly(top: 20, left: 10),
                   ),
                   if (listRecents.isNotEmpty)
                     SliverToBoxAdapter(

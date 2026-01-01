@@ -42,7 +42,7 @@ class AddToCollectionScreen extends StatelessWidget {
           ),
 
           body:
-              controller.novelData != null
+              (controller.novelData != null)
                   ? Column(
                     children: [
                       commonListTile(

@@ -143,7 +143,9 @@ class CollectionScreen extends StatelessWidget {
 
                                   /// MAIN CARD
                                   child: GestureDetector(
-                                    onTap: () {},
+                                    onTap: () {
+                                      Get.toNamed(AppRoutes.bookDetailsScreen, arguments: book);
+                                    },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                                       decoration: BoxDecoration(

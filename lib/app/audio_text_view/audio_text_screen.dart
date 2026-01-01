@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
+import 'package:utsav_interview/app/library_view/library_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
