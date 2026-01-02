@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/question_dob_view/dob_controller.dart';
+import 'package:utsav_interview/app/dob_view/dob_controller.dart';
 
 class DobBinding extends Bindings {
   @override

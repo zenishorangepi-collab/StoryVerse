@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,7 +29,7 @@ class HomeScreen extends StatelessWidget {
               CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    expandedHeight: 20,
+                    expandedHeight: 60,
                     floating: true,
                     // shows AppBar when scrolling down
                     snap: true,
@@ -42,21 +40,16 @@ class HomeScreen extends StatelessWidget {
                     elevation: 0,
                     actions: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 20, top: 20),
+                        padding: const EdgeInsets.only(right: 20, top: 25),
                         child: GestureDetector(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.searchScreen);
-                          },
+                          onTap: () {},
 
-                          child: Hero(
-                            tag: CS.heroTag,
-                            child: Container(
-                              width: 34,
-                              height: 34,
-                              padding: EdgeInsets.all(6),
-                              decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
-                              child: Image.asset(CS.icSearch),
-                            ),
+                          child: Container(
+                            width: 34,
+                            height: 34,
+                            padding: EdgeInsets.all(6),
+                            decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
+                            child: Image.asset(CS.icSearch),
                           ),
                         ),
                       ),
@@ -76,110 +69,105 @@ class HomeScreen extends StatelessWidget {
                     title: Text(
                       "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}",
                       style: AppTextStyles.heading24WhiteMedium,
-                    ).paddingOnly(top: 20, left: 10),
+                    ).paddingOnly(top: 25, left: 10),
                   ),
+                  if (listRecents.isNotEmpty)
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 150,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 20),
+                            Text(CS.vRecentsListening, style: AppTextStyles.body16GreyMedium).screenPadding(),
 
-                  SliverToBoxAdapter(
-                    child: StreamBuilder(
-                      stream: listRecents.stream,
-                      builder: (context, asyncSnapshot) {
-                        return listRecents.isEmpty
-                            ? SizedBox(height: 10)
-                            : SizedBox(
-                              height: 150,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 20),
-                                  Text(CS.vRecentsListening, style: AppTextStyles.body16GreyMedium).screenPadding(),
-
-                                  Expanded(
-                                    child: ListView.builder(
-                                      padding: const EdgeInsets.only(left: 25, top: 20, bottom: 0, right: 16),
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: listRecents.length,
-                                      itemBuilder: (context, index) {
-                                        return GestureDetector(
-                                          onTap: () async {
-                                            if (bookInfo.value.id != listRecents[index].id) {
-                                              isAudioInitCount.value = 0;
-                                              Get.find<AudioTextController>().pause();
-                                              Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": listRecents[index], "isInitCall": true})?.then((
-                                                value,
-                                              ) {
-                                                controller.getRecentList();
-                                              });
-                                            } else {
-                                              Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": true});
-                                            }
-                                          },
-                                          child: SizedBox(
-                                            width: MediaQuery.of(context).size.width * 0.85, // adjusts
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),
-                                                  decoration: BoxDecoration(color: AppColors.colorBgGray04, borderRadius: BorderRadius.circular(5)),
-                                                  child: Card(
-                                                    elevation: 2,
-                                                    shadowColor: AppColors.colorBlack,
-                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                                    child: ClipRRect(
-                                                      borderRadius: BorderRadius.circular(2),
-                                                      child:
-                                                          isLocalFile(listRecents[index].bookCoverUrl)
-                                                              ? Image.file(File(listRecents[index].bookCoverUrl ?? ""), height: 60, fit: BoxFit.cover)
-                                                              : CachedNetworkImage(
-                                                                height: 60,
-                                                                fit: BoxFit.cover,
-                                                                imageUrl: listRecents[index].bookCoverUrl ?? "",
-                                                                errorWidget: (context, error, stackTrace) {
-                                                                  return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
-                                                                },
-                                                              ),
+                            StreamBuilder(
+                              stream: listRecents.stream,
+                              builder: (context, asyncSnapshot) {
+                                return Expanded(
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.only(left: 25, top: 20, bottom: 0, right: 16),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: listRecents.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        onTap: () async {
+                                          if (bookInfo.value.id != listRecents[index].id) {
+                                            isAudioInitCount.value = 0;
+                                            Get.find<AudioTextController>().pause();
+                                            Get.toNamed(AppRoutes.audioTextScreen, arguments: {"novelData": listRecents[index], "isInitCall": true})?.then((
+                                              value,
+                                            ) {
+                                              controller.getRecentList();
+                                            });
+                                          } else {
+                                            Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": true});
+                                          }
+                                        },
+                                        child: SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.85, // adjusts
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                                                decoration: BoxDecoration(color: AppColors.colorBgGray04, borderRadius: BorderRadius.circular(5)),
+                                                child: Card(
+                                                  elevation: 2,
+                                                  shadowColor: AppColors.colorBlack,
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(2),
+                                                    child: CachedNetworkImage(
+                                                      height: 60,
+                                                      fit: BoxFit.cover,
+                                                      imageUrl: listRecents[index].bookCoverUrl ?? "",
+                                                      errorWidget: (context, error, stackTrace) {
+                                                        return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
+                                                      },
                                                     ),
                                                   ),
                                                 ),
+                                              ),
 
-                                                const SizedBox(width: 15),
+                                              const SizedBox(width: 15),
 
-                                                Expanded(
-                                                  child: Column(
-                                                    spacing: 3,
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(listRecents[index].bookName ?? "", style: AppTextStyles.body14WhiteBold),
+                                              Expanded(
+                                                child: Column(
+                                                  spacing: 3,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(listRecents[index].bookName ?? "", style: AppTextStyles.body14WhiteBold),
 
-                                                      Text(
-                                                        listRecents[index].summary ?? "",
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: AppTextStyles.body14GreySemiBold,
-                                                      ),
+                                                    Text(
+                                                      listRecents[index].summary ?? "",
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: AppTextStyles.body14GreySemiBold,
+                                                    ),
 
-                                                      Text(
-                                                        secondsToMinSec(listRecents[index].totalAudioLength ?? 0.0),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: AppTextStyles.body14GreySemiBold,
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    Text(
+                                                      secondsToMinSec(listRecents[index].totalAudioLength ?? 0.0),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: AppTextStyles.body14GreySemiBold,
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        );
-                                      },
-                                    ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ],
-                              ),
-                            );
-                      },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
                   // Display categories with novels
                   StreamBuilder(
                     stream: controller.listNovelData.stream,
@@ -295,7 +283,6 @@ class HomeScreen extends StatelessWidget {
                             authorName: bookInfo.value.author?.name ?? "",
                             bookName: bookInfo.value.bookName ?? "",
                             playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
-
                             onPlayPause: () {
                               if (isAudioInitCount.value == 0) {
                                 Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
