@@ -1,7 +1,6 @@
 class CS {
   /// String
   static String vAppName = "Tera Novel";
-  static const String heroTag = 'searchHero';
   static String vPlay = "Play";
   static String vPause = "Pause";
   static String vSkip = "Skip";
@@ -68,7 +67,6 @@ class CS {
   static const String vAddToCollection = "Add to collection";
   static const String vDownload = "Download";
   static const String vDelete = "Delete";
-  static const String vCancel = "Cancel";
   static const String vReportIssue = "Report issue";
   static const String vBookmarkSaved = "Bookmark saved";
   static const String vBookmarks = "Bookmarks";
@@ -90,9 +88,6 @@ class CS {
   static const String vAudioTextSynchronizer = "Audio Text Synchronizer";
   static const String vAnErrorOccurred = "An error occurred";
   static const String vConfirmDeletion = "Confirm deletion?";
-  static const String vNoDownloadedNovels = "No downloaded novels";
-  static const String vDownloadNovelsToListenOffline = "Download novels to listen offline";
-  static const String vDownloadDeleteWarning = "This will permanently delete downloaded novel.";
   static const String vYouWillNoLongerHave = "You will no longer have this item in your library.";
   static const String vWhatYourDateOfBirth = "What's your date of birth?";
   static const String vOpenSans = "OpenSans";
@@ -147,6 +142,7 @@ class CS {
   static const String vSignUpWithEmail = "Sign up with Email";
   static const String vLoginWithEmail = "Login with Email";
   static const String vTermsTitle = "Terms and Privacy Policy";
+  static const String vCancel = "Cancel";
   static const String vAgree = "Agree";
   static const String vGetMoreHours = "Get more hours";
   static const String vReferAndSave = "Refer a friend & save";
@@ -236,12 +232,7 @@ class CS {
   // Collections
   static const String vCreateACollection = "Create a collection";
   static const String vDownloaded = "Downloaded";
-  static const String vDownloads = "Downloads";
   static const String vGenFm = "GenFM";
-  static const String vSuccess = "Success";
-  static const String vError = "Error";
-  static const String vInfo = "Info";
-  static const String vStorageUsed = "Storage Used";
   static const String vYourCollections = "Your collections";
   static const String vByType = "By type";
   static const String vImports = "Imports";
@@ -253,13 +244,6 @@ class CS {
   static const String vCreateCollection = 'Create collection';
   static const String vListenFromHere = "Listen from here";
   static const String vArchivedItems = "Archived items";
-  static const String vNoChaptersFound = "No chapters found";
-  static const String vNovelDownloadedSuccessfully = "Novel downloaded successfully";
-  static const String vFailedDownloadNovel = "Failed to download novel";
-  static const String vFailedDeleteNovel = "Failed to delete novel";
-  static const String vNovelDeletedSuccessfully = "Novel deleted successfully";
-  static const String vAlreadyDownloading = "Already downloading a novel. Please wait.";
-  static const String vNovelAlreadyDownloaded = "Novel already downloaded";
   static String vTermsDesc =
       'By clicking "Continue with Google", I agree to the Terms of Service, '
       'acknowledge \'$vAppName\' Privacy Policy, and consent to receive updates, '
@@ -360,7 +344,6 @@ class CS {
   static const String keyScrollPosition = 'scroll_position_';
   static const String keyCollections = 'collections';
   static const String keyCollectionBooks = 'collection_books';
-  static const String keyDownloads = 'downloads';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

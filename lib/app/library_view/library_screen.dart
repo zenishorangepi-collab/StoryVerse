@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -7,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
-import 'package:utsav_interview/app/download_novel/download_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
@@ -31,7 +28,7 @@ class LibraryScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 21),
+                    const SizedBox(height: 16),
                     _header(controller).screenPadding(),
                     const SizedBox(height: 16),
                     _tabs(controller),
@@ -55,9 +52,6 @@ class LibraryScreen extends StatelessWidget {
                               authorName: bookInfo.value.author?.name ?? "",
                               bookName: bookInfo.value.bookName ?? "",
                               playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
-                              onReturnFromAudio: () {
-                                controller.loadRecents();
-                              },
                               onPlayPause: () {
                                 Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
                               },
@@ -88,21 +82,14 @@ class LibraryScreen extends StatelessWidget {
 
         Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                Get.toNamed(AppRoutes.searchScreen, arguments: true);
-              },
-
-              child: Hero(
-                tag: CS.heroTag,
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(color: AppColors.colorBgWhite10, shape: BoxShape.circle),
-                  child: Image.asset(CS.icSearch),
-                ),
-              ),
+            commonCircleButton(
+              onTap: () {},
+              padding: 8,
+              iconSize: 18,
+              iconPath: CS.icSearch,
+              // icon: Icon(Icons.more_horiz, color: AppColors.colorWhite, size: 18),
+              isBackButton: false,
+              iconColor: AppColors.colorWhite,
             ),
             // PopupMenuButton<SortType>(
             //   offset: Offset(0, 50),
@@ -232,8 +219,7 @@ class LibraryScreen extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   child: Slidable(
-                    key: ValueKey(book.id),
-
+                    key: ValueKey(book.id), // ✅ UNIQUE KEY
                     /// LEFT ACTIONS
                     // startActionPane: ActionPane(
                     //   motion: const BehindMotion(),
@@ -249,26 +235,22 @@ class LibraryScreen extends StatelessWidget {
                       extentRatio: 0.5,
                       children: [
                         // commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
-                        commonActionButton(
-                          color: AppColors.colorBlue,
-                          icon: Icons.file_download_outlined,
-                          label: CS.vDownload,
-                          onTap: () async {
-                            final DownloadController downloadController =
-                                Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
-
-                            await Future.delayed(const Duration(milliseconds: 250));
-
-                            // Start download
-                            await downloadController.downloadNovel(book);
-                          },
-                        ),
+                        commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
 
                         commonActionButton(
                           color: AppColors.colorBgWhite10,
                           icon: Icons.archive,
                           label: CS.vArchive,
                           onTap: () async {
+                            final slidable = Slidable.of(context);
+
+                            // 1️⃣ Close action pane
+                            await slidable?.close();
+
+                            // 2️⃣ Small delay for animation
+                            await Future.delayed(const Duration(milliseconds: 250));
+
+                            // 3️⃣ Archive + remove item
                             controller.archiveBook(book.id ?? "");
                           },
                         ),
@@ -276,53 +258,45 @@ class LibraryScreen extends StatelessWidget {
                     ),
 
                     /// MAIN CARD
-                    child: GestureDetector(
-                      onTap: () {
-                        Get.toNamed(AppRoutes.bookDetailsScreen, arguments: book);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                              decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                              child:
-                                  isLocalFile(book.bookCoverUrl)
-                                      ? Image.file(File(book.bookCoverUrl ?? ""), height: 80, width: 50, fit: BoxFit.cover)
-                                      : CachedNetworkImage(
-                                        height: 80,
-                                        width: 50,
-                                        fit: BoxFit.contain,
-                                        imageUrl: book.bookCoverUrl ?? "",
-                                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                                      ),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
+                            child: CachedNetworkImage(
+                              height: 80,
+                              width: 50,
+                              fit: BoxFit.contain,
+                              imageUrl: book.bookCoverUrl ?? "",
+                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
                             ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
-                                  Text(book.author?.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                                  const SizedBox(height: 10),
-                                  Text(book.summary ?? "", maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                                  const SizedBox(height: 10),
-                                  Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
-                                ],
-                              ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
+                                Text(book.author?.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(book.summary ?? "", maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 70 : 0);
+                );
               },
             );
       },
@@ -376,53 +350,45 @@ class LibraryScreen extends StatelessWidget {
                     ),
 
                     /// MAIN CARD
-                    child: GestureDetector(
-                      onTap: () async {
-                        await Get.toNamed(AppRoutes.bookDetailsScreen, arguments: book);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                              decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                              child:
-                                  isLocalFile(book.bookCoverUrl)
-                                      ? Image.file(File(book.bookCoverUrl ?? ""), height: 80, width: 50, fit: BoxFit.cover)
-                                      : CachedNetworkImage(
-                                        height: 80,
-                                        width: 50,
-                                        fit: BoxFit.cover,
-                                        imageUrl: book.bookCoverUrl ?? "",
-                                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                                      ),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: const Border(bottom: BorderSide(color: AppColors.colorGreyDivider, width: 2)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                            decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
+                            child: CachedNetworkImage(
+                              height: 80,
+                              width: 50,
+                              fit: BoxFit.contain,
+                              imageUrl: book.bookCoverUrl ?? "",
+                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
                             ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
-                                  Text(book.author?.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                                  const SizedBox(height: 10),
-                                  Text(book.summary ?? "", maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
-                                  const SizedBox(height: 10),
-                                  Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
-                                ],
-                              ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(book.bookName ?? "", style: AppTextStyles.body14WhiteBold),
+                                Text(book.author?.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(book.summary ?? "", maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTextStyles.body14GreySemiBold),
+                                const SizedBox(height: 10),
+                                Text(secondsToMinSec(book.totalAudioLength ?? 0.0), style: AppTextStyles.body14GreySemiBold),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 70 : 0);
+                );
               },
             );
       },
@@ -436,7 +402,7 @@ class LibraryScreen extends StatelessWidget {
       builder: (controller) {
         return ListView(
           children: [
-            Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5).screenPadding(),
+            Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5),
 
             commonListTile(
               onTap: () {
@@ -471,11 +437,8 @@ class LibraryScreen extends StatelessWidget {
               icon: Icons.download,
               trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
               style: AppTextStyles.body16WhiteBold,
-              onTap: () {
-                Get.toNamed(AppRoutes.downloadNovel);
-              },
             ),
-            Divider(color: AppColors.colorGreyDivider).paddingOnly(bottom: isBookListening.value ? 70 : 0),
+            Divider(color: AppColors.colorGreyDivider),
             // Text(CS.vByType, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5, top: 15),
             // commonListTile(
             //   title: CS.vBooks,
@@ -516,34 +479,8 @@ class LibraryScreen extends StatelessWidget {
             // ),
             // Divider(color: AppColors.colorGreyDivider),
           ],
-        );
+        ).screenPadding();
       },
     );
   }
-}
-
-void showDownloadProgressDialog() {
-  Get.dialog(
-    GetBuilder<DownloadController>(
-      builder: (controller) {
-        return AlertDialog(
-          backgroundColor: AppColors.colorBgGray02,
-          title: Text('Downloading...', style: AppTextStyles.body16WhiteBold),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LinearProgressIndicator(
-                value: controller.downloadProgress,
-                backgroundColor: AppColors.colorBgWhite10,
-                valueColor: AlwaysStoppedAnimation(AppColors.colorWhite),
-              ),
-              SizedBox(height: 16),
-              Text('${(controller.downloadProgress * 100).toStringAsFixed(0)}%', style: AppTextStyles.body14WhiteMedium),
-            ],
-          ),
-        );
-      },
-    ),
-    barrierDismissible: false,
-  );
 }

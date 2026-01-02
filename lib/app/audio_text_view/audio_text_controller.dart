@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/rendering.dart';
@@ -43,7 +42,6 @@ class AudioTextController extends GetxController {
   List<ParagraphData> syncParagraphs = [];
   late List<int> syncToUiWordIndex;
   late List<int> syncToUiParagraphIndex;
-  bool isOfflineMode = false;
 
   String get currentAudioUrl => allChapters.isNotEmpty ? (allChapters[currentChapterIndex].url ?? "") : "";
 
@@ -66,7 +64,6 @@ class AudioTextController extends GetxController {
   String bookNme = "";
   String authorNme = "";
   String bookCoverUrl = "";
-  String fileBookCoverUrl = "";
   String audioUrl = "";
   String textUrl = "";
   String bookId = "";
@@ -222,6 +219,12 @@ class AudioTextController extends GetxController {
     }
   }
 
+  // void scrollToSavedPosition() {
+  //   if (scrollController.hasClients) {
+  //     scrollController.jumpTo(lastScrollOffset);
+  //   }
+  // }
+
   Future<void> _saveScrollPosition() async {
     if (bookId.isEmpty) return;
 
@@ -258,7 +261,6 @@ class AudioTextController extends GetxController {
     });
     try {
       if (Get.arguments != null) {
-        isOfflineMode = Get.arguments["isOffline"] ?? false;
         novelData = Get.arguments["novelData"];
       } else {
         bookInfo.value = await loadBookInfo();
@@ -270,7 +272,6 @@ class AudioTextController extends GetxController {
         authorNme = novelData?.author?.name ?? "";
         bookNme = novelData?.bookName ?? "";
         bookCoverUrl = novelData?.bookCoverUrl ?? "";
-        fileBookCoverUrl = novelData?.fileBookCoverUrl ?? "";
         bookSummary = novelData?.summary ?? "";
         await saveRecentView(novelData!);
       } else {
@@ -445,24 +446,14 @@ class AudioTextController extends GetxController {
       final chapter = allChapters[i];
 
       TranscriptData data;
-      if (isOfflineMode) {
-        data = await loadOfflineTranscript(chapter.audioJsonUrl);
+
+      final cached = getCachedTranscript(bookId, chapter.id ?? "");
+      if (cached != null) {
+        data = cached;
       } else {
-        final cached = getCachedTranscript(bookId, chapter.id ?? "");
-        if (cached != null) {
-          data = cached;
-        } else {
-          data = await fetchJsonData(textUrl: chapter.audioJsonUrl, audioUrl: chapter.url);
-          await cacheTranscript(bookId: bookId, chapterId: chapter.id ?? "", transcript: data);
-        }
+        data = await fetchJsonData(textUrl: chapter.audioJsonUrl, audioUrl: chapter.url);
+        await cacheTranscript(bookId: bookId, chapterId: chapter.id ?? "", transcript: data);
       }
-      // final cached = getCachedTranscript(bookId, chapter.id ?? "");
-      // if (cached != null) {
-      //   data = cached;
-      // } else {
-      //   data = await fetchJsonData(textUrl: chapter.audioJsonUrl, audioUrl: chapter.url);
-      //   await cacheTranscript(bookId: bookId, chapterId: chapter.id ?? "", transcript: data);
-      // }
 
       for (final p in data.paragraphs) {
         p.chapterId = chapter.id ?? "";
@@ -478,28 +469,6 @@ class AudioTextController extends GetxController {
 
     isAllChaptersLoaded = true;
     update();
-  }
-
-  Future<TranscriptData> loadOfflineTranscript(String? localPath) async {
-    if (localPath == null || localPath.isEmpty) {
-      throw Exception('Invalid local transcript path');
-    }
-
-    try {
-      final file = File(localPath);
-
-      if (!await file.exists()) {
-        throw Exception('Transcript file not found: $localPath');
-      }
-
-      final jsonString = await file.readAsString();
-      final jsonData = json.decode(jsonString);
-
-      return TranscriptData.fromJson(jsonData);
-    } catch (e) {
-      debugPrint('❌ Error loading offline transcript: $e');
-      throw Exception('Failed to load offline transcript: $e');
-    }
   }
 
   void _updateSyncForCurrentChapter({bool resetIndices = true}) {
@@ -566,13 +535,7 @@ class AudioTextController extends GetxController {
     _audioUrl = allChapters[index].url;
 
     await audioPlayer.stop();
-    if (isOfflineMode) {
-      // Use DeviceFileSource for local files
-      await audioPlayer.setSource(DeviceFileSource(_audioUrl!));
-    } else {
-      // Use UrlSource for remote files
-      await audioPlayer.setSourceUrl(_audioUrl!);
-    }
+    await audioPlayer.setSourceUrl(_audioUrl!);
 
     final d = await audioPlayer.getDuration();
     _duration = d?.inMilliseconds ?? 0;
@@ -1091,11 +1054,7 @@ class AudioTextController extends GetxController {
 
       if (_audioUrl != null) {
         await audioPlayer.setReleaseMode(ReleaseMode.stop);
-        if (isOfflineMode) {
-          await audioPlayer.setSource(DeviceFileSource(_audioUrl!));
-        } else {
-          await audioPlayer.setSourceUrl(_audioUrl!);
-        }
+        await audioPlayer.setSourceUrl(_audioUrl!);
         await audioPlayer.setPlaybackRate(_speed);
 
         _positionSubscription?.cancel();
@@ -1232,6 +1191,11 @@ class AudioTextController extends GetxController {
       if (audioHandler == null) {
         startListening();
       }
+      // await audioHandler?.play();
+
+      // if (currentParagraphIndex == -1 && !isOnlyPlayAudio) {
+      //   await scrollController.animateTo(0, duration: Duration(milliseconds: 400), curve: Curves.easeOut);
+      // }
 
       if (_position >= _duration - 100) {
         _position = 0;
@@ -1244,17 +1208,14 @@ class AudioTextController extends GetxController {
         if (isAudioInitCount.value == 1) {
           await seek(_position, isPlay: true);
         } else {
+          print(isAudioInitCount.value);
           restoreScrollPosition();
         }
       }
 
       if (!isPositionScrollOnly) {
         if (!_hasPlayedOnce) {
-          if (isOfflineMode) {
-            await audioPlayer.play(DeviceFileSource(_audioUrl!));
-          } else {
-            await audioPlayer.play(UrlSource(_audioUrl!));
-          }
+          await audioPlayer.play(UrlSource(_audioUrl!));
           _hasPlayedOnce = true;
         } else {
           await audioPlayer.resume();

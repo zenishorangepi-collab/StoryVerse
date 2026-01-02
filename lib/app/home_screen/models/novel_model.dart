@@ -3,7 +3,6 @@ class NovelsDataModel {
   String? id;
   Author? author;
   String? bookCoverUrl;
-  String? fileBookCoverUrl;
   String? bookName;
   List<Categories>? categories;
   int? createdAt;
@@ -12,7 +11,6 @@ class NovelsDataModel {
   String? summary;
   int? updatedAt;
   double? totalAudioLength;
-  int? totalSize;
 
   NovelsDataModel({
     this.audioFiles,
@@ -27,8 +25,6 @@ class NovelsDataModel {
     this.summary,
     this.updatedAt,
     this.totalAudioLength,
-    this.totalSize,
-    this.fileBookCoverUrl,
   });
 
   NovelsDataModel.fromJson(Map<String, dynamic> json) {
@@ -54,8 +50,6 @@ class NovelsDataModel {
     summary = json['summary'];
     updatedAt = json['updatedAt'];
     totalAudioLength = json['totalAudioLength'];
-    totalSize = json['totalSize'];
-    fileBookCoverUrl = json['fileBookCoverUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -80,8 +74,6 @@ class NovelsDataModel {
     data['summary'] = summary;
     data['updatedAt'] = updatedAt;
     data['totalAudioLength'] = totalAudioLength;
-    data['totalSize'] = totalSize;
-    data['fileBookCoverUrl'] = fileBookCoverUrl;
     return data;
   }
 }
@@ -92,10 +84,8 @@ class AudioFiles {
   String? url;
   String? audioJsonUrl;
   double? duration;
-  int? chapterIndex;
-  int? size;
 
-  AudioFiles({this.id, this.name, this.url, this.audioJsonUrl, this.duration, this.chapterIndex, this.size});
+  AudioFiles({this.id, this.name, this.url, this.audioJsonUrl, this.duration});
 
   AudioFiles.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -103,8 +93,6 @@ class AudioFiles {
     url = json['url'];
     audioJsonUrl = json['jsonUrl'];
     duration = json['duration'];
-    chapterIndex = json['chapterIndex'];
-    size = json['size'];
   }
 
   Map<String, dynamic> toJson() {
@@ -114,8 +102,6 @@ class AudioFiles {
     data['url'] = url;
     data['jsonUrl'] = audioJsonUrl;
     data['duration'] = duration;
-    data['chapterIndex'] = chapterIndex;
-    data['size'] = size;
     return data;
   }
 }
