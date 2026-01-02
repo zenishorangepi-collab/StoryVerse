@@ -18,6 +18,8 @@ import 'package:utsav_interview/app/create_collection_view/create_collection_bin
 import 'package:utsav_interview/app/create_collection_view/create_collection_screen.dart';
 import 'package:utsav_interview/app/dob_view/dob_binding.dart';
 import 'package:utsav_interview/app/dob_view/dob_screen.dart';
+import 'package:utsav_interview/app/download_novel/download_binding.dart';
+import 'package:utsav_interview/app/download_novel/download_screen.dart';
 import 'package:utsav_interview/app/home_screen/home_binding.dart';
 import 'package:utsav_interview/app/home_screen/home_screen.dart';
 import 'package:utsav_interview/app/interest_view/interest_binding.dart';
@@ -77,6 +79,7 @@ class AppRoutes {
   static const String collectionScreen = '/collectionScreen';
   static const String addToCollection = '/addToCollection';
   static const String searchScreen = '/searchScreen';
+  static const String downloadNovel = '/downloadNovel';
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
@@ -99,6 +102,7 @@ class AppRoutes {
     GetPage(name: createCollectionScreen, page: () => CreateCollectionScreen(), binding: CreateCollectionBinding()),
     GetPage(name: collectionScreen, page: () => CollectionScreen(), binding: CollectionBinding()),
     GetPage(name: addToCollection, page: () => const AddToCollectionScreen(), binding: AddToCollectionBinding()),
+    GetPage(name: downloadNovel, page: () => const DownloadsScreen(), binding: DownloadBinding()),
     GetPage(name: searchScreen, page: () => const SearchScreen(), binding: SearchBinding(), customTransition: _HeroFadeTransition()),
 
     GetPage(

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/create_collection_view/create_collection_model.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';

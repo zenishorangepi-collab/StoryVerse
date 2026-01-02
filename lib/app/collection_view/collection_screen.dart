@@ -4,6 +4,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
 import 'package:utsav_interview/app/collection_view/collection_controller.dart';
+import 'package:utsav_interview/app/download_novel/download_controller.dart';
+import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -129,7 +131,22 @@ class CollectionScreen extends StatelessWidget {
                                     motion: const BehindMotion(),
                                     extentRatio: 0.5,
                                     children: [
-                                      commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+                                      commonActionButton(
+                                        color: AppColors.colorBlue,
+                                        icon: Icons.file_download_outlined,
+                                        label: CS.vDownload,
+                                        onTap: () async {
+                                          final DownloadController downloadController =
+                                              Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
+
+                                          final slidable = Slidable.of(context);
+                                          await slidable?.close();
+                                          await Future.delayed(const Duration(milliseconds: 250));
+
+                                          // Start download
+                                          await downloadController.downloadNovel(book);
+                                        },
+                                      ),
                                       commonActionButton(
                                         color: AppColors.colorRed,
                                         icon: Icons.delete_outline,

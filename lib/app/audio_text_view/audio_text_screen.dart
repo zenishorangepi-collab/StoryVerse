@@ -8,7 +8,10 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
+import 'package:utsav_interview/app/download_novel/download_controller.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/library_view/library_controller.dart';
+import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -1202,7 +1205,7 @@ class AudioTextScreen extends StatelessWidget {
                                 );
                               },
                             ),
-                            commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
+                            // commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
                             commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
                             Divider(color: AppColors.colorGreyDivider),
                             commonListTile(
@@ -1214,7 +1217,22 @@ class AudioTextScreen extends StatelessWidget {
                               },
                               imageHeight: 18,
                             ),
-                            commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
+                            commonListTile(
+                              assetPath: CS.icDownloads,
+                              title: CS.vDownload,
+                              onTap: () async {
+                                final DownloadController downloadController =
+                                    Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
+
+                                final slidable = Slidable.of(context);
+                                await slidable?.close();
+                                await Future.delayed(const Duration(milliseconds: 250));
+
+                                // Start download
+                                await downloadController.downloadNovel(controller.novelData ?? bookInfo.value);
+                              },
+                              imageHeight: 18,
+                            ),
                             commonListTile(
                               assetPath: CS.icDelete,
                               style: AppTextStyles.body14RedRegular,
@@ -1226,7 +1244,8 @@ class AudioTextScreen extends StatelessWidget {
                                   onConfirm: () async {
                                     final controller = Get.find<AudioTextController>();
                                     await controller.stopListeningAndDelete();
-                                    Get.close(3);
+                                    Get.close(2);
+                                    Get.back(result: true);
                                     // controller.pause();
                                     // controller.stopListening();
                                   },

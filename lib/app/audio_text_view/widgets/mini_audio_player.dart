@@ -13,6 +13,7 @@ class MiniAudioPlayer extends StatelessWidget {
   final VoidCallback? onPlayPause;
   final VoidCallback? onForward10;
   IconData? playIcon;
+  final VoidCallback? onReturnFromAudio;
 
   MiniAudioPlayer({
     super.key,
@@ -22,6 +23,7 @@ class MiniAudioPlayer extends StatelessWidget {
     this.onPlayPause,
     this.playIcon = Icons.play_arrow_rounded,
     this.onForward10,
+    this.onReturnFromAudio,
   });
 
   @override
@@ -31,8 +33,11 @@ class MiniAudioPlayer extends StatelessWidget {
       right: 0,
       bottom: 10,
       child: GestureDetector(
-        onTap: () {
-          Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
+        onTap: () async {
+          final result = await Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
+          if (result != null) {
+            onReturnFromAudio?.call();
+          }
         },
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),

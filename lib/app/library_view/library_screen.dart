@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/mini_audio_player.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
+import 'package:utsav_interview/app/download_novel/download_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
@@ -28,7 +29,7 @@ class LibraryScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 21),
                     _header(controller).screenPadding(),
                     const SizedBox(height: 16),
                     _tabs(controller),
@@ -52,6 +53,9 @@ class LibraryScreen extends StatelessWidget {
                               authorName: bookInfo.value.author?.name ?? "",
                               bookName: bookInfo.value.bookName ?? "",
                               playIcon: isPlayAudio.value ? Icons.pause : Icons.play_arrow_rounded,
+                              onReturnFromAudio: () {
+                                controller.loadRecents();
+                              },
                               onPlayPause: () {
                                 Get.find<AudioTextController>().togglePlayPause(isOnlyPlayAudio: true);
                               },
@@ -226,7 +230,8 @@ class LibraryScreen extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOut,
                   child: Slidable(
-                    key: ValueKey(book.id), // ✅ UNIQUE KEY
+                    key: ValueKey(book.id),
+
                     /// LEFT ACTIONS
                     // startActionPane: ActionPane(
                     //   motion: const BehindMotion(),
@@ -242,22 +247,26 @@ class LibraryScreen extends StatelessWidget {
                       extentRatio: 0.5,
                       children: [
                         // commonActionButton(color: AppColors.colorDarkPurple, icon: Icons.mark_email_unread, label: CS.vMarkAsUnread, onTap: () {}),
-                        commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+                        commonActionButton(
+                          color: AppColors.colorBlue,
+                          icon: Icons.file_download_outlined,
+                          label: CS.vDownload,
+                          onTap: () async {
+                            final DownloadController downloadController =
+                                Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
+
+                            await Future.delayed(const Duration(milliseconds: 250));
+
+                            // Start download
+                            await downloadController.downloadNovel(book);
+                          },
+                        ),
 
                         commonActionButton(
                           color: AppColors.colorBgWhite10,
                           icon: Icons.archive,
                           label: CS.vArchive,
                           onTap: () async {
-                            final slidable = Slidable.of(context);
-
-                            // 1️⃣ Close action pane
-                            await slidable?.close();
-
-                            // 2️⃣ Small delay for animation
-                            await Future.delayed(const Duration(milliseconds: 250));
-
-                            // 3️⃣ Archive + remove item
                             controller.archiveBook(book.id ?? "");
                           },
                         ),
@@ -308,7 +317,7 @@ class LibraryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                );
+                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 70 : 0);
               },
             );
       },
@@ -364,10 +373,7 @@ class LibraryScreen extends StatelessWidget {
                     /// MAIN CARD
                     child: GestureDetector(
                       onTap: () async {
-                        final result = await Get.toNamed(AppRoutes.bookDetailsScreen, arguments: book);
-                        if (result != null) {
-                          controller.loadRecents();
-                        }
+                        await Get.toNamed(AppRoutes.bookDetailsScreen, arguments: book);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(20),
@@ -408,7 +414,7 @@ class LibraryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                );
+                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 70 : 0);
               },
             );
       },
@@ -422,7 +428,7 @@ class LibraryScreen extends StatelessWidget {
       builder: (controller) {
         return ListView(
           children: [
-            Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5),
+            Text(CS.vYourCollections, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5).screenPadding(),
 
             commonListTile(
               onTap: () {
@@ -457,8 +463,11 @@ class LibraryScreen extends StatelessWidget {
               icon: Icons.download,
               trailing: Icon(Icons.keyboard_arrow_right, color: AppColors.colorGrey),
               style: AppTextStyles.body16WhiteBold,
+              onTap: () {
+                Get.toNamed(AppRoutes.downloadNovel);
+              },
             ),
-            Divider(color: AppColors.colorGreyDivider),
+            Divider(color: AppColors.colorGreyDivider).paddingOnly(bottom: isBookListening.value ? 70 : 0),
             // Text(CS.vByType, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5, top: 15),
             // commonListTile(
             //   title: CS.vBooks,
@@ -499,8 +508,34 @@ class LibraryScreen extends StatelessWidget {
             // ),
             // Divider(color: AppColors.colorGreyDivider),
           ],
-        ).screenPadding();
+        );
       },
     );
   }
+}
+
+void showDownloadProgressDialog() {
+  Get.dialog(
+    GetBuilder<DownloadController>(
+      builder: (controller) {
+        return AlertDialog(
+          backgroundColor: AppColors.colorBgGray02,
+          title: Text('Downloading...', style: AppTextStyles.body16WhiteBold),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(
+                value: controller.downloadProgress,
+                backgroundColor: AppColors.colorBgWhite10,
+                valueColor: AlwaysStoppedAnimation(AppColors.colorWhite),
+              ),
+              SizedBox(height: 16),
+              Text('${(controller.downloadProgress * 100).toStringAsFixed(0)}%', style: AppTextStyles.body14WhiteMedium),
+            ],
+          ),
+        );
+      },
+    ),
+    barrierDismissible: false,
+  );
 }
