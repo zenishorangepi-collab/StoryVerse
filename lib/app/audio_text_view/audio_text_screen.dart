@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -8,6 +9,10 @@ import 'package:get/get.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
+import 'package:utsav_interview/app/download_novel/download_controller.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
+import 'package:utsav_interview/app/library_view/library_controller.dart';
+import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -253,15 +258,27 @@ class AudioTextScreen extends StatelessWidget {
         ? Stack(
           children: [
             /// 🔹 Blur Effect
-            CachedNetworkImage(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover,
-              imageUrl: controller.bookCoverUrl,
-              errorWidget: (context, error, stackTrace) {
-                return Image.asset(CS.imgBookCover2, height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width, fit: BoxFit.cover);
-              },
-            ),
+            controller.isOfflineMode
+                ? Image.file(
+                  File(controller.fileBookCoverUrl),
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                )
+                : CachedNetworkImage(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                  imageUrl: controller.bookCoverUrl,
+                  errorWidget: (context, error, stackTrace) {
+                    return Image.asset(
+                      CS.imgBookCover2,
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
 
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -273,13 +290,16 @@ class AudioTextScreen extends StatelessWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  height: 260,
-                  imageUrl: controller.bookCoverUrl,
-                  errorWidget: (context, error, stackTrace) {
-                    return Image.asset(CS.imgBookCover2, height: 260);
-                  },
-                ),
+                child:
+                    controller.isOfflineMode
+                        ? Image.file(File(controller.fileBookCoverUrl ?? ""), height: 260)
+                        : CachedNetworkImage(
+                          height: 260,
+                          imageUrl: controller.bookCoverUrl,
+                          errorWidget: (context, error, stackTrace) {
+                            return Image.asset(CS.imgBookCover2, height: 260);
+                          },
+                        ),
               ),
             ),
             Row(
@@ -1035,24 +1055,26 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          (controller.novelData?.bookCoverUrl?.isNotEmpty ?? false)
-                              ? Image.network(
-                                controller.novelData?.bookCoverUrl ?? "",
-                                height: 80,
-                                width: 50,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(color: AppColors.colorGrey, height: 80, width: 50);
-                                },
-                              )
+                          (controller.bookCoverUrl.isNotEmpty)
+                              ? controller.isOfflineMode
+                                  ? Image.file(File(controller.fileBookCoverUrl), height: 80, width: 50, fit: BoxFit.contain)
+                                  : Image.network(
+                                    controller.bookCoverUrl ?? "",
+                                    height: 80,
+                                    width: 50,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(color: AppColors.colorGrey, height: 80, width: 50);
+                                    },
+                                  )
                               : Container(color: AppColors.colorGrey, height: 80, width: 50),
 
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("dummy When khushal returned", style: AppTextStyles.heading18WhiteSemiBold),
-                                Text("dummy Saraban", style: AppTextStyles.heading18GreyBold),
+                                Text(controller.bookNme ?? "", style: AppTextStyles.heading18WhiteSemiBold),
+                                Text(controller.authorNme ?? "", style: AppTextStyles.heading18GreyBold),
                               ],
                             ),
                           ),
@@ -1104,20 +1126,22 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          CachedNetworkImage(
-                            height: 40,
-                            width: 25,
-                            fit: BoxFit.fill,
-                            imageUrl: controller.bookCoverUrl,
-                            errorWidget: (context, error, stackTrace) {
-                              return Image.asset(
-                                CS.imgBookCover2,
-                                height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width,
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          ),
+                          controller.isOfflineMode
+                              ? Image.file(File(controller.fileBookCoverUrl), height: 40, width: 25, fit: BoxFit.fill)
+                              : CachedNetworkImage(
+                                height: 40,
+                                width: 25,
+                                fit: BoxFit.fill,
+                                imageUrl: controller.bookCoverUrl,
+                                errorWidget: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    CS.imgBookCover2,
+                                    height: MediaQuery.of(context).size.height,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1201,7 +1225,7 @@ class AudioTextScreen extends StatelessWidget {
                                 );
                               },
                             ),
-                            commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
+                            // commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
                             commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
                             Divider(color: AppColors.colorGreyDivider),
                             commonListTile(
@@ -1213,7 +1237,17 @@ class AudioTextScreen extends StatelessWidget {
                               },
                               imageHeight: 18,
                             ),
-                            commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
+                            commonListTile(
+                              assetPath: CS.icDownloads,
+                              title: CS.vDownload,
+                              onTap: () async {
+                                final DownloadController downloadController =
+                                    Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
+
+                                await downloadController.downloadNovel(controller.novelData ?? bookInfo.value);
+                              },
+                              imageHeight: 18,
+                            ),
                             commonListTile(
                               assetPath: CS.icDelete,
                               style: AppTextStyles.body14RedRegular,
@@ -1225,7 +1259,8 @@ class AudioTextScreen extends StatelessWidget {
                                   onConfirm: () async {
                                     final controller = Get.find<AudioTextController>();
                                     await controller.stopListeningAndDelete();
-                                    Get.close(3);
+                                    Get.close(2);
+                                    Get.back(result: true);
                                     // controller.pause();
                                     // controller.stopListening();
                                   },

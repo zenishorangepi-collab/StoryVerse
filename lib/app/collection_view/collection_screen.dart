@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/book_details_view/book_details_controller.dart';
 import 'package:utsav_interview/app/collection_view/collection_controller.dart';
+import 'package:utsav_interview/app/download_novel/download_controller.dart';
+import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -129,7 +133,18 @@ class CollectionScreen extends StatelessWidget {
                                     motion: const BehindMotion(),
                                     extentRatio: 0.5,
                                     children: [
-                                      commonActionButton(color: AppColors.colorBlue, icon: Icons.file_download_outlined, label: CS.vDownload, onTap: () {}),
+                                      commonActionButton(
+                                        color: AppColors.colorBlue,
+                                        icon: Icons.file_download_outlined,
+                                        label: CS.vDownload,
+                                        onTap: () async {
+                                          final DownloadController downloadController =
+                                              Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
+
+                                          // Start download
+                                          await downloadController.downloadNovel(book);
+                                        },
+                                      ),
                                       commonActionButton(
                                         color: AppColors.colorRed,
                                         icon: Icons.delete_outline,
@@ -143,7 +158,9 @@ class CollectionScreen extends StatelessWidget {
 
                                   /// MAIN CARD
                                   child: GestureDetector(
-                                    onTap: () {},
+                                    onTap: () {
+                                      Get.toNamed(AppRoutes.bookDetailsScreen, arguments: book);
+                                    },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                                       decoration: BoxDecoration(
@@ -157,13 +174,16 @@ class CollectionScreen extends StatelessWidget {
                                           Container(
                                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                                             decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                                            child: CachedNetworkImage(
-                                              height: 100,
-                                              width: 50,
-                                              fit: BoxFit.contain,
-                                              imageUrl: book.bookCoverUrl ?? "",
-                                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                                            ),
+                                            child:
+                                                isLocalFile(book.bookCoverUrl)
+                                                    ? Image.file(File(book.bookCoverUrl ?? ""), height: 100, width: 50, fit: BoxFit.cover)
+                                                    : CachedNetworkImage(
+                                                      height: 100,
+                                                      width: 50,
+                                                      fit: BoxFit.cover,
+                                                      imageUrl: book.bookCoverUrl ?? "",
+                                                      errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                                    ),
                                           ),
 
                                           Expanded(

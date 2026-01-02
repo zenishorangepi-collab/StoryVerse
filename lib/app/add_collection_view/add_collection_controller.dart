@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/create_collection_view/create_collection_model.dart';
+import 'package:utsav_interview/app/home_screen/home_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
@@ -13,7 +14,7 @@ class AddToCollectionController extends GetxController {
   final Set<String> selectedIds = {};
   List<CollectionModel> listCollection = [];
   RxList<NovelsDataModel> listNovelData = <NovelsDataModel>[].obs;
-  final List<NovelsDataModel> _originalList = [];
+  List<NovelsDataModel> _originalList = [];
   final List<NovelsDataModel> listSelectedNovel = [];
 
   bool isDataLoading = false;
@@ -37,8 +38,10 @@ class AddToCollectionController extends GetxController {
     if (collectionId.isNotEmpty) {
       getNovelsByCollectionData();
     }
+
     fetchNovels();
     getCollection();
+
     searchController.addListener(_onSearch);
   }
 

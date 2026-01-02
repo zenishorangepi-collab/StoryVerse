@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -42,7 +44,7 @@ class AddToCollectionScreen extends StatelessWidget {
           ),
 
           body:
-              controller.novelData != null
+              (controller.novelData != null)
                   ? Column(
                     children: [
                       commonListTile(
@@ -136,13 +138,16 @@ class AddToCollectionScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                       decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                      child: CachedNetworkImage(
-                        height: 100,
-                        width: 50,
-                        fit: BoxFit.contain,
-                        imageUrl: book.bookCoverUrl ?? "",
-                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                      ),
+                      child:
+                          isLocalFile(book.bookCoverUrl)
+                              ? Image.file(File(book.bookCoverUrl ?? ""), height: 100, width: 50, fit: BoxFit.cover)
+                              : CachedNetworkImage(
+                                height: 100,
+                                width: 50,
+                                fit: BoxFit.cover,
+                                imageUrl: book.bookCoverUrl ?? "",
+                                errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                              ),
                     ),
 
                     Expanded(

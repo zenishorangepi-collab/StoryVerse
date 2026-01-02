@@ -1,3 +1,5 @@
+import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/account_delete_view/account_delete_binding.dart';
 import 'package:utsav_interview/app/account_delete_view/account_delete_screen.dart';
@@ -14,12 +16,10 @@ import 'package:utsav_interview/app/collection_view/collection_binding.dart';
 import 'package:utsav_interview/app/collection_view/collection_screen.dart';
 import 'package:utsav_interview/app/create_collection_view/create_collection_binding.dart';
 import 'package:utsav_interview/app/create_collection_view/create_collection_screen.dart';
-import 'package:utsav_interview/app/dob_view/dob_binding.dart';
-import 'package:utsav_interview/app/dob_view/dob_screen.dart';
+import 'package:utsav_interview/app/download_novel/download_binding.dart';
+import 'package:utsav_interview/app/download_novel/download_screen.dart';
 import 'package:utsav_interview/app/home_screen/home_binding.dart';
 import 'package:utsav_interview/app/home_screen/home_screen.dart';
-import 'package:utsav_interview/app/interest_view/interest_binding.dart';
-import 'package:utsav_interview/app/interest_view/interest_screen.dart';
 import 'package:utsav_interview/app/library_view/library_binding.dart';
 import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/app/login_view/login_binding.dart';
@@ -28,13 +28,18 @@ import 'package:utsav_interview/app/onbording_view/onbording_binding.dart';
 import 'package:utsav_interview/app/onbording_view/onbording_screen.dart';
 import 'package:utsav_interview/app/plan_view/plan_binding.dart';
 import 'package:utsav_interview/app/plan_view/plan_screen.dart';
-import 'package:utsav_interview/app/preference_view/preference_binding.dart';
-import 'package:utsav_interview/app/preference_view/preference_screen.dart';
+import 'package:utsav_interview/app/question_dob_view/dob_binding.dart';
+import 'package:utsav_interview/app/question_dob_view/dob_screen.dart';
+import 'package:utsav_interview/app/question_interest_view/interest_binding.dart';
+import 'package:utsav_interview/app/question_interest_view/interest_screen.dart';
+import 'package:utsav_interview/app/question_preference_view/preference_binding.dart';
+import 'package:utsav_interview/app/question_preference_view/preference_screen.dart';
+import 'package:utsav_interview/app/question_referral_view/referral_binding.dart';
+import 'package:utsav_interview/app/question_referral_view/referral_screen.dart';
 import 'package:utsav_interview/app/refer_view/refer_binding.dart';
 import 'package:utsav_interview/app/refer_view/refer_screen.dart';
-import 'package:utsav_interview/app/referral_view/referral_binding.dart';
-import 'package:utsav_interview/app/referral_view/referral_screen.dart';
-
+import 'package:utsav_interview/app/search_view/search_binding.dart';
+import 'package:utsav_interview/app/search_view/search_screen.dart';
 import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_binding.dart';
 import 'package:utsav_interview/app/sound_spaces_view/sound_spaces_screen.dart';
 import 'package:utsav_interview/app/subscription_view/subscription_binding.dart';
@@ -71,6 +76,8 @@ class AppRoutes {
   static const String createCollectionScreen = '/create-collection';
   static const String collectionScreen = '/collectionScreen';
   static const String addToCollection = '/addToCollection';
+  static const String searchScreen = '/searchScreen';
+  static const String downloadNovel = '/downloadNovel';
 
   static List<GetPage> page = [
     GetPage(name: splashScreen, page: () => SplashScreen(), binding: SplashBinding()),
@@ -93,6 +100,8 @@ class AppRoutes {
     GetPage(name: createCollectionScreen, page: () => CreateCollectionScreen(), binding: CreateCollectionBinding()),
     GetPage(name: collectionScreen, page: () => CollectionScreen(), binding: CollectionBinding()),
     GetPage(name: addToCollection, page: () => const AddToCollectionScreen(), binding: AddToCollectionBinding()),
+    GetPage(name: downloadNovel, page: () => const DownloadsScreen(), binding: DownloadBinding()),
+    GetPage(name: searchScreen, page: () => const SearchScreen(), binding: SearchBinding(), customTransition: _HeroFadeTransition()),
 
     GetPage(
       name: voiceScreen,
@@ -116,4 +125,18 @@ class AppRoutes {
       transitionDuration: Duration(milliseconds: 300),
     ),
   ];
+}
+
+class _HeroFadeTransition extends CustomTransition {
+  @override
+  Widget buildTransition(
+    BuildContext context,
+    Curve? curve,
+    Alignment? alignment,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return FadeTransition(opacity: Tween<double>(begin: 0.1, end: 1.0).animate(animation), child: child);
+  }
 }

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
@@ -13,6 +16,7 @@ class MiniAudioPlayer extends StatelessWidget {
   final VoidCallback? onPlayPause;
   final VoidCallback? onForward10;
   IconData? playIcon;
+  final VoidCallback? onReturnFromAudio;
 
   MiniAudioPlayer({
     super.key,
@@ -22,6 +26,7 @@ class MiniAudioPlayer extends StatelessWidget {
     this.onPlayPause,
     this.playIcon = Icons.play_arrow_rounded,
     this.onForward10,
+    this.onReturnFromAudio,
   });
 
   @override
@@ -31,8 +36,11 @@ class MiniAudioPlayer extends StatelessWidget {
       right: 0,
       bottom: 10,
       child: GestureDetector(
-        onTap: () {
-          Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
+        onTap: () async {
+          final result = await Get.toNamed(AppRoutes.audioTextScreen, arguments: {"isInitCall": false});
+          if (result != null) {
+            onReturnFromAudio?.call();
+          }
         },
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -42,15 +50,17 @@ class MiniAudioPlayer extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(width: 5),
-              CachedNetworkImage(
-                width: 50,
-                height: 35,
-                fit: BoxFit.cover,
-                imageUrl: bookImage,
-                errorWidget: (context, error, stackTrace) {
-                  return Image.asset(CS.imgBookCover2, width: 50, height: 35, fit: BoxFit.cover);
-                },
-              ),
+              isLocalFile(bookImage)
+                  ? Image.file(File(bookImage), width: 50, height: 35, fit: BoxFit.contain)
+                  : CachedNetworkImage(
+                    width: 50,
+                    height: 35,
+                    fit: BoxFit.contain,
+                    imageUrl: bookImage,
+                    errorWidget: (context, error, stackTrace) {
+                      return Image.asset(CS.imgBookCover2, width: 50, height: 35, fit: BoxFit.contain);
+                    },
+                  ),
 
               const SizedBox(width: 10),
               Expanded(

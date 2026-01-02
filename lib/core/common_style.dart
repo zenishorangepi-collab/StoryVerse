@@ -66,6 +66,7 @@ class AppTextStyles {
   static TextStyle body16WhiteBold = wholeAppFont(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.colorWhite);
   static TextStyle body16WhiteMedium = wholeAppFont(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorWhite);
   static TextStyle body16BlackMedium = wholeAppFont(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorBlack);
+  static TextStyle body16GreenMedium = wholeAppFont(fontSize: 16, fontWeight: FontWeight.w500, color: AppColors.colorGreen);
   static TextStyle body16WhiteLight = wholeAppFont(fontSize: 16, fontWeight: FontWeight.w300, color: AppColors.colorWhite);
   static TextStyle body16WhiteRegular = wholeAppFont(fontSize: 16, color: AppColors.colorWhite);
 

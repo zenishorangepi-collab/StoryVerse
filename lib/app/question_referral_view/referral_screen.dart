@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/interest_view/interest_controller.dart';
+import 'package:utsav_interview/app/question_referral_view/referral_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -8,12 +8,12 @@ import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
-class InterestScreen extends StatelessWidget {
-  const InterestScreen({super.key});
+class ReferralSourceScreen extends StatelessWidget {
+  const ReferralSourceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<InterestController>(
+    return GetBuilder<ReferralController>(
       builder: (controller) {
         return Scaffold(
           // backgroundColor: AppColors.colorWhite,
@@ -23,18 +23,18 @@ class InterestScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 50),
-                  Text(CS.vWhatAreYourInterest, style: AppTextStyles.heading20WhiteSemiBold),
+                  const SizedBox(height: 40),
+                  Text(CS.vWhereDidYouLearnAbout, style: AppTextStyles.heading20WhiteSemiBold),
                   const SizedBox(height: 30),
 
-                  // -------- INTEREST LIST --------
+                  // -------- SOURCE LIST --------
                   Expanded(
                     child: ListView.separated(
-                      itemCount: controller.interests.length,
+                      itemCount: controller.sources.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
-                        final item = controller.interests[index];
-                        final isSelected = controller.selectedIndexes.contains(index);
+                        final item = controller.sources[index];
+                        final isSelected = controller.selectedIndex == index;
 
                         return commonListTile(
                           icon: item.icon,
@@ -44,7 +44,7 @@ class InterestScreen extends StatelessWidget {
                           style: isSelected ? AppTextStyles.button16BlackBold : AppTextStyles.button16WhiteBold,
                           // trailing: isSelected ? Icon(Icons.check_circle, color: Colors.black) : SizedBox(),
                           onTap: () {
-                            controller.toggleSelection(index);
+                            controller.selectSource(index);
                             controller.update();
                           },
                         );
@@ -56,7 +56,7 @@ class InterestScreen extends StatelessWidget {
                     onTap:
                         controller.isContinueEnabled
                             ? () {
-                              Get.toNamed(AppRoutes.referral);
+                              Get.toNamed(AppRoutes.subscription);
                             }
                             : null,
                     // isDark: true,
