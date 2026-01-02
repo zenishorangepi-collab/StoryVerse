@@ -44,7 +44,6 @@ class LibraryController extends GetxController {
   LibraryTab selectedTab = LibraryTab.saved;
   SortType selectedSort = SortType.recentlyListened;
   List<NovelsDataModel> listRecents = <NovelsDataModel>[];
-
   RxList<String> archivedBookIds = <String>[].obs;
   List<NovelsDataModel> savedRecents = [];
   List<NovelsDataModel> archivedRecents = [];

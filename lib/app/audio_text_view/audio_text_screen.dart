@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -257,15 +258,27 @@ class AudioTextScreen extends StatelessWidget {
         ? Stack(
           children: [
             /// 🔹 Blur Effect
-            CachedNetworkImage(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover,
-              imageUrl: controller.bookCoverUrl,
-              errorWidget: (context, error, stackTrace) {
-                return Image.asset(CS.imgBookCover2, height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width, fit: BoxFit.cover);
-              },
-            ),
+            controller.isOfflineMode
+                ? Image.file(
+                  File(controller.fileBookCoverUrl),
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                )
+                : CachedNetworkImage(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                  imageUrl: controller.bookCoverUrl,
+                  errorWidget: (context, error, stackTrace) {
+                    return Image.asset(
+                      CS.imgBookCover2,
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
 
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -277,13 +290,16 @@ class AudioTextScreen extends StatelessWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  height: 260,
-                  imageUrl: controller.bookCoverUrl,
-                  errorWidget: (context, error, stackTrace) {
-                    return Image.asset(CS.imgBookCover2, height: 260);
-                  },
-                ),
+                child:
+                    controller.isOfflineMode
+                        ? Image.file(File(controller.fileBookCoverUrl ?? ""), height: 260)
+                        : CachedNetworkImage(
+                          height: 260,
+                          imageUrl: controller.bookCoverUrl,
+                          errorWidget: (context, error, stackTrace) {
+                            return Image.asset(CS.imgBookCover2, height: 260);
+                          },
+                        ),
               ),
             ),
             Row(
@@ -1039,24 +1055,26 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          (controller.novelData?.bookCoverUrl?.isNotEmpty ?? false)
-                              ? Image.network(
-                                controller.novelData?.bookCoverUrl ?? "",
-                                height: 80,
-                                width: 50,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(color: AppColors.colorGrey, height: 80, width: 50);
-                                },
-                              )
+                          (controller.bookCoverUrl.isNotEmpty)
+                              ? controller.isOfflineMode
+                                  ? Image.file(File(controller.fileBookCoverUrl), height: 80, width: 50, fit: BoxFit.contain)
+                                  : Image.network(
+                                    controller.bookCoverUrl ?? "",
+                                    height: 80,
+                                    width: 50,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(color: AppColors.colorGrey, height: 80, width: 50);
+                                    },
+                                  )
                               : Container(color: AppColors.colorGrey, height: 80, width: 50),
 
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("dummy When khushal returned", style: AppTextStyles.heading18WhiteSemiBold),
-                                Text("dummy Saraban", style: AppTextStyles.heading18GreyBold),
+                                Text(controller.bookNme ?? "", style: AppTextStyles.heading18WhiteSemiBold),
+                                Text(controller.authorNme ?? "", style: AppTextStyles.heading18GreyBold),
                               ],
                             ),
                           ),
@@ -1108,20 +1126,22 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          CachedNetworkImage(
-                            height: 40,
-                            width: 25,
-                            fit: BoxFit.fill,
-                            imageUrl: controller.bookCoverUrl,
-                            errorWidget: (context, error, stackTrace) {
-                              return Image.asset(
-                                CS.imgBookCover2,
-                                height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width,
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          ),
+                          controller.isOfflineMode
+                              ? Image.file(File(controller.fileBookCoverUrl), height: 40, width: 25, fit: BoxFit.fill)
+                              : CachedNetworkImage(
+                                height: 40,
+                                width: 25,
+                                fit: BoxFit.fill,
+                                imageUrl: controller.bookCoverUrl,
+                                errorWidget: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    CS.imgBookCover2,
+                                    height: MediaQuery.of(context).size.height,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1224,11 +1244,6 @@ class AudioTextScreen extends StatelessWidget {
                                 final DownloadController downloadController =
                                     Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
 
-                                final slidable = Slidable.of(context);
-                                await slidable?.close();
-                                await Future.delayed(const Duration(milliseconds: 250));
-
-                                // Start download
                                 await downloadController.downloadNovel(controller.novelData ?? bookInfo.value);
                               },
                               imageHeight: 18,

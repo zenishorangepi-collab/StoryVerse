@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:utsav_interview/app/download_novel/download_controller.dart';
-import 'package:utsav_interview/app/download_novel/download_model.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/common_string.dart';
+import 'package:utsav_interview/routes/app_routes.dart';
 
 class DownloadsScreen extends StatelessWidget {
   const DownloadsScreen({super.key});
@@ -20,7 +20,6 @@ class DownloadsScreen extends StatelessWidget {
       init: DownloadController(),
       builder: (controller) {
         return Scaffold(
-          // backgroundColor: AppColors.colorBlack,
           appBar: AppBar(
             backgroundColor: AppColors.colorBgGray02,
             title: Text(CS.vDownloads, style: AppTextStyles.heading20WhiteSemiBold),
@@ -75,7 +74,8 @@ class DownloadsScreen extends StatelessWidget {
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
-                              File(download.coverUrl),
+                              File(download.fileBookCoverUrl ?? ""),
+
                               width: 50,
                               height: 70,
                               fit: BoxFit.cover,
@@ -84,15 +84,15 @@ class DownloadsScreen extends StatelessWidget {
                               },
                             ),
                           ),
-                          title: Text(download.bookName, style: AppTextStyles.body16WhiteBold, maxLines: 2, overflow: TextOverflow.ellipsis),
+                          title: Text(download.bookName ?? "", style: AppTextStyles.body16WhiteBold, maxLines: 2, overflow: TextOverflow.ellipsis),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(height: 4),
-                              Text(download.authorName, style: AppTextStyles.body14GreyRegular),
+                              Text(download.author?.name ?? "", style: AppTextStyles.body14GreyRegular),
                               SizedBox(height: 4),
                               Text(
-                                '${download.chapters.length} chapters • ${controller.formatBytes(download.totalSize)}',
+                                '${download.audioFiles?.length} chapters • ${controller.formatBytes(download.totalSize ?? 0)}',
                                 style: AppTextStyles.body12GreyRegular,
                               ),
                             ],
@@ -112,14 +112,14 @@ class DownloadsScreen extends StatelessWidget {
                                     ),
                                     onTap: () {
                                       Future.delayed(Duration.zero, () {
-                                        _showDeleteDialog(context, controller, download.novelId);
+                                        _showDeleteDialog(context, controller, download.id ?? "");
                                       });
                                     },
                                   ),
                                 ],
                           ),
                           onTap: () {
-                            _playOfflineNovel(controller, download);
+                            _playOfflineNovel(download);
                           },
                         ),
                       );
@@ -155,15 +155,7 @@ class DownloadsScreen extends StatelessWidget {
     );
   }
 
-  void _playOfflineNovel(DownloadController controller, DownloadModel download) {
-    // Convert DownloadModel to NovelsDataModel for playback
-    // You'll need to implement this conversion
-    Get.snackbar('Playing Offline', download.bookName, snackPosition: SnackPosition.BOTTOM);
-
-    // Navigate to audio player with offline data
-    // Get.toNamed(AppRoutes.audioTextScreen, arguments: {
-    //   'novelData': convertToNovelModel(download),
-    //   'isOffline': true,
-    // });
+  void _playOfflineNovel(NovelsDataModel download) {
+    Get.toNamed(AppRoutes.audioTextScreen, arguments: {'novelData': download, 'isOffline': true});
   }
 }

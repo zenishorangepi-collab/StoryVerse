@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -290,13 +292,16 @@ class LibraryScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                               decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                              child: CachedNetworkImage(
-                                height: 80,
-                                width: 50,
-                                fit: BoxFit.contain,
-                                imageUrl: book.bookCoverUrl ?? "",
-                                errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                              ),
+                              child:
+                                  isLocalFile(book.bookCoverUrl)
+                                      ? Image.file(File(book.bookCoverUrl ?? ""), height: 80, width: 50, fit: BoxFit.cover)
+                                      : CachedNetworkImage(
+                                        height: 80,
+                                        width: 50,
+                                        fit: BoxFit.contain,
+                                        imageUrl: book.bookCoverUrl ?? "",
+                                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                      ),
                             ),
                             const SizedBox(width: 15),
                             Expanded(
@@ -387,13 +392,16 @@ class LibraryScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                               decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                              child: CachedNetworkImage(
-                                height: 80,
-                                width: 50,
-                                fit: BoxFit.contain,
-                                imageUrl: book.bookCoverUrl ?? "",
-                                errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                              ),
+                              child:
+                                  isLocalFile(book.bookCoverUrl)
+                                      ? Image.file(File(book.bookCoverUrl ?? ""), height: 80, width: 50, fit: BoxFit.cover)
+                                      : CachedNetworkImage(
+                                        height: 80,
+                                        width: 50,
+                                        fit: BoxFit.cover,
+                                        imageUrl: book.bookCoverUrl ?? "",
+                                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                      ),
                             ),
                             const SizedBox(width: 15),
                             Expanded(

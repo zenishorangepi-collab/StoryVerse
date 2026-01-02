@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -139,10 +141,6 @@ class CollectionScreen extends StatelessWidget {
                                           final DownloadController downloadController =
                                               Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
 
-                                          final slidable = Slidable.of(context);
-                                          await slidable?.close();
-                                          await Future.delayed(const Duration(milliseconds: 250));
-
                                           // Start download
                                           await downloadController.downloadNovel(book);
                                         },
@@ -176,13 +174,16 @@ class CollectionScreen extends StatelessWidget {
                                           Container(
                                             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                                             decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
-                                            child: CachedNetworkImage(
-                                              height: 100,
-                                              width: 50,
-                                              fit: BoxFit.contain,
-                                              imageUrl: book.bookCoverUrl ?? "",
-                                              errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
-                                            ),
+                                            child:
+                                                isLocalFile(book.bookCoverUrl)
+                                                    ? Image.file(File(book.bookCoverUrl ?? ""), height: 100, width: 50, fit: BoxFit.cover)
+                                                    : CachedNetworkImage(
+                                                      height: 100,
+                                                      width: 50,
+                                                      fit: BoxFit.cover,
+                                                      imageUrl: book.bookCoverUrl ?? "",
+                                                      errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                                    ),
                                           ),
 
                                           Expanded(

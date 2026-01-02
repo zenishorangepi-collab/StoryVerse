@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -38,12 +39,19 @@ class BookDetailsScreen extends StatelessWidget {
                         alignment: Alignment.center,
                         children: [
                           /// 🔹 Background Image
-                          CachedNetworkImage(
-                            height: MediaQuery.of(context).size.height / 2.5,
-                            width: MediaQuery.of(context).size.width,
-                            fit: BoxFit.cover,
-                            imageUrl: controller.novelData.bookCoverUrl ?? "", // your image
-                          ),
+                          isLocalFile(controller.novelData.bookCoverUrl)
+                              ? Image.file(
+                                File(controller.novelData.bookCoverUrl ?? ""),
+                                height: MediaQuery.of(context).size.height / 2.5,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                              )
+                              : CachedNetworkImage(
+                                height: MediaQuery.of(context).size.height / 2.5,
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.cover,
+                                imageUrl: controller.novelData.bookCoverUrl ?? "", // your image
+                              ),
 
                           /// 🔹 Blur Effect
                           BackdropFilter(
@@ -60,7 +68,10 @@ class BookDetailsScreen extends StatelessWidget {
 
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: CachedNetworkImage(imageUrl: controller.novelData.bookCoverUrl ?? "", height: 150),
+                              child:
+                                  isLocalFile(controller.novelData.bookCoverUrl)
+                                      ? Image.file(File(controller.novelData.bookCoverUrl ?? ""), height: 150)
+                                      : CachedNetworkImage(imageUrl: controller.novelData.bookCoverUrl ?? "", height: 150),
                             ),
                           ),
 

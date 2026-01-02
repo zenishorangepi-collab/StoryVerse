@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/referral_view/referral_controller.dart';
+import 'package:utsav_interview/app/question_referral_view/referral_controller.dart';
 
 class ReferralBinding extends Bindings {
   @override

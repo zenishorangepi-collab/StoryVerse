@@ -1,9 +1,6 @@
-// lib/app/downloads/download_controller.dart
-
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/download_novel/download_model.dart';
 import 'package:utsav_interview/app/download_novel/download_service.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/library_view/library_screen.dart';
@@ -13,7 +10,7 @@ import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/pref.dart';
 
 class DownloadController extends GetxController {
-  List<DownloadModel> downloadedNovels = [];
+  List<NovelsDataModel> downloadedNovels = [];
   bool isDownloading = false;
   double downloadProgress = 0.0;
   String currentDownloadingId = '';
@@ -28,16 +25,16 @@ class DownloadController extends GetxController {
   Future<void> loadDownloadedNovels() async {
     try {
       final jsonList = AppPrefs.getStringList(CS.keyDownloads);
-      downloadedNovels = jsonList.map((json) => DownloadModel.fromJson(jsonDecode(json))).toList();
+      downloadedNovels = jsonList.map((json) => NovelsDataModel.fromJson(jsonDecode(json))).toList();
       update();
     } catch (e) {
-      print('❌ Error loading downloads: $e');
+      debugPrint('❌ Error loading downloads: $e');
     }
   }
 
   /// Check if novel is downloaded
   bool isNovelDownloaded(String novelId) {
-    return downloadedNovels.any((d) => d.novelId == novelId);
+    return downloadedNovels.any((d) => d.id == novelId);
   }
 
   /// Download entire novel (all chapters)
@@ -64,7 +61,7 @@ class DownloadController extends GetxController {
         throw Exception(CS.vNoChaptersFound);
       }
 
-      List<DownloadedChapter> downloadedChapters = [];
+      List<AudioFiles> downloadedChapters = [];
       int totalSize = 0;
 
       // Download each chapter
@@ -96,11 +93,12 @@ class DownloadController extends GetxController {
         totalSize += audioSize + textSize;
 
         downloadedChapters.add(
-          DownloadedChapter(
-            chapterId: chapter.id ?? '',
-            chapterName: chapter.name ?? 'Chapter ${i + 1}',
-            audioLocalPath: audioPath,
-            textLocalPath: textPath,
+          AudioFiles(
+            duration: chapter.duration,
+            id: chapter.id ?? '',
+            name: chapter.name ?? 'Chapter ${i + 1}',
+            url: audioPath,
+            audioJsonUrl: textPath,
             chapterIndex: i,
             size: audioSize + textSize,
           ),
@@ -111,16 +109,20 @@ class DownloadController extends GetxController {
       final coverPath = await DownloadService.downloadCover(url: novel.bookCoverUrl ?? '', novelId: novel.id ?? '');
 
       // Create download model
-      final download = DownloadModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        novelId: novel.id ?? '',
+      final download = NovelsDataModel(
+        id: novel.id ?? '',
         bookName: novel.bookName ?? '',
-        authorName: novel.author?.name ?? '',
-        coverUrl: coverPath,
+        author: novel.author,
+        bookCoverUrl: novel.bookCoverUrl,
+        fileBookCoverUrl: coverPath,
         summary: novel.summary ?? '',
         totalAudioLength: novel.totalAudioLength ?? 0.0,
-        downloadedAt: DateTime.now(),
-        chapters: downloadedChapters,
+        language: novel.language,
+        audioFiles: downloadedChapters,
+        categories: novel.categories,
+        createdAt: novel.createdAt,
+        publishedDate: novel.publishedDate,
+        updatedAt: novel.updatedAt,
         totalSize: totalSize,
       );
 
@@ -139,7 +141,7 @@ class DownloadController extends GetxController {
         colorText: AppColors.colorWhite,
       );
     } catch (e) {
-      print('❌ Error downloading novel: $e');
+      debugPrint('❌ Error downloading novel: $e');
       Get.back();
       Get.snackbar(
         CS.vError,
@@ -157,7 +159,7 @@ class DownloadController extends GetxController {
   }
 
   /// Save download to preferences
-  Future<void> _saveDownload(DownloadModel download) async {
+  Future<void> _saveDownload(NovelsDataModel download) async {
     downloadedNovels.add(download);
     final jsonList = downloadedNovels.map((d) => jsonEncode(d.toJson())).toList();
     await AppPrefs.setStringList(CS.keyDownloads, jsonList);
@@ -170,7 +172,7 @@ class DownloadController extends GetxController {
       await DownloadService.deleteDownload(novelId);
 
       // Remove from list
-      downloadedNovels.removeWhere((d) => d.novelId == novelId);
+      downloadedNovels.removeWhere((d) => d.id == novelId);
 
       // Update preferences
       final jsonList = downloadedNovels.map((d) => jsonEncode(d.toJson())).toList();
@@ -186,7 +188,7 @@ class DownloadController extends GetxController {
         colorText: AppColors.colorWhite,
       );
     } catch (e) {
-      print('❌ Error deleting download: $e');
+      debugPrint('❌ Error deleting download: $e');
       Get.back();
 
       Get.snackbar(CS.vError, CS.vFailedDeleteNovel, snackPosition: SnackPosition.BOTTOM, backgroundColor: AppColors.colorRed, colorText: AppColors.colorWhite);
@@ -210,9 +212,9 @@ class DownloadController extends GetxController {
   }
 
   /// Get download by novel ID
-  DownloadModel? getDownload(String novelId) {
+  NovelsDataModel? getDownload(String novelId) {
     try {
-      return downloadedNovels.firstWhere((d) => d.novelId == novelId);
+      return downloadedNovels.firstWhere((d) => d.id == novelId);
     } catch (e) {
       return null;
     }

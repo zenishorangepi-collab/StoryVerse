@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -125,14 +127,17 @@ class HomeScreen extends StatelessWidget {
                                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                                     child: ClipRRect(
                                                       borderRadius: BorderRadius.circular(2),
-                                                      child: CachedNetworkImage(
-                                                        height: 60,
-                                                        fit: BoxFit.cover,
-                                                        imageUrl: listRecents[index].bookCoverUrl ?? "",
-                                                        errorWidget: (context, error, stackTrace) {
-                                                          return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
-                                                        },
-                                                      ),
+                                                      child:
+                                                          isLocalFile(listRecents[index].bookCoverUrl)
+                                                              ? Image.file(File(listRecents[index].bookCoverUrl ?? ""), height: 60, fit: BoxFit.cover)
+                                                              : CachedNetworkImage(
+                                                                height: 60,
+                                                                fit: BoxFit.cover,
+                                                                imageUrl: listRecents[index].bookCoverUrl ?? "",
+                                                                errorWidget: (context, error, stackTrace) {
+                                                                  return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
+                                                                },
+                                                              ),
                                                     ),
                                                   ),
                                                 ),
