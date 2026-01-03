@@ -491,13 +491,37 @@ class AudioTextScreen extends StatelessWidget {
               allowedInteraction: SliderInteraction.slideOnly,
               padding: EdgeInsets.all(5),
               max: max.toDouble(),
-              value: value.toDouble(),
+              // value: value.toDouble(),
+              value: controller.isUserDragging ? controller.sliderPosition : controller.position.toDouble(),
               activeColor: AppColors.colorWhite,
               inactiveColor: AppColors.colorBgGray02,
               overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
-              onChanged: (value) {
+
+              // onChanged: (value) {
+              //   controller.pause();
+              //   controller.seek(value.toInt());
+              // },
+              onChangeStart: (v) {
+                controller.isUserDragging = true;
+                controller.sliderPosition = v;
                 controller.pause();
-                controller.seek(value.toInt());
+              },
+
+              onChanged: (v) {
+                controller.sliderPosition = v;
+
+                // 🔥 LIVE preview (word + paragraph + scroll)
+                controller.previewAndScrollAt(v.toInt());
+
+                controller.update();
+              },
+
+              onChangeEnd: (v) async {
+                controller.isUserDragging = false;
+
+                // ONE real seek
+                await controller.seek(v.toInt(), isPlay: false);
+                controller.play();
               },
             ),
           ),
@@ -507,7 +531,10 @@ class AudioTextScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
             child: Row(
               children: [
-                Text(controller.formatTime(controller.position), style: AppTextStyles.body12GreyRegular),
+                Text(
+                  controller.formatTime(controller.isUserDragging ? controller.sliderPosition.toInt() : controller.position),
+                  style: AppTextStyles.body12GreyRegular,
+                ),
                 const Spacer(),
                 Text(controller.formatTime(controller.duration), style: AppTextStyles.body12GreyRegular),
               ],

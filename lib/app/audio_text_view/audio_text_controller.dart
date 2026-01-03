@@ -58,6 +58,8 @@ class AudioTextController extends GetxController {
   late final ScrollController scrollController;
 
   // Keys for scroll tracking
+  double sliderPosition = 0;
+  bool isUserDragging = false;
 
   List<GlobalKey> paragraphKeys = [];
   List<GlobalKey> wordKeys = [];
@@ -292,6 +294,7 @@ class AudioTextController extends GetxController {
 
       await loadAudioForChapter(currentChapterIndex);
       _position = savedData['position'] ?? 0;
+      sliderPosition = position.toDouble();
 
       audioLoading = false;
       await audioInitialize();
@@ -1012,29 +1015,84 @@ class AudioTextController extends GetxController {
   //   update();
   // }
 
+  int _lastPreviewPosition = 0;
+  bool _isScrubbingBackward = false;
+
+  void previewScrollToWord(int uiWordIndex) {
+    if (!scrollController.hasClients) return;
+
+    final key = wordKeys[uiWordIndex];
+    final context = key.currentContext;
+    if (context == null) return;
+
+    final box = context.findRenderObject() as RenderBox;
+    final targetOffset = box.localToGlobal(Offset.zero).dy + scrollController.offset - 250;
+
+    final clampedOffset = targetOffset.clamp(0.0, scrollController.position.maxScrollExtent);
+
+    // 🔥 HARD STOP any animation
+    scrollController.position.jumpTo(scrollController.offset);
+
+    // 🔁 Schedule jump AFTER layout (fix backward scrub)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!scrollController.hasClients) return;
+
+      scrollController.jumpTo(clampedOffset);
+    });
+  }
+
+  void previewAndScrollAt(int previewPositionMs) {
+    if (!isUserDragging || syncEngine == null) return;
+
+    _isScrubbingBackward = previewPositionMs < _lastPreviewPosition;
+    _lastPreviewPosition = previewPositionMs;
+
+    final syncWord = syncEngine!.findWordIndexAtTime(previewPositionMs);
+    if (syncWord < 0) return;
+
+    final syncPara = syncEngine!.getParagraphIndex(syncWord);
+
+    if (syncWord >= syncToUiWordIndex.length || syncPara >= syncToUiParagraphIndex.length) {
+      return;
+    }
+
+    currentWordIndex = syncToUiWordIndex[syncWord];
+    currentParagraphIndex = syncToUiParagraphIndex[syncPara];
+
+    suppressAutoScroll = true;
+
+    // 🔥 ALWAYS use preview scroll
+    previewScrollToWord(currentWordIndex);
+  }
+
   void onAudioPositionUpdate() {
+    if (isUserDragging || _isSeeking) return;
+
     if (!scrollController.hasClients || syncEngine == null) return;
 
     final syncWordIndex = syncEngine!.findWordIndexAtTime(position);
     if (syncWordIndex < 0) return;
 
-    final syncPara = syncEngine!.getParagraphIndex(syncWordIndex);
+    final syncParaIndex = syncEngine!.getParagraphIndex(syncWordIndex);
 
-    // ✅ FIX: Add bounds checking to prevent crashes
-    if (syncWordIndex >= syncToUiWordIndex.length || syncPara >= syncToUiParagraphIndex.length) {
+    if (syncWordIndex >= syncToUiWordIndex.length || syncParaIndex >= syncToUiParagraphIndex.length) {
       return;
     }
 
-    final uiWord = syncToUiWordIndex[syncWordIndex];
-    final uiPara = syncToUiParagraphIndex[syncPara];
+    final uiWordIndex = syncToUiWordIndex[syncWordIndex];
+    final uiParaIndex = syncToUiParagraphIndex[syncParaIndex];
 
-    if (uiWord == currentWordIndex) return;
-
-    currentWordIndex = uiWord;
-    currentParagraphIndex = uiPara;
-    if (!suppressAutoScroll) {
-      scrollToCurrentWord(uiWord);
+    if (uiWordIndex == currentWordIndex && uiParaIndex == currentParagraphIndex) {
+      return;
     }
+
+    currentWordIndex = uiWordIndex;
+    currentParagraphIndex = uiParaIndex;
+
+    if (!suppressAutoScroll) {
+      scrollToCurrentWord(uiWordIndex);
+    }
+
     update();
   }
 
@@ -1341,7 +1399,7 @@ class AudioTextController extends GetxController {
 
     _operationInProgress = true;
     _isSeeking = true;
-    audioLoading = true;
+    // audioLoading = true;
     // suppressAutoScroll = true;
 
     try {
@@ -1401,6 +1459,8 @@ class AudioTextController extends GetxController {
       suppressAutoScroll = false;
       _isSeeking = false;
       _operationInProgress = false;
+      suppressAutoScroll = false;
+      _lastPreviewPosition = 0;
 
       update();
     }
