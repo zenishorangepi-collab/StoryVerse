@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/download_novel/download_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
@@ -156,6 +157,7 @@ class DownloadsScreen extends StatelessWidget {
   }
 
   void _playOfflineNovel(NovelsDataModel download) {
+    isAudioInitCount.value = 0;
     Get.toNamed(AppRoutes.audioTextScreen, arguments: {'novelData': download, 'isOffline': true});
   }
 }

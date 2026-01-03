@@ -42,6 +42,10 @@
     <array>
       <string>audio</string>
     </array>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to share book covers</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Save share images to your photo library</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

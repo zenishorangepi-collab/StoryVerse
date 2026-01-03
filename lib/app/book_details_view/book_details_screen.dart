@@ -163,27 +163,27 @@ class BookDetailsScreen extends StatelessWidget {
                       iconColor: AppColors.colorWhite,
                       bgColor: AppColors.colorChipBackground,
                     ),
-                    Row(
-                      spacing: 10,
-                      children: [
-                        commonCircleButton(
-                          onTap: () {},
-                          padding: 8,
-                          icon: Icon(Icons.share, color: AppColors.colorWhite, size: 18),
-                          isBackButton: false,
-                          iconColor: AppColors.colorWhite,
-                          bgColor: AppColors.colorChipBackground,
-                        ),
-                        commonCircleButton(
-                          onTap: () {},
-                          padding: 8,
-                          icon: Icon(Icons.more_horiz, color: AppColors.colorWhite, size: 18),
-                          isBackButton: false,
-                          iconColor: AppColors.colorWhite,
-                          bgColor: AppColors.colorChipBackground,
-                        ),
-                      ],
-                    ),
+                    // Row(
+                    //   spacing: 10,
+                    //   children: [
+                    //     commonCircleButton(
+                    //       onTap: () {},
+                    //       padding: 8,
+                    //       icon: Icon(Icons.share, color: AppColors.colorWhite, size: 18),
+                    //       isBackButton: false,
+                    //       iconColor: AppColors.colorWhite,
+                    //       bgColor: AppColors.colorChipBackground,
+                    //     ),
+                    //     commonCircleButton(
+                    //       onTap: () {},
+                    //       padding: 8,
+                    //       icon: Icon(Icons.more_horiz, color: AppColors.colorWhite, size: 18),
+                    //       isBackButton: false,
+                    //       iconColor: AppColors.colorWhite,
+                    //       bgColor: AppColors.colorChipBackground,
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ).screenPadding(),

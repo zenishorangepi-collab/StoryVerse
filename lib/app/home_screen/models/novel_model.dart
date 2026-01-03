@@ -90,12 +90,14 @@ class AudioFiles {
   String? id;
   String? name;
   String? url;
+  String? fileAudioUrl;
   String? audioJsonUrl;
+  String? fileAudioTextJsonUrl;
   double? duration;
   int? chapterIndex;
   int? size;
 
-  AudioFiles({this.id, this.name, this.url, this.audioJsonUrl, this.duration, this.chapterIndex, this.size});
+  AudioFiles({this.id, this.name, this.url, this.audioJsonUrl, this.duration, this.chapterIndex, this.size, this.fileAudioUrl, this.fileAudioTextJsonUrl});
 
   AudioFiles.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -105,6 +107,8 @@ class AudioFiles {
     duration = json['duration'];
     chapterIndex = json['chapterIndex'];
     size = json['size'];
+    fileAudioUrl = json['fileAudioUrl'];
+    fileAudioTextJsonUrl = json['fileAudioTextJsonUrl'];
   }
 
   Map<String, dynamic> toJson() {
@@ -116,6 +120,8 @@ class AudioFiles {
     data['duration'] = duration;
     data['chapterIndex'] = chapterIndex;
     data['size'] = size;
+    data['fileAudioUrl'] = fileAudioUrl;
+    data['fileAudioTextJsonUrl'] = fileAudioTextJsonUrl;
     return data;
   }
 }

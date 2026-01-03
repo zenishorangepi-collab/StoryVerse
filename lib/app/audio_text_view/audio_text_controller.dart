@@ -67,6 +67,8 @@ class AudioTextController extends GetxController {
   String authorNme = "";
   String bookCoverUrl = "";
   String fileBookCoverUrl = "";
+  String fileAudioUrl = "";
+  String fileAudioTextUrl = "";
   String audioUrl = "";
   String textUrl = "";
   String bookId = "";
@@ -446,7 +448,7 @@ class AudioTextController extends GetxController {
 
       TranscriptData data;
       if (isOfflineMode) {
-        data = await loadOfflineTranscript(chapter.audioJsonUrl);
+        data = await loadOfflineTranscript(chapter.fileAudioTextJsonUrl);
       } else {
         final cached = getCachedTranscript(bookId, chapter.id ?? "");
         if (cached != null) {
@@ -563,7 +565,11 @@ class AudioTextController extends GetxController {
     currentChapterIndex = index;
     currentChapterId = allChapters[index].id ?? "";
 
-    _audioUrl = allChapters[index].url;
+    if (isOfflineMode) {
+      _audioUrl = allChapters[index].fileAudioUrl;
+    } else {
+      _audioUrl = allChapters[index].url;
+    }
 
     await audioPlayer.stop();
     if (isOfflineMode) {

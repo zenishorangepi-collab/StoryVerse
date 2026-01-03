@@ -13,6 +13,7 @@ import 'package:utsav_interview/app/download_novel/download_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/library_view/library_controller.dart';
 import 'package:utsav_interview/app/library_view/library_screen.dart';
+import 'package:utsav_interview/app/share_service.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -1082,8 +1083,19 @@ class AudioTextScreen extends StatelessWidget {
                         ],
                       ).paddingSymmetric(vertical: 20),
                       Divider(color: AppColors.colorBgWhite10),
-                      ListTile(leading: Image.asset(CS.icShareLink, height: 22), title: Text(CS.vShareLink, style: AppTextStyles.heading18WhiteMedium)),
-                      ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading18WhiteMedium)),
+                      ListTile(
+                        onTap: () {
+                          ShareService.shareAppWithBook(
+                            context: context,
+                            bookName: controller.bookNme,
+                            authorName: controller.authorNme,
+                            bookCoverUrl: controller.bookCoverUrl,
+                          );
+                        },
+                        leading: Image.asset(CS.icShareLink, height: 22),
+                        title: Text(CS.vShareLink, style: AppTextStyles.heading18WhiteMedium),
+                      ),
+                      // ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading18WhiteMedium)),
                     ],
                   ),
                 ),
@@ -1226,7 +1238,13 @@ class AudioTextScreen extends StatelessWidget {
                               },
                             ),
                             // commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
-                            commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
+                            commonListTile(
+                              assetPath: CS.icShareExport,
+                              title: CS.vShare,
+                              onTap: () {
+                                openShareSheet(context);
+                              },
+                            ),
                             Divider(color: AppColors.colorGreyDivider),
                             commonListTile(
                               assetPath: CS.icPlus,
