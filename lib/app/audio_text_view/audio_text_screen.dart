@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
@@ -252,7 +253,7 @@ class AudioTextScreen extends StatelessWidget {
     final paragraphs = controller.uiParagraphs;
 
     if (paragraphs.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildShimmerLoading(context);
     }
 
     return controller.isHideText
@@ -1840,4 +1841,105 @@ class AudioTextScreen extends StatelessWidget {
       },
     );
   }
+}
+
+Widget _buildShimmerLoading(BuildContext context) {
+  return Container(
+    color: AppColors.colorBlack,
+    child: SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Book title shimmer
+          _shimmerBookTitle(),
+          SizedBox(height: 32),
+
+          // Chapter title shimmer
+          _shimmerChapterTitle(),
+          SizedBox(height: 20),
+
+          // Paragraph shimmers (3 paragraphs)
+          ..._buildShimmerParagraphs(3),
+
+          SizedBox(height: 10),
+
+          // Another chapter
+          _shimmerChapterTitle(),
+          SizedBox(height: 20),
+          ..._buildShimmerParagraphs(2),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _shimmerBookTitle() {
+  return Shimmer(
+    color: AppColors.colorGrey,
+    child: Container(width: 200, height: 28, decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(6))),
+  );
+}
+
+Widget _shimmerChapterTitle() {
+  return Shimmer(
+    color: AppColors.colorGrey,
+    child: Container(width: 140, height: 22, decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(6))),
+  );
+}
+
+List<Widget> _buildShimmerParagraphs(int count) {
+  return List.generate(count, (index) {
+    return Padding(padding: EdgeInsets.only(bottom: 20), child: _shimmerParagraph(index));
+  });
+}
+
+Widget _shimmerParagraph(int index) {
+  return Shimmer(
+    colorOpacity: index == 0 ? 0.3 : 0,
+    color: index == 0 ? AppColors.colorGrey : AppColors.colorTransparent,
+
+    child: Container(
+      padding: EdgeInsets.all(index == 0 ? 20 : 5),
+      decoration: BoxDecoration(color: index == 0 ? Colors.grey[850] : null, borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Line 1 (100%)
+          _shimmerLine(widthFactor: 1.0),
+          SizedBox(height: 12),
+
+          // Line 2 (95%)
+          _shimmerLine(widthFactor: 0.95),
+          SizedBox(height: 12),
+
+          // Line 3 (88%)
+          _shimmerLine(widthFactor: 0.88),
+          SizedBox(height: 12),
+
+          // Line 4 (92%)
+          _shimmerLine(widthFactor: 0.92),
+          SizedBox(height: 12),
+
+          // Line 5 (65%)
+          _shimmerLine(widthFactor: 0.65),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _shimmerLine({required double widthFactor}) {
+  return Shimmer(
+    color: AppColors.colorGrey,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          width: constraints.maxWidth * widthFactor,
+          height: 14,
+          decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(4)),
+        );
+      },
+    ),
+  );
 }

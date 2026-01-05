@@ -220,8 +220,8 @@ class AudioTextController extends GetxController {
 
       // Debounce saving to avoid too many writes
       _scrollSaveTimer?.cancel();
-      _scrollSaveTimer = Timer(const Duration(milliseconds: 500), () {
-        _saveScrollPosition();
+      _scrollSaveTimer = Timer(const Duration(milliseconds: 500), () async {
+        await _saveScrollPosition();
       });
     }
   }
@@ -1291,6 +1291,7 @@ class AudioTextController extends GetxController {
 
     _operationInProgress = true;
     audioLoading = true;
+    update();
 
     try {
       if (audioHandler == null) {
@@ -1335,6 +1336,7 @@ class AudioTextController extends GetxController {
     } finally {
       audioLoading = false;
       _operationInProgress = false;
+      update();
     }
     isAudioInitCount++;
   }
@@ -1448,7 +1450,7 @@ class AudioTextController extends GetxController {
           }
         }
       }
-      audioLoading = false;
+      // audioLoading = false;
       update();
     } catch (e) {
       _error = 'Seek error: $e';
@@ -1459,7 +1461,6 @@ class AudioTextController extends GetxController {
       suppressAutoScroll = false;
       _isSeeking = false;
       _operationInProgress = false;
-      suppressAutoScroll = false;
       _lastPreviewPosition = 0;
 
       update();
