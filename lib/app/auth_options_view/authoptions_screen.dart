@@ -11,6 +11,8 @@ import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:utsav_interview/core/pref.dart';
+import 'package:utsav_interview/routes/app_routes.dart';
 
 class AuthOptionsScreen extends StatelessWidget {
   const AuthOptionsScreen({super.key});
@@ -67,31 +69,29 @@ class AuthOptionsScreen extends StatelessWidget {
                 ],
               ),
               // if (Platform.isIOS)
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  overlayColor: AppColors.colorTransparent,
-                  minimumSize: const Size(double.infinity, 52),
-                  side: const BorderSide(color: AppColors.colorGrey),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: Image.asset(CS.icAppleLogo, height: 20, color: AppColors.colorWhite),
-                label: Text(CS.vContinueWithApple, style: AppTextStyles.body16WhiteMedium),
-                onPressed: () {},
-                  // SignInWithAppleButton(
-                  //   onPressed: () async {
-                  //     final credential = await SignInWithApple.getAppleIDCredential(
-                  //       scopes: [
-                  //         AppleIDAuthorizationScopes.email,
-                  //         AppleIDAuthorizationScopes.fullName,
-                  //       ],
-                  //     );
-                  //
-                  //     print(credential);
-                  //
-                  //     // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
-                  //     // after they have been validated with Apple (see `Integration` section for more information on how to do this)
-                  //   },
-                  // );
+              Stack(        alignment: Alignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      overlayColor: AppColors.colorTransparent,
+                      minimumSize: const Size(double.infinity, 52),
+                      side: const BorderSide(color: AppColors.colorGrey),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: controller.isAppleLoading ? null : Image.asset(CS.icAppleLogo, height: 22, color: AppColors.colorWhite),
+
+                    label: controller.isAppleLoading  ? SizedBox() : Text(CS.vContinueWithApple, style: AppTextStyles.body16WhiteMedium),
+
+                    onPressed: () async {
+
+                     await controller.signInWithApple();
+                    },
+
+                  ),
+                  controller.isAppleLoading
+                      ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorWhite)))
+                      : SizedBox(),
+                ],
               ),
 
               Stack(

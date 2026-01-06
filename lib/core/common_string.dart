@@ -361,6 +361,7 @@ class CS {
   static const String keyCollections = 'collections';
   static const String keyCollectionBooks = 'collection_books';
   static const String keyDownloads = 'downloads';
+  static const String keyUserId = 'userId';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";
