@@ -62,7 +62,13 @@ class LibraryController extends GetxController {
     listCollection.add(collection);
     update();
   }
-
+  void updateCollection(CollectionModel updatedCollection) {
+    final index = listCollection.indexWhere((c) => c.id == updatedCollection.id);
+    if (index != -1) {
+      listCollection[index] = updatedCollection;
+      update();
+    }
+  }
   Future<List<CollectionModel>> getAllCollections() async {
     final jsonList = AppPrefs.getStringList(CS.keyCollections);
     return jsonList.map((json) => CollectionModel.fromJson(jsonDecode(json))).toList();

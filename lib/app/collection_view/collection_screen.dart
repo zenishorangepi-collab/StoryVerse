@@ -69,8 +69,13 @@ class CollectionScreen extends StatelessWidget {
                 ),
 
                 itemBuilder: (_) => [_menuItem(0, CS.vEditCollection, Icons.edit), _menuItem(1, CS.vDelete, Icons.delete)],
-                onSelected: (value) {
+                onSelected: (value) async{
                   if (value == 0) {
+                   final result=await  Get.toNamed(AppRoutes.createCollectionScreen,arguments: {"collection":controller.collection});
+                   if(result!=null){
+                     controller.collection=result;
+                     controller.update();
+                   }
                   } else {
                     showDeleteDialog(
                       context,

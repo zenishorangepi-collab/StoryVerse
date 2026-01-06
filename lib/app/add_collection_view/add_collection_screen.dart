@@ -49,7 +49,7 @@ class AddToCollectionScreen extends StatelessWidget {
                     children: [
                       commonListTile(
                         onTap: () {
-                          Get.toNamed(AppRoutes.createCollectionScreen, arguments: true);
+                          Get.toNamed(AppRoutes.createCollectionScreen, arguments: {"isAddingBookToCollection": true});
                         },
                         imageHeight: 30,
                         title: CS.vCreateACollection,

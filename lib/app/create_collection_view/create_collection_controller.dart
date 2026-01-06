@@ -31,19 +31,28 @@ class CreateCollectionController extends GetxController {
   // Loading state
   bool isLoading = false;
   bool isAddingBookToCollection = false;
-
+  bool isEditMode = false;
+  CollectionModel? existingCollection;
   @override
   void onInit() {
     super.onInit();
-    if (Get.arguments != null) {
-      isAddingBookToCollection = Get.arguments;
-    }
-    // If editing existing collection, load data here
-    if (Get.arguments != null && Get.arguments is CollectionModel) {
-      final collection = Get.arguments as CollectionModel;
-      nameController.text = collection.name;
-      selectedIconType = collection.iconType;
-      update();
+
+    if (Get.arguments != null && Get.arguments is Map) {
+      final args = Get.arguments as Map;
+
+      // Check for isAddingBookToCollection
+      isAddingBookToCollection = args["isAddingBookToCollection"] ?? false;
+
+      // Check for collection (edit mode)
+      final collection = args["collection"];
+      if (collection != null && collection is CollectionModel) {
+        isEditMode = true;
+        existingCollection = collection;
+
+        // Pre-fill the form
+        nameController.text = existingCollection!.name;
+        selectedIconType = existingCollection!.iconType;
+      }
     }
   }
 
@@ -53,15 +62,11 @@ class CreateCollectionController extends GetxController {
     update();
   }
 
-  // Create collection
+  // Create or Update collection
   Future<void> createCollection() async {
     try {
       isLoading = true;
       update();
-
-      // Check if editing existing collection
-      final isEditing = Get.arguments != null && Get.arguments is CollectionModel;
-      final existingCollection = isEditing ? Get.arguments as CollectionModel : null;
 
       final collection = CollectionModel(
         id: existingCollection?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -78,12 +83,31 @@ class CreateCollectionController extends GetxController {
         addToCollectionController.addCollection(collection);
       } else {
         final libraryController = Get.find<LibraryController>();
-        libraryController.addCollection(collection);
+        if (isEditMode) {
+          libraryController.updateCollection(collection);
+        } else {
+          libraryController.addCollection(collection);
+        }
       }
 
       Get.back(result: collection);
+
+      // Show success message
+      // Get.snackbar(
+      //   isEditMode ? 'Updated' : 'Created',
+      //   isEditMode ? 'Collection updated successfully' : 'Collection created successfully',
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   backgroundColor: Colors.green,
+      //   colorText: Colors.white,
+      // );
     } catch (e) {
-      Get.snackbar('Error', 'Failed to create collection: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'Failed to ${isEditMode ? 'update' : 'create'} collection: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading = false;
       update();
@@ -110,9 +134,9 @@ class CreateCollectionController extends GetxController {
     await AppPrefs.setStringList(CS.keyCollections, jsonList);
   }
 
-  // Get all collections from preferences
+  // Get all collections
   Future<List<CollectionModel>> getAllCollections() async {
-    final jsonList = AppPrefs.getStringList(CS.keyCollections);
+    final jsonList = await AppPrefs.getStringList(CS.keyCollections) ?? [];
     return jsonList.map((json) => CollectionModel.fromJson(jsonDecode(json))).toList();
   }
 
