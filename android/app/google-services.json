@@ -8,20 +8,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:307426584956:android:6a79375ea790781f6d5cf9",
+        "mobilesdk_app_id": "1:307426584956:android:d32f95b39b52c0c66d5cf9",
         "android_client_info": {
-          "package_name": "com.storyverse"
+          "package_name": "com.storyverse.app"
         }
       },
       "oauth_client": [
-        {
-          "client_id": "307426584956-kjuk1k5d10e5tob7qljoiqighej5h8uc.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.storyverse",
-            "certificate_hash": "8325d3d57d552d3710de5d0c4457e8561cf77164"
-          }
-        },
         {
           "client_id": "307426584956-1d2nnjnjndnfo76b07l536t8e5h6rfcv.apps.googleusercontent.com",
           "client_type": 3

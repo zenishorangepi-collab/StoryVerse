@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>307426584956-rtvrp69ljnrn814rd8dar7if6l7ufo2g.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.307426584956-rtvrp69ljnrn814rd8dar7if6l7ufo2g</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>307426584956-hcfiqdlratl4lnuksv81c7ugub2euved.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDnZLgn4MjZMtIe-CR1aAR9_PDbsV_YPS4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>307426584956</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.storyverse.app</string>
+	<key>PROJECT_ID</key>
+	<string>storyverse-db8a5</string>
+	<key>STORAGE_BUCKET</key>
+	<string>storyverse-db8a5.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:307426584956:ios:b53548ce4d00a45a6d5cf9</string>
+	<key>DATABASE_URL</key>
+	<string>https://storyverse-db8a5-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

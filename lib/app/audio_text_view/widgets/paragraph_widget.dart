@@ -74,8 +74,8 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-
+            padding: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 0),
+            margin: const EdgeInsets.only(bottom: 2),
             decoration: BoxDecoration(color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent, borderRadius: BorderRadius.circular(4)),
             child: Text(word.word, style: AppTextStyles.audioTextFontOnly(color: AppColors.colorWhite)),
           ),
@@ -109,7 +109,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
 
   Widget _buildLineContainer(List<Widget> words) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 0),
       margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
         color: widget.paragraph.isBookmarked ?? false ? Colors.yellow.withOpacity(0.2) : Colors.transparent,

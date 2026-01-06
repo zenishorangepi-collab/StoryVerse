@@ -1,13 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
+import 'package:utsav_interview/app/download_novel/download_controller.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
+import 'package:utsav_interview/app/library_view/library_controller.dart';
+import 'package:utsav_interview/app/library_view/library_screen.dart';
+import 'package:utsav_interview/app/share_service.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
@@ -246,22 +253,34 @@ class AudioTextScreen extends StatelessWidget {
     final paragraphs = controller.uiParagraphs;
 
     if (paragraphs.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildShimmerLoading(context);
     }
 
     return controller.isHideText
         ? Stack(
           children: [
             /// 🔹 Blur Effect
-            CachedNetworkImage(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover,
-              imageUrl: controller.bookCoverUrl,
-              errorWidget: (context, error, stackTrace) {
-                return Image.asset(CS.imgBookCover2, height: MediaQuery.of(context).size.height, width: MediaQuery.of(context).size.width, fit: BoxFit.cover);
-              },
-            ),
+            controller.isOfflineMode
+                ? Image.file(
+                  File(controller.fileBookCoverUrl),
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                )
+                : CachedNetworkImage(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                  imageUrl: controller.bookCoverUrl,
+                  errorWidget: (context, error, stackTrace) {
+                    return Image.asset(
+                      CS.imgBookCover2,
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
 
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -273,13 +292,16 @@ class AudioTextScreen extends StatelessWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: CachedNetworkImage(
-                  height: 260,
-                  imageUrl: controller.bookCoverUrl,
-                  errorWidget: (context, error, stackTrace) {
-                    return Image.asset(CS.imgBookCover2, height: 260);
-                  },
-                ),
+                child:
+                    controller.isOfflineMode
+                        ? Image.file(File(controller.fileBookCoverUrl ?? ""), height: 260)
+                        : CachedNetworkImage(
+                          height: 260,
+                          imageUrl: controller.bookCoverUrl,
+                          errorWidget: (context, error, stackTrace) {
+                            return Image.asset(CS.imgBookCover2, height: 260);
+                          },
+                        ),
               ),
             ),
             Row(
@@ -470,13 +492,37 @@ class AudioTextScreen extends StatelessWidget {
               allowedInteraction: SliderInteraction.slideOnly,
               padding: EdgeInsets.all(5),
               max: max.toDouble(),
-              value: value.toDouble(),
+              // value: value.toDouble(),
+              value: controller.isUserDragging ? controller.sliderPosition : controller.position.toDouble(),
               activeColor: AppColors.colorWhite,
               inactiveColor: AppColors.colorBgGray02,
               overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
-              onChanged: (value) {
+
+              // onChanged: (value) {
+              //   controller.pause();
+              //   controller.seek(value.toInt());
+              // },
+              onChangeStart: (v) {
+                controller.isUserDragging = true;
+                controller.sliderPosition = v;
                 controller.pause();
-                controller.seek(value.toInt());
+              },
+
+              onChanged: (v) {
+                controller.sliderPosition = v;
+
+                // 🔥 LIVE preview (word + paragraph + scroll)
+                controller.previewAndScrollAt(v.toInt());
+
+                controller.update();
+              },
+
+              onChangeEnd: (v) async {
+                controller.isUserDragging = false;
+
+                // ONE real seek
+                await controller.seek(v.toInt(), isPlay: false);
+                controller.play();
               },
             ),
           ),
@@ -486,7 +532,10 @@ class AudioTextScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
             child: Row(
               children: [
-                Text(controller.formatTime(controller.position), style: AppTextStyles.body12GreyRegular),
+                Text(
+                  controller.formatTime(controller.isUserDragging ? controller.sliderPosition.toInt() : controller.position),
+                  style: AppTextStyles.body12GreyRegular,
+                ),
                 const Spacer(),
                 Text(controller.formatTime(controller.duration), style: AppTextStyles.body12GreyRegular),
               ],
@@ -1035,24 +1084,26 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          (controller.novelData?.bookCoverUrl?.isNotEmpty ?? false)
-                              ? Image.network(
-                                controller.novelData?.bookCoverUrl ?? "",
-                                height: 80,
-                                width: 50,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(color: AppColors.colorGrey, height: 80, width: 50);
-                                },
-                              )
+                          (controller.bookCoverUrl.isNotEmpty)
+                              ? controller.isOfflineMode
+                                  ? Image.file(File(controller.fileBookCoverUrl), height: 80, width: 50, fit: BoxFit.contain)
+                                  : Image.network(
+                                    controller.bookCoverUrl ?? "",
+                                    height: 80,
+                                    width: 50,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(color: AppColors.colorGrey, height: 80, width: 50);
+                                    },
+                                  )
                               : Container(color: AppColors.colorGrey, height: 80, width: 50),
 
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("dummy When khushal returned", style: AppTextStyles.heading18WhiteSemiBold),
-                                Text("dummy Saraban", style: AppTextStyles.heading18GreyBold),
+                                Text(controller.bookNme ?? "", style: AppTextStyles.heading18WhiteSemiBold),
+                                Text(controller.authorNme ?? "", style: AppTextStyles.heading18GreyBold),
                               ],
                             ),
                           ),
@@ -1060,8 +1111,19 @@ class AudioTextScreen extends StatelessWidget {
                         ],
                       ).paddingSymmetric(vertical: 20),
                       Divider(color: AppColors.colorBgWhite10),
-                      ListTile(leading: Image.asset(CS.icShareLink, height: 22), title: Text(CS.vShareLink, style: AppTextStyles.heading18WhiteMedium)),
-                      ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading18WhiteMedium)),
+                      ListTile(
+                        onTap: () {
+                          ShareService.shareAppWithBook(
+                            context: context,
+                            bookName: controller.bookNme,
+                            authorName: controller.authorNme,
+                            bookCoverUrl: controller.bookCoverUrl,
+                          );
+                        },
+                        leading: Image.asset(CS.icShareLink, height: 22),
+                        title: Text(CS.vShareLink, style: AppTextStyles.heading18WhiteMedium),
+                      ),
+                      // ListTile(leading: Image.asset(CS.icMusic, height: 20), title: Text(CS.vShareCurrentClip, style: AppTextStyles.heading18WhiteMedium)),
                     ],
                   ),
                 ),
@@ -1104,20 +1166,22 @@ class AudioTextScreen extends StatelessWidget {
                       Row(
                         spacing: 20,
                         children: [
-                          CachedNetworkImage(
-                            height: 40,
-                            width: 25,
-                            fit: BoxFit.fill,
-                            imageUrl: controller.bookCoverUrl,
-                            errorWidget: (context, error, stackTrace) {
-                              return Image.asset(
-                                CS.imgBookCover2,
-                                height: MediaQuery.of(context).size.height,
-                                width: MediaQuery.of(context).size.width,
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          ),
+                          controller.isOfflineMode
+                              ? Image.file(File(controller.fileBookCoverUrl), height: 40, width: 25, fit: BoxFit.fill)
+                              : CachedNetworkImage(
+                                height: 40,
+                                width: 25,
+                                fit: BoxFit.fill,
+                                imageUrl: controller.bookCoverUrl,
+                                errorWidget: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    CS.imgBookCover2,
+                                    height: MediaQuery.of(context).size.height,
+                                    width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1201,8 +1265,14 @@ class AudioTextScreen extends StatelessWidget {
                                 );
                               },
                             ),
-                            commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
-                            commonListTile(assetPath: CS.icShareExport, title: CS.vShare, onTap: () {}),
+                            // commonListTile(assetPath: CS.icSearch, title: CS.vSearch, onTap: () {}),
+                            commonListTile(
+                              assetPath: CS.icShareExport,
+                              title: CS.vShare,
+                              onTap: () {
+                                openShareSheet(context);
+                              },
+                            ),
                             Divider(color: AppColors.colorGreyDivider),
                             commonListTile(
                               assetPath: CS.icPlus,
@@ -1213,7 +1283,17 @@ class AudioTextScreen extends StatelessWidget {
                               },
                               imageHeight: 18,
                             ),
-                            commonListTile(assetPath: CS.icDownloads, title: CS.vDownload, onTap: () {}, imageHeight: 18),
+                            commonListTile(
+                              assetPath: CS.icDownloads,
+                              title: CS.vDownload,
+                              onTap: () async {
+                                final DownloadController downloadController =
+                                    Get.isRegistered<DownloadController>() ? Get.find<DownloadController>() : Get.put(DownloadController());
+
+                                await downloadController.downloadNovel(controller.novelData ?? bookInfo.value);
+                              },
+                              imageHeight: 18,
+                            ),
                             commonListTile(
                               assetPath: CS.icDelete,
                               style: AppTextStyles.body14RedRegular,
@@ -1225,7 +1305,8 @@ class AudioTextScreen extends StatelessWidget {
                                   onConfirm: () async {
                                     final controller = Get.find<AudioTextController>();
                                     await controller.stopListeningAndDelete();
-                                    Get.close(3);
+                                    Get.close(2);
+                                    Get.back(result: true);
                                     // controller.pause();
                                     // controller.stopListening();
                                   },
@@ -1760,4 +1841,105 @@ class AudioTextScreen extends StatelessWidget {
       },
     );
   }
+}
+
+Widget _buildShimmerLoading(BuildContext context) {
+  return Container(
+    color: AppColors.colorBlack,
+    child: SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Book title shimmer
+          _shimmerBookTitle(),
+          SizedBox(height: 32),
+
+          // Chapter title shimmer
+          _shimmerChapterTitle(),
+          SizedBox(height: 20),
+
+          // Paragraph shimmers (3 paragraphs)
+          ..._buildShimmerParagraphs(3),
+
+          SizedBox(height: 10),
+
+          // Another chapter
+          _shimmerChapterTitle(),
+          SizedBox(height: 20),
+          ..._buildShimmerParagraphs(2),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _shimmerBookTitle() {
+  return Shimmer(
+    color: AppColors.colorGrey,
+    child: Container(width: 200, height: 28, decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(6))),
+  );
+}
+
+Widget _shimmerChapterTitle() {
+  return Shimmer(
+    color: AppColors.colorGrey,
+    child: Container(width: 140, height: 22, decoration: BoxDecoration(color: Colors.grey[850], borderRadius: BorderRadius.circular(6))),
+  );
+}
+
+List<Widget> _buildShimmerParagraphs(int count) {
+  return List.generate(count, (index) {
+    return Padding(padding: EdgeInsets.only(bottom: 20), child: _shimmerParagraph(index));
+  });
+}
+
+Widget _shimmerParagraph(int index) {
+  return Shimmer(
+    colorOpacity: index == 0 ? 0.3 : 0,
+    color: index == 0 ? AppColors.colorGrey : AppColors.colorTransparent,
+
+    child: Container(
+      padding: EdgeInsets.all(index == 0 ? 20 : 5),
+      decoration: BoxDecoration(color: index == 0 ? Colors.grey[850] : null, borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Line 1 (100%)
+          _shimmerLine(widthFactor: 1.0),
+          SizedBox(height: 12),
+
+          // Line 2 (95%)
+          _shimmerLine(widthFactor: 0.95),
+          SizedBox(height: 12),
+
+          // Line 3 (88%)
+          _shimmerLine(widthFactor: 0.88),
+          SizedBox(height: 12),
+
+          // Line 4 (92%)
+          _shimmerLine(widthFactor: 0.92),
+          SizedBox(height: 12),
+
+          // Line 5 (65%)
+          _shimmerLine(widthFactor: 0.65),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _shimmerLine({required double widthFactor}) {
+  return Shimmer(
+    color: AppColors.colorGrey,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          width: constraints.maxWidth * widthFactor,
+          height: 14,
+          decoration: BoxDecoration(color: Colors.grey[700], borderRadius: BorderRadius.circular(4)),
+        );
+      },
+    ),
+  );
 }
