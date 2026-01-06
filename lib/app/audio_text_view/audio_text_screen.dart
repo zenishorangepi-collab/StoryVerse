@@ -73,7 +73,7 @@ class AudioTextScreen extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
-                      height: 100,
+                      height: 85,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.only(right: 10, left: 16),
                       decoration: BoxDecoration(
@@ -109,7 +109,7 @@ class AudioTextScreen extends StatelessWidget {
                                 curve: Curves.easeOut,
                                 offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
                                 child: Padding(
-                                  padding: const EdgeInsets.only(top: 52),
+                                  padding: const EdgeInsets.only(top: 35),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [

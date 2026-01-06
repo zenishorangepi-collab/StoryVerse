@@ -27,7 +27,8 @@ class BookDetailsScreen extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               /// 🔹 Foreground Content
-             SingleChildScrollView(
+              SafeArea(
+                child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -142,7 +143,7 @@ class BookDetailsScreen extends StatelessWidget {
                     ],
                   ).paddingOnly(bottom: isBookListening.value ? 100 : 0),
                 ),
-
+              ),
 
               Container(
                 height: 50,

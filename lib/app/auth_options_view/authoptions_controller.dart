@@ -21,9 +21,10 @@ class AuthOptionsController extends GetxController {
   }
 
   Future<void> signInAsGuest(BuildContext context) async {
+    final controller = Get.find<AuthOptionsController>();
 
     try {
- setLoading(true); // 🔥 START LOADING
+      controller.setLoading(true); // 🔥 START LOADING
 
       final userCredential = await FirebaseAuth.instance.signInAnonymously();
 
@@ -53,7 +54,7 @@ class AuthOptionsController extends GetxController {
 
       debugPrint('Guest login failed: $e');
     } finally {
-      setLoading(false); // 🔥 STOP LOADING ALWAYS
+      controller.setLoading(false); // 🔥 STOP LOADING ALWAYS
     }
   }
 

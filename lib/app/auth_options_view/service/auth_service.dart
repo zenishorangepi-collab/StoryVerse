@@ -10,6 +10,7 @@ import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/pref.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
+import 'package:get/get.dart';
 
 // Google Sign-In Service Class
 class GoogleSignInService {
@@ -62,7 +63,7 @@ class GoogleSignInService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.colorChipBackground,
-          content: Row(children:  [Icon(Icons.error_outline, color: Colors.red), SizedBox(width: 8), Text("Login failed",style: AppTextStyles.body14WhiteMedium,)]),
+          content: Row(children: const [Icon(Icons.error_outline, color: Colors.red), SizedBox(width: 8), Text("Login failed")]),
           behavior: SnackBarBehavior.floating,
         ),
       );

@@ -31,9 +31,9 @@ class LibraryScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 21),
                     _header(controller).screenPadding(),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
                     _tabs(controller),
                     const SizedBox(height: 20),
                     Expanded(child: _content(controller)),

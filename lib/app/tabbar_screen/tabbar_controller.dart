@@ -22,9 +22,7 @@ class TabBarScreenController extends GetxController {
   getUserFromPrefs() {
     // Get user data from preferences
     String? userJson = AppPrefs.getString(CS.keyUserData);
-    if(userJson.isNotEmpty) {
-      userData = UserModel.fromJson(jsonDecode(userJson));
-    }
+    userData = UserModel.fromJson(jsonDecode(userJson));
   }
 
   @override
