@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:utsav_interview/app/question_interest_view/interest_controller.dart';
+import 'package:utsav_interview/app/preference_view/preference_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -8,12 +8,13 @@ import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
-class InterestScreen extends StatelessWidget {
-  const InterestScreen({super.key});
+class PreferenceScreen extends StatelessWidget {
+  const PreferenceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<InterestController>(
+    return GetBuilder<PreferenceController>(
+      init: PreferenceController(),
       builder: (controller) {
         return Scaffold(
           // backgroundColor: AppColors.colorWhite,
@@ -24,17 +25,16 @@ class InterestScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 50),
-                  Text(CS.vWhatAreYourInterest, style: AppTextStyles.heading20WhiteSemiBold),
+                  Text(CS.vWhatWouldYouLikeToListen, style: AppTextStyles.heading20WhiteSemiBold),
                   const SizedBox(height: 30),
 
-                  // -------- INTEREST LIST --------
                   Expanded(
                     child: ListView.separated(
-                      itemCount: controller.interests.length,
+                      itemCount: controller.items.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
-                        final item = controller.interests[index];
-                        final isSelected = controller.selectedIndexes.contains(index);
+                        final item = controller.items[index];
+                        final isSelected = controller.selectedIndex == index;
 
                         return commonListTile(
                           icon: item.icon,
@@ -44,19 +44,20 @@ class InterestScreen extends StatelessWidget {
                           style: isSelected ? AppTextStyles.button16BlackBold : AppTextStyles.button16WhiteBold,
                           // trailing: isSelected ? Icon(Icons.check_circle, color: Colors.black) : SizedBox(),
                           onTap: () {
-                            controller.toggleSelection(index);
+                            controller.selectItem(index);
                             controller.update();
                           },
                         );
                       },
                     ),
                   ),
+
                   // -------- CONTINUE BUTTON --------
                   CommonElevatedButton(
                     onTap:
                         controller.isContinueEnabled
                             ? () {
-                              Get.toNamed(AppRoutes.referral);
+                              Get.toNamed(AppRoutes.interests);
                             }
                             : null,
                     // isDark: true,
@@ -64,7 +65,6 @@ class InterestScreen extends StatelessWidget {
                     title: CS.vContinue,
                     textStyle: controller.isContinueEnabled ? AppTextStyles.button16BlackBold : AppTextStyles.body16WhiteMedium,
                   ),
-
                   const SizedBox(height: 30),
                 ],
               ),

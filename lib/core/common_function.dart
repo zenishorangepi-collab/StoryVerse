@@ -173,8 +173,3 @@ commonActionButton({Color? color, IconData? icon, String? label, VoidCallback? o
     ),
   );
 }
-
-bool isLocalFile(String? path) {
-  if (path == null || path.isEmpty) return false;
-  return path.startsWith('/') || path.startsWith('file://');
-}

@@ -21,7 +21,7 @@ class AccountScreen extends StatelessWidget {
         return Scaffold(
           // backgroundColor: AppColors.colorBlack,
           appBar: AppBar(
-            backgroundColor: AppColors.colorBgGray02,
+            backgroundColor: Colors.transparent,
             elevation: 0,
             title: Text(CS.vAccount, style: AppTextStyles.heading24WhiteMedium).paddingOnly(top: 20, left: 10),
 
@@ -313,7 +313,7 @@ void showSignOutDialog() {
                   onPressed: () async {
                     Get.back();
                     await AppPrefs.clear();
-                    Get.offAllNamed(AppRoutes.authOptionsScreen);
+                    Get.offAllNamed(AppRoutes.loginScreen);
                   },
                   child: Text(CS.vYesSignOut, style: AppTextStyles.body14RedBold),
                 ),
