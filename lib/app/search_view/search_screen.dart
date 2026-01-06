@@ -18,13 +18,13 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2B2B2B),
+      // backgroundColor: AppColors.colorBgGray02,
       body: GetBuilder<SearchScreenController>(
         init: SearchScreenController(),
         builder: (controller) {
           return Column(
             children: [
-              SizedBox(height: 10),
+              SizedBox(height: 30),
               Row(
                 children: [
                   Expanded(
@@ -58,7 +58,7 @@ class SearchScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              ).paddingOnly(top: 20),
+              ).paddingSymmetric(vertical: 20),
 
               Expanded(child: _list(controller)),
 
@@ -74,6 +74,7 @@ class SearchScreen extends StatelessWidget {
     return controller.listNovel.isEmpty
         ? Center(child: Text(CS.vNoNovelFound, style: AppTextStyles.body14WhiteMedium))
         : ListView.separated(
+      padding: EdgeInsets.zero,
           itemCount: controller.listNovel.length,
           separatorBuilder: (_, __) => const Divider(color: AppColors.colorGreyDivider, height: 1),
           itemBuilder: (_, index) {

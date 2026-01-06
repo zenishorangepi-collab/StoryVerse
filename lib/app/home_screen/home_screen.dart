@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    expandedHeight: 20,
+                    expandedHeight: 30,
                     floating: true,
                     // shows AppBar when scrolling down
                     snap: true,
@@ -39,10 +39,11 @@ class HomeScreen extends StatelessWidget {
                     pinned: false,
                     // disappears when scrolling up
                     backgroundColor: AppColors.colorBgGray02,
-                    elevation: 0,
+                 surfaceTintColor: AppColors.colorTransparent,
+                    elevation: 0,centerTitle: false,
                     actions: [
                       Padding(
-                        padding: const EdgeInsets.only(right: 20, top: 20),
+                        padding: const EdgeInsets.only(right: 20, top: 10),
                         child: GestureDetector(
                           onTap: () {
                             Get.toNamed(AppRoutes.searchScreen);
@@ -60,23 +61,11 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      // Padding(
-                      //   padding: const EdgeInsets.only(right: 12),
-                      //   child: GestureDetector(
-                      //     onTap: () {},
-                      //     child: CircleAvatar(
-                      //       radius: 17,
-                      //       backgroundColor: Colors.white24,
-                      //       child: ClipOval(child: Image.network("https://i.pravatar.cc/100", fit: BoxFit.cover, height: 34, width: 34)),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                     title: Text(
                       "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}",
                       style: AppTextStyles.heading24WhiteMedium,
-                    ).paddingOnly(top: 20, left: 10),
+                    ).paddingOnly( left: 10,top: 10),
                   ),
 
                   SliverToBoxAdapter(
@@ -86,11 +75,11 @@ class HomeScreen extends StatelessWidget {
                         return listRecents.isEmpty
                             ? SizedBox(height: 10)
                             : SizedBox(
-                              height: 150,
+                              height: 160,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(height: 20),
+                                  SizedBox(height: 15),
                                   Text(CS.vRecentsListening, style: AppTextStyles.body16GreyMedium).screenPadding(),
 
                                   Expanded(
@@ -174,6 +163,7 @@ class HomeScreen extends StatelessWidget {
                                       },
                                     ),
                                   ),
+
                                 ],
                               ),
                             );
@@ -213,7 +203,7 @@ class HomeScreen extends StatelessWidget {
                             children: [
                               // Category title
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 20)+EdgeInsets.only(bottom: 10),
                                 child: Text(category.name ?? '', style: AppTextStyles.heading18WhiteSemiBold),
                               ),
 
@@ -267,18 +257,19 @@ class HomeScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
+
                                     );
                                   },
                                 ),
                               ),
                             ],
-                          );
+                          ).paddingOnly(bottom: isBookListening.value && categoryIndex==(activeCategories.length-1)?60 : 0);
                         }, childCount: activeCategories.length),
                       );
                     },
                   ),
                 ],
-              ).paddingOnly(bottom: isBookListening.value ? 60 : 0),
+              ),
               StreamBuilder(
                 stream: isBookListening.stream,
                 builder: (context, snap) {
