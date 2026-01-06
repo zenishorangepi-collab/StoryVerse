@@ -21,17 +21,17 @@ class AccountScreen extends StatelessWidget {
         return Scaffold(
           // backgroundColor: AppColors.colorBlack,
           appBar: AppBar(
-            backgroundColor: AppColors.colorBgGray02,
-            elevation: 0,
-            title: Text(CS.vAccount, style: AppTextStyles.heading24WhiteMedium).paddingOnly(top: 20, left: 10),
-
+            backgroundColor: AppColors.colorTransparent,surfaceTintColor: AppColors.colorTransparent,
+            // elevation: 0,
+            title: Text(CS.vAccount, style: AppTextStyles.heading24WhiteMedium).paddingOnly( left: 10),
+            centerTitle: false,
             actions: [
               IconButton(
                 onPressed: () {
                   Get.toNamed(AppRoutes.referScreen);
                 },
                 icon: Icon(Icons.card_giftcard, color: AppColors.colorWhite),
-              ).paddingOnly(top: 20, right: 10),
+              ).paddingOnly( right: 10),
             ],
           ),
 
@@ -40,9 +40,31 @@ class AccountScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 30),
+                    SizedBox(height: 20),
 
                     /// ---------- PROFILE ----------
+                    userData==null?
+                        Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 32,
+                              backgroundColor: AppColors.colorGreyBg,
+                              child: Icon(Icons.person_outline),
+                            ),
+                            SizedBox(height: 10),
+                            Center(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+
+                                decoration: BoxDecoration(borderRadius: BorderRadiusGeometry.circular(5), color: AppColors.colorBgWhite10),
+                                child: Text("FREE", style: AppTextStyles.body14GreyBold),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+                            Text("Guest", style: AppTextStyles.heading20WhiteSemiBold),
+                          ],
+                        )
+                        :
                     Center(
                       child: Column(
                         children: [
