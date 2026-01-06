@@ -63,7 +63,7 @@ class GoogleSignInService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppColors.colorChipBackground,
-          content: Row(children: const [Icon(Icons.error_outline, color: Colors.red), SizedBox(width: 8), Text("Login failed")]),
+          content: Row(children:  [Icon(Icons.error_outline, color: Colors.red), SizedBox(width: 8), Text("Login failed",style: AppTextStyles.body14WhiteMedium,)]),
           behavior: SnackBarBehavior.floating,
         ),
       );
