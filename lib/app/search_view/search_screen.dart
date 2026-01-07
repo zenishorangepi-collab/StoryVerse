@@ -24,7 +24,7 @@ class SearchScreen extends StatelessWidget {
         builder: (controller) {
           return Column(
             children: [
-              SizedBox(height: 30),
+              SizedBox(height: 40),
               Row(
                 children: [
                   Expanded(

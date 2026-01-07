@@ -20,6 +20,7 @@ import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/common_textfield.dart';
+import 'package:utsav_interview/core/pref.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
 
 import '../../core/common_elevated_button.dart';
@@ -73,7 +74,7 @@ class AudioTextScreen extends StatelessWidget {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
-                      height: 100,
+                      height: 110,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.only(right: 10, left: 16),
                       decoration: BoxDecoration(
@@ -98,7 +99,7 @@ class AudioTextScreen extends StatelessWidget {
                           GestureDetector(
                             onTap: () => Get.back(),
                             child: Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.colorWhite),
-                          ).paddingOnly(bottom: 15),
+                          ).paddingOnly(bottom: 20),
 
                           Expanded(
                             child: AnimatedOpacity(
@@ -109,7 +110,7 @@ class AudioTextScreen extends StatelessWidget {
                                 curve: Curves.easeOut,
                                 offset: controller.isCollapsed ? Offset(0, 0) : Offset(0, 0.3),
                                 child: Padding(
-                                  padding: const EdgeInsets.only(top: 52),
+                                  padding: const EdgeInsets.only(top: 58),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -333,7 +334,7 @@ class AudioTextScreen extends StatelessWidget {
                   ],
                 ),
               ],
-            ).paddingOnly(right: 10, top: 35),
+            ).paddingOnly(right: 10, top: 50),
           ],
         )
         : NotificationListener<ScrollNotification>(
@@ -1500,18 +1501,27 @@ class AudioTextScreen extends StatelessWidget {
                               title: CS.vReset,
                               backgroundColor: AppColors.colorChipBackground,
                               textStyle: AppTextStyles.button16WhiteBold,
-                              onTap: () {
+                              onTap: () async {
                                 controller.selectedFonts = CS.vInter;
                                 controller.colorAudioTextBg = AppColors.colorTealDark;
                                 controller.colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
                                 controller.iThemeSelect = 0;
                                 dCurrentAudioTextSize = 16;
                                 currentAudioTextFonts = AppFontType.inter;
+
+                                await AppPrefs.remove(CS.keySelectedFont);
+                                await AppPrefs.remove(CS.keyAudioTextSize);
+                                await AppPrefs.remove(CS.keyThemeIndex);
+                                await AppPrefs.remove(CS.keyAudioBgColor);
+                                await AppPrefs.remove(CS.keyAudioParagraphBgColor);
+
                                 controller.update();
                               },
                             ),
                           ),
-                          Expanded(flex: 2, child: CommonElevatedButton(title: CS.vSaveSettings)),
+                          Expanded(flex: 2, child: CommonElevatedButton(onTap: () async {
+                            await controller.saveSettings();
+                          },title: CS.vSaveSettings)),
                         ],
                       ).screenPadding(),
                       SizedBox(height: 50),

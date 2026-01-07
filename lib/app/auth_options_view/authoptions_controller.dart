@@ -14,6 +14,7 @@ import 'package:utsav_interview/routes/app_routes.dart';
 class AuthOptionsController extends GetxController {
   bool isLoading = false;
   bool isAppleLoading = false;
+  bool isGuestLogin = false;
   bool isGoogleLogin = false;
 
   void setLoading(bool value) {
@@ -23,10 +24,9 @@ class AuthOptionsController extends GetxController {
   }
 
   Future<void> signInAsGuest(BuildContext context) async {
-    final controller = Get.find<AuthOptionsController>();
-
+    isGuestLogin=true;
+    update();
     try {
-      controller.setLoading(true); // 🔥 START LOADING
 
       final userCredential = await FirebaseAuth.instance.signInAnonymously();
 
@@ -56,7 +56,8 @@ class AuthOptionsController extends GetxController {
 
       debugPrint('Guest login failed: $e');
     } finally {
-      controller.setLoading(false); // 🔥 STOP LOADING ALWAYS
+      isGuestLogin=false;
+      update();
     }
   }
 

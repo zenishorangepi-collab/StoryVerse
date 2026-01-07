@@ -364,6 +364,11 @@ class CS {
   static const String keyCollectionBooks = 'collection_books';
   static const String keyDownloads = 'downloads';
   static const String keyUserId = 'userId';
+  static const String keySelectedFont = 'selected_font';
+  static const String keyAudioTextSize = 'audio_text_size';
+  static const String keyThemeIndex = 'theme_index';
+  static const String keyAudioBgColor = 'audio_bg_color';
+  static const String keyAudioParagraphBgColor = 'audio_paragraph_bg_color';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

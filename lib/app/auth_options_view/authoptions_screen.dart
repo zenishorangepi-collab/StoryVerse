@@ -104,15 +104,15 @@ class AuthOptionsScreen extends StatelessWidget {
                       side: const BorderSide(color: AppColors.colorGrey),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    icon: !controller.isGoogleLogin && controller.isLoading ? null : Image.asset(CS.icProfile, height: 22, color: AppColors.colorWhite),
+                    icon: controller.isGuestLogin ? null : Image.asset(CS.icProfile, height: 22, color: AppColors.colorWhite),
 
-                    label: !controller.isGoogleLogin && controller.isLoading ? SizedBox() : Text(CS.vContinueGuest, style: AppTextStyles.body16WhiteMedium),
+                    label: controller.isGuestLogin ? SizedBox() : Text(CS.vContinueGuest, style: AppTextStyles.body16WhiteMedium),
                     onPressed: () async {
                       await controller.signInAsGuest(context);
                     },
                     // onPressed: () => controller.signInWithGoogle(),
                   ),
-                  !controller.isGoogleLogin && controller.isLoading
+                  controller.isGuestLogin
                       ? Center(child: const SizedBox(height: 25, width: 25, child: CupertinoActivityIndicator(color: AppColors.colorWhite)))
                       : SizedBox(),
                 ],

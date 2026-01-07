@@ -74,8 +74,8 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            padding: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 0),
-            margin: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 0),
+            margin: const EdgeInsets.only(bottom: 1),
             decoration: BoxDecoration(color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent, borderRadius: BorderRadius.circular(4)),
             child: Text(word.word, style: AppTextStyles.audioTextFontOnly(color: AppColors.colorWhite)),
           ),

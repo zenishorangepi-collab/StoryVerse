@@ -19,6 +19,8 @@ import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
 
+import '../../core/common_style.dart';
+
 RxBool isBookListening = false.obs;
 RxBool isPlayAudio = false.obs;
 RxInt isAudioInitCount = 0.obs;
@@ -188,6 +190,7 @@ class AudioTextController extends GetxController {
     scrollController.addListener(_onCollapseScroll);
     scrollController.addListener(_onScrollPositionChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      getThemeSetting();
       _initializeAudioService();
       loadIsBookListening();
 
@@ -195,6 +198,9 @@ class AudioTextController extends GetxController {
     });
   }
 
+  getThemeSetting() async {
+   await  loadSettings();
+  }
   void restoreScrollPosition() {
     if (!scrollController.hasClients) {
       // Retry after a short delay if not ready
@@ -321,7 +327,8 @@ class AudioTextController extends GetxController {
   }
 
   void startListening() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async { getThemeSetting();
+
       lastScrollOffset = await _loadScrollPosition();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         restoreScrollPosition();
@@ -1714,6 +1721,61 @@ class AudioTextController extends GetxController {
       debugPrint('Error handling back: $e');
       Get.back(); // Go back anyway
     }
+  }
+
+  Future<void> saveSettings() async {
+
+
+    await AppPrefs.setString(CS.keySelectedFont, selectedFonts);
+    await AppPrefs.setDouble(CS.keyAudioTextSize, dCurrentAudioTextSize);
+    await AppPrefs.setInt(CS.keyThemeIndex, iThemeSelect);
+    await AppPrefs.setInt(CS.keyAudioBgColor, colorAudioTextBg.value);
+    await AppPrefs.setInt(CS.keyAudioParagraphBgColor, colorAudioTextParagraphBg.value);
+
+    Get.back();
+
+  }
+
+  Future<void> loadSettings() async {
+
+    if(AppPrefs.getString(CS.keySelectedFont).isNotEmpty) {
+      selectedFonts =
+          AppPrefs.getString(CS.keySelectedFont) ?? CS.vInter;
+    }
+
+    if(AppPrefs.getDouble(CS.keyAudioTextSize)!=0) {
+      dCurrentAudioTextSize =
+          AppPrefs.getDouble(CS.keyAudioTextSize) ?? 16.0;
+    }
+
+    if(iThemeSelect!=0) {
+      iThemeSelect =
+          AppPrefs.getInt(CS.keyThemeIndex) ?? 0;
+    }
+
+    if(AppPrefs.getInt(CS.keyAudioBgColor)!=0) {
+      colorAudioTextBg = Color(
+        AppPrefs.getInt(CS.keyAudioBgColor) ??
+            AppColors.colorTealDark.value,
+      );
+    }
+
+    if(AppPrefs.getInt(CS.keyAudioParagraphBgColor)!=0) {
+      colorAudioTextParagraphBg = Color(
+        AppPrefs.getInt(CS.keyAudioParagraphBgColor) ??
+            AppColors.colorTealDarkBg.value,
+      );
+    }
+
+
+    currentAudioTextFonts = selectedFonts == CS.vInter
+        ? AppFontType.inter
+        : selectedFonts == CS.vLibreBaskerville
+        ? AppFontType.libreBaskerville
+        : AppFontType.openSans;
+
+
+    update();
   }
 
   // ============================================================
