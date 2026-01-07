@@ -1,13 +1,15 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/home_screen/models/categories_model.dart';
 import 'package:utsav_interview/app/home_screen/models/home_model.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
-import 'package:utsav_interview/app/home_screen/models/recent_listen_model.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
+
 
 RxList<NovelsDataModel> listRecents = <NovelsDataModel>[].obs;
 
@@ -30,15 +32,43 @@ class HomeController extends GetxController {
   RxList<NovelsDataModel> listNovelData = <NovelsDataModel>[].obs;
   RxList<CategoriesDataModel> listNovelCategoriesData = <CategoriesDataModel>[].obs;
   bool isDataLoading = false;
-
+  bool isTimeout = false;
+  Timer? _timeoutTimer;
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    fetchData();
+    // fetchData();
     getRecentList();
+    fetchDataWithTimeout();
+  }
+  @override
+  void onClose() {
+    _timeoutTimer?.cancel();
+    super.onClose();
+  }
+  Future<void> fetchDataWithTimeout() async {
+    isTimeout = false;
+    update();
+
+    // Start timeout timer
+    _timeoutTimer = Timer(const Duration(seconds: 10), () {
+      if (listNovelCategoriesData.isEmpty) {
+        isTimeout = true;
+        update();
+      }
+    });
+
+    // Fetch data
+    await fetchData();
+
+    // Cancel timeout if data loaded
+    _timeoutTimer?.cancel();
   }
 
+  void retryFetch() {
+    fetchDataWithTimeout();
+  }
   fetchData() async {
     await fetchNovelCategories();
     await fetchNovels();

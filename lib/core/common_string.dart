@@ -48,6 +48,7 @@ class CS {
   static const String vLatest = "Latest";
   static const String vMostPopular = "Most Popular";
   static const String vShortBy = "Sort by";
+  static const String vTakingLongerThanExpected = "Taking longer than expected";
   static const String vSoundScapes = "Soundscapes";
   static const String vSelectVoice = "Select a voice";
   static const String vSoundscapeVolume = "Soundscape volume";
@@ -55,6 +56,7 @@ class CS {
   static const String vAddNote = "Add a note";
   static const String vHideText = "Hide text";
   static const String vShowText = "Show text";
+  static const String vTryAgain= "Try Again";
   static const String vPreferences = "Preferences";
   static const String vChooseFont = "Choose a Font";
   static const String vFonts = "Fonts";

@@ -12,6 +12,7 @@ import 'package:utsav_interview/app/home_screen/models/home_model.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_elevated_button.dart';
 import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
@@ -63,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                     title: Text(
-                      "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"}",
+                      "${CS.vWelcome} ${userData?.name.split(" ").first ?? "user"},",
                       style: AppTextStyles.heading24WhiteMedium,
                     ).paddingOnly( left: 10,top: 10),
                   ),
@@ -174,6 +175,42 @@ class HomeScreen extends StatelessWidget {
                   StreamBuilder(
                     stream: controller.listNovelData.stream,
                     builder: (context, novelSnapshot) {
+                      if (controller.isTimeout) {
+                        return SliverToBoxAdapter(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+
+                                children: [
+                                  SizedBox(height: MediaQuery.of(context).size.height/5,),
+                                  Icon(
+                                    Icons.error_outline,
+                                    size: 60,
+                                    color: AppColors.colorWhite.withOpacity(0.7),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                      CS.vTakingLongerThanExpected,
+                                    style: AppTextStyles.body16WhiteMedium
+                                  ),
+                                  const SizedBox(height: 24),
+                                  ElevatedButton.icon(
+                                    onPressed: controller.retryFetch,
+                                    icon: const Icon(Icons.refresh),
+                                    label:  Text(CS.vTryAgain,style: AppTextStyles.button16BlackBold,),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.colorWhite,
+                                      foregroundColor: AppColors.colorBlack,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       if (!novelSnapshot.hasData) {
                         return SliverToBoxAdapter(
                           child: Center(

@@ -84,7 +84,7 @@ class AuthOptionsScreen extends StatelessWidget {
 
                     onPressed: () async {
 
-                     await controller.signInWithApple();
+                     await GoogleSignInService.signInWithApple();
                     },
 
                   ),

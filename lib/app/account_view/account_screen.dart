@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:utsav_interview/app/account_view/account_controller.dart';
+import 'package:utsav_interview/app/auth_options_view/service/auth_service.dart';
 import 'package:utsav_interview/app/tabbar_screen/tabbar_controller.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_elevated_button.dart';
@@ -71,7 +72,7 @@ class AccountScreen extends StatelessWidget {
                           CircleAvatar(
                             radius: 32,
                             backgroundColor: AppColors.colorTealDark,
-                            child: Text(userData?.name[0] ?? "", style: AppTextStyles.heading20WhiteSemiBold),
+                            child: Text(userData?.name.isNotEmpty??false?userData?.name[0].toUpperCase() ?? "":"", style: AppTextStyles.heading20WhiteSemiBold),
                           ),
                           SizedBox(height: 10),
                           Center(
@@ -83,7 +84,7 @@ class AccountScreen extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 12),
-                          Text(userData?.name ?? "", style: AppTextStyles.heading20WhiteSemiBold),
+                          Text(userData?.name.toUpperCase() ?? "", style: AppTextStyles.heading20WhiteSemiBold),
                           SizedBox(height: 4),
                           Text(userData?.email ?? "", style: AppTextStyles.body16GreySemiBold),
                         ],
@@ -334,8 +335,7 @@ void showSignOutDialog() {
                 TextButton(
                   onPressed: () async {
                     Get.back();
-                    await AppPrefs.clear();
-                    Get.offAllNamed(AppRoutes.authOptionsScreen);
+                    await GoogleSignInService.signOut();
                   },
                   child: Text(CS.vYesSignOut, style: AppTextStyles.body14RedBold),
                 ),
