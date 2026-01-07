@@ -62,6 +62,7 @@ class AudioTextController extends GetxController {
   // Keys for scroll tracking
   double sliderPosition = 0;
   bool isUserDragging = false;
+  bool isFullScreen = false;
 
   List<GlobalKey> paragraphKeys = [];
   List<GlobalKey> wordKeys = [];

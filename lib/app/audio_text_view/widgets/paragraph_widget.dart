@@ -46,7 +46,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.isCurrentParagraph ? widget.colorAudioTextParagraphBg : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Wrap(spacing: 3, runSpacing: 3, children: _buildLineWidgets(allWords)),
+      child: Wrap(spacing: 2, runSpacing: 3, children: _buildLineWidgets(allWords)),
     );
   }
 
@@ -115,7 +115,8 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.paragraph.isBookmarked ?? false ? Colors.yellow.withOpacity(0.2) : Colors.transparent,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Wrap(spacing: 3, runSpacing: 3, children: words),
+
+      child: Wrap(spacing: 2, runSpacing: 3, children: words),
     );
   }
 }

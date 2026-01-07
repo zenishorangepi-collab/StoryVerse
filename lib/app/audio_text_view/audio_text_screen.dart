@@ -67,7 +67,7 @@ class AudioTextScreen extends StatelessWidget {
         return Scaffold(
           backgroundColor: AppColors.colorBlack,
           appBar:
-              controller.isHideText
+              controller.isHideText ||     controller.isFullScreen
                   ? null
                   : PreferredSize(
                     preferredSize: const Size.fromHeight(80),
@@ -164,17 +164,19 @@ class AudioTextScreen extends StatelessWidget {
                   /// -------------------------
                   /// 🔵 slider, play button, other settings
                   /// -------------------------
+                  if(!controller.isFullScreen)
                   _buildControlPanel(context, controller),
                 ],
               ),
 
-              if (controller.isScrolling && (controller.currentParagraphIndex != -1))
+              if (controller.isScrolling && (controller.currentParagraphIndex != -1) )
                 GetBuilder<AudioTextController>(
                   id: "scrollButton",
                   builder: (controller) {
                     return Positioned(
                       right: 18,
-                      bottom: MediaQuery.of(context).size.height * 0.29,
+
+                      bottom: MediaQuery.of(context).size.height * (controller.isFullScreen?0.06:0.22),
                       child: GestureDetector(
                         onTap: () async {
                           controller.isScrolling = false;
@@ -206,15 +208,26 @@ class AudioTextScreen extends StatelessWidget {
                   },
                 ),
 
+
+              if(controller.isFullScreen)
               Positioned(
-                right: 14,
-                bottom: MediaQuery.of(context).size.height * 0.22,
-                child: Container(
-                  padding: EdgeInsets.all(14),
-                  decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
-                  child: Image.asset(CS.icAiChat, color: AppColors.colorBlack, width: 18, height: 18),
-                ),
+                right: 16,
+                top: 80,
+                // bottom: MediaQuery.of(context).size.height * 0.22,
+                child: commonCircleButton(isBackButton: false,padding: 8,bgColor: AppColors.colorChipBackground,onTap: () {
+                  controller.isFullScreen=false;
+                  controller.update();
+                },icon: Icon(Icons.close_fullscreen_rounded,size: 20,))
               ),
+              // Positioned(
+              //   right: 14,
+              //   bottom: MediaQuery.of(context).size.height * 0.22,
+              //   child: Container(
+              //     padding: EdgeInsets.all(14),
+              //     decoration: BoxDecoration(color: AppColors.colorWhite, borderRadius: BorderRadius.circular(50)),
+              //     child: Image.asset(CS.icAiChat, color: AppColors.colorBlack, width: 18, height: 18),
+              //   ),
+              // ),
             ],
           ),
         );
@@ -368,14 +381,14 @@ class AudioTextScreen extends StatelessWidget {
                 flexibleSpace: FlexibleSpaceBar(
                   // title: const Text("Audio Text Synchronizer"),
                   background: Container(
-                    padding: const EdgeInsets.only(left: 25, bottom: 5),
+                    padding: const EdgeInsets.only(left: 15, bottom: 5),
                     alignment: Alignment.bottomLeft,
                     child: Text(controller.bookNme, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 70),
+                padding: const EdgeInsets.only(top: 16, left: 10, right: 10, bottom: 70),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     // ✅ Track chapter changes
@@ -394,7 +407,7 @@ class AudioTextScreen extends StatelessWidget {
                               // SizedBox(width: 12),
                               Text("Chapter ${currentChapterIndex + 1}", style: AppTextStyles.heading20WhiteSemiBold),
                             ],
-                          ).paddingSymmetric(horizontal: 10, vertical: 15);
+                          ).paddingSymmetric( vertical: 15,horizontal: 5);
                         }
                         adjustedIndex--;
                         currentChapterIndex = paragraphs[i].chapterIndex ?? 0;
@@ -486,51 +499,65 @@ class AudioTextScreen extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           /// Slider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Slider(
-              min: 0,
-              allowedInteraction: SliderInteraction.slideOnly,
-              padding: EdgeInsets.all(5),
-              max: max.toDouble(),
-              // value: value.toDouble(),
-              value: controller.isUserDragging ? controller.sliderPosition : controller.position.toDouble(),
-              activeColor: AppColors.colorWhite,
-              inactiveColor: AppColors.colorBgGray02,
-              overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Slider(
+                    min: 0,
+                    allowedInteraction: SliderInteraction.slideOnly,
+                    padding: EdgeInsets.all(5),
+                    max: max.toDouble(),
+                    // value: value.toDouble(),
+                    value: controller.isUserDragging ? controller.sliderPosition : controller.position.toDouble(),
+                    activeColor: AppColors.colorWhite,
+                    inactiveColor: AppColors.colorBgGray02,
+                    overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
+                
+                    // onChanged: (value) {
+                    //   controller.pause();
+                    //   controller.seek(value.toInt());
+                    // },
+                    onChangeStart: (v) {
+                      controller.isUserDragging = true;
+                      controller.sliderPosition = v;
+                      controller.pause();
+                    },
+                
+                    onChanged: (v) {
+                      controller.sliderPosition = v;
+                
+                      // 🔥 LIVE preview (word + paragraph + scroll)
+                      controller.previewAndScrollAt(v.toInt());
+                
+                      controller.update();
+                    },
+                
+                    onChangeEnd: (v) async {
+                      controller.isUserDragging = false;
+                
+                      // ONE real seek
+                      await controller.seek(v.toInt(), isPlay: false);
+                      controller.play();
+                    },
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  controller.isFullScreen=true;
+                  controller.update();
+                },
+                child: Icon(Icons.fullscreen),
+              ).paddingOnly(right: 10),
 
-              // onChanged: (value) {
-              //   controller.pause();
-              //   controller.seek(value.toInt());
-              // },
-              onChangeStart: (v) {
-                controller.isUserDragging = true;
-                controller.sliderPosition = v;
-                controller.pause();
-              },
-
-              onChanged: (v) {
-                controller.sliderPosition = v;
-
-                // 🔥 LIVE preview (word + paragraph + scroll)
-                controller.previewAndScrollAt(v.toInt());
-
-                controller.update();
-              },
-
-              onChangeEnd: (v) async {
-                controller.isUserDragging = false;
-
-                // ONE real seek
-                await controller.seek(v.toInt(), isPlay: false);
-                controller.play();
-              },
-            ),
+            ],
           ),
 
           /// time
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
             child: Row(
               children: [
                 Text(
@@ -538,7 +565,7 @@ class AudioTextScreen extends StatelessWidget {
                   style: AppTextStyles.body12GreyRegular,
                 ),
                 const Spacer(),
-                Text(controller.formatTime(controller.duration), style: AppTextStyles.body12GreyRegular),
+                Text(controller.formatTime(controller.duration), style: AppTextStyles.body12GreyRegular).paddingOnly(right: 30),
               ],
             ),
           ),
