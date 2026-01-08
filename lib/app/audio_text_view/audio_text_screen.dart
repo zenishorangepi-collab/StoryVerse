@@ -11,9 +11,6 @@ import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/audio_text_view/models/paragrah_data_model.dart';
 import 'package:utsav_interview/app/audio_text_view/widgets/paragraph_widget.dart';
 import 'package:utsav_interview/app/download_novel/download_controller.dart';
-import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
-import 'package:utsav_interview/app/library_view/library_controller.dart';
-import 'package:utsav_interview/app/library_view/library_screen.dart';
 import 'package:utsav_interview/app/share_service.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_function.dart';
@@ -114,8 +111,8 @@ class AudioTextScreen extends StatelessWidget {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(controller.bookNme ?? "", style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis),
-                                      Text(controller.authorNme ?? "", style: AppTextStyles.body14GreyRegular, overflow: TextOverflow.ellipsis),
+                                      Text(controller.bookNme, style: AppTextStyles.body16WhiteMedium, overflow: TextOverflow.ellipsis),
+                                      Text(controller.authorNme, style: AppTextStyles.body14GreyRegular, overflow: TextOverflow.ellipsis),
                                     ],
                                   ),
                                 ),
@@ -303,7 +300,7 @@ class AudioTextScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child:
                     controller.isOfflineMode
-                        ? Image.file(File(controller.fileBookCoverUrl ?? ""), height: 260)
+                        ? Image.file(File(controller.fileBookCoverUrl ), height: 260)
                         : CachedNetworkImage(
                           height: 260,
                           imageUrl: controller.bookCoverUrl,
@@ -480,7 +477,7 @@ class AudioTextScreen extends StatelessWidget {
     // final theme = Theme.of(Get.context!);
     final double max = controller.duration > 0 ? controller.duration.toDouble() : 1.0;
 
-    final value = controller.position.clamp(0, max);
+    // final value = controller.position.clamp(0, max);
 
     return Container(
       padding: EdgeInsets.only(top: 10),
@@ -488,7 +485,6 @@ class AudioTextScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.colorBlack,
         boxShadow: [BoxShadow(color: AppColors.colorBlack, blurRadius: 45, spreadRadius: 10, offset: Offset(0, -50))],
-        // boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, -2))],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -509,11 +505,7 @@ class AudioTextScreen extends StatelessWidget {
                     activeColor: AppColors.colorWhite,
                     inactiveColor: AppColors.colorBgGray02,
                     overlayColor: WidgetStatePropertyAll(AppColors.colorWhite),
-                
-                    // onChanged: (value) {
-                    //   controller.pause();
-                    //   controller.seek(value.toInt());
-                    // },
+
                     onChangeStart: (v) {
                       controller.isUserDragging = true;
                       controller.sliderPosition = v;
@@ -1112,7 +1104,7 @@ class AudioTextScreen extends StatelessWidget {
                                   ? Image.file(File(controller.fileBookCoverUrl), height: 80, width: 50, fit: BoxFit.contain)
                                   :
                           CachedNetworkImage(
-                            imageUrl: controller.bookCoverUrl ?? "",
+                            imageUrl: controller.bookCoverUrl ,
                             height: 80,
                             width: 50,
                             fit: BoxFit.contain,
@@ -1126,8 +1118,8 @@ class AudioTextScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(controller.bookNme ?? "", style: AppTextStyles.heading18WhiteSemiBold),
-                                Text(controller.authorNme ?? "", style: AppTextStyles.heading18GreyBold),
+                                Text(controller.bookNme , style: AppTextStyles.heading18WhiteSemiBold),
+                                Text(controller.authorNme, style: AppTextStyles.heading18GreyBold),
                               ],
                             ),
                           ),

@@ -995,43 +995,10 @@ class AudioTextController extends GetxController {
     }
   }
 
-  // void _onUserScroll() {
-  //   if (!scrollController.hasClients) return;
-  //
-  //   // User is scrolling
-  //   suppressAutoScroll = true;
-  //   update();
-  //
-  //   // Detect scroll stop
-  //   _scrollEndTimer?.cancel();
-  //   _scrollEndTimer = Timer(const Duration(milliseconds: 250), () {
-  //     suppressAutoScroll = false;
-  //     update();
-  //   });
-  // }
 
-  // ------------------------------------------------------------
-  // Position listener → highlight + auto-scroll
-  // ------------------------------------------------------------
-
-  // void onAudioPositionUpdate() {
-  //   if (!scrollController.hasClients || suppressAutoScroll || syncEngine == null) return;
-  //
-  //   final newIndex = syncEngine!.findWordIndexAtTime(position);
-  //   if (newIndex < 0) return;
-  //
-  //   currentWordIndex = newIndex;
-  //   currentParagraphIndex = syncEngine!.getParagraphIndex(newIndex);
-  //
-  //   if (newIndex != -1) {
-  //     scrollToCurrentWord(newIndex);
-  //   }
-  //
-  //   update();
-  // }
 
   int _lastPreviewPosition = 0;
-  bool _isScrubbingBackward = false;
+  bool isScrubbingBackward = false;
 
   void previewScrollToWord(int uiWordIndex) {
     if (!scrollController.hasClients) return;
@@ -1059,7 +1026,7 @@ class AudioTextController extends GetxController {
   void previewAndScrollAt(int previewPositionMs) {
     if (!isUserDragging || syncEngine == null) return;
 
-    _isScrubbingBackward = previewPositionMs < _lastPreviewPosition;
+    isScrubbingBackward = previewPositionMs < _lastPreviewPosition;
     _lastPreviewPosition = previewPositionMs;
 
     final syncWord = syncEngine!.findWordIndexAtTime(previewPositionMs);
@@ -1751,30 +1718,28 @@ class AudioTextController extends GetxController {
 
     if(AppPrefs.getString(CS.keySelectedFont).isNotEmpty) {
       selectedFonts =
-          AppPrefs.getString(CS.keySelectedFont) ?? CS.vInter;
+          AppPrefs.getString(CS.keySelectedFont) ;
     }
 
     if(AppPrefs.getDouble(CS.keyAudioTextSize)!=0) {
       dCurrentAudioTextSize =
-          AppPrefs.getDouble(CS.keyAudioTextSize) ?? 16.0;
+          AppPrefs.getDouble(CS.keyAudioTextSize) ;
     }
 
     if(iThemeSelect!=0) {
       iThemeSelect =
-          AppPrefs.getInt(CS.keyThemeIndex) ?? 0;
+          AppPrefs.getInt(CS.keyThemeIndex) ;
     }
 
     if(AppPrefs.getInt(CS.keyAudioBgColor)!=0) {
       colorAudioTextBg = Color(
-        AppPrefs.getInt(CS.keyAudioBgColor) ??
-            AppColors.colorTealDark.value,
+        AppPrefs.getInt(CS.keyAudioBgColor)
       );
     }
 
     if(AppPrefs.getInt(CS.keyAudioParagraphBgColor)!=0) {
       colorAudioTextParagraphBg = Color(
-        AppPrefs.getInt(CS.keyAudioParagraphBgColor) ??
-            AppColors.colorTealDarkBg.value,
+        AppPrefs.getInt(CS.keyAudioParagraphBgColor)
       );
     }
 
