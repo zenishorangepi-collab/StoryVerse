@@ -181,7 +181,7 @@ class AudioTextController extends GetxController {
   // ============================================================
   // LIFECYCLE
   // ============================================================
-  double lastScrollOffset = 0.0;
+  double lastScrollOffset = -1;
   Timer? _scrollSaveTimer;
 
   @override
@@ -216,6 +216,7 @@ class AudioTextController extends GetxController {
       final safeOffset = lastScrollOffset.clamp(0.0, maxScroll);
 
       scrollController.jumpTo(safeOffset);
+      lastScrollOffset=(safeOffset==0.0?-1:safeOffset);
       debugPrint('✅ Restored scroll position: $safeOffset');
     }
   }
@@ -229,6 +230,9 @@ class AudioTextController extends GetxController {
       _scrollSaveTimer?.cancel();
       _scrollSaveTimer = Timer(const Duration(milliseconds: 500), () async {
         await _saveScrollPosition();
+        if (isAudioInitCount.value != 1) {
+          await saveCurrentPosition();
+        }
       });
     }
   }
@@ -263,10 +267,7 @@ class AudioTextController extends GetxController {
   // ------------------------------------------------------------
   Future<void> initializeApp() async {
     bool usedCache = false;
-    lastScrollOffset = await _loadScrollPosition();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      restoreScrollPosition();
-    });
+
     try {
       if (Get.arguments != null) {
         isOfflineMode = Get.arguments["isOffline"] ?? false;
@@ -293,6 +294,10 @@ class AudioTextController extends GetxController {
         bookSummary = bookInfo.value.summary ?? "";
         await saveRecentView(bookInfo.value);
       }
+      lastScrollOffset = await _loadScrollPosition();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        restoreScrollPosition();
+      });
       audioLoading = true;
       await loadAllChapterTextOnce();
 
@@ -301,6 +306,7 @@ class AudioTextController extends GetxController {
 
       await loadAudioForChapter(currentChapterIndex);
       _position = savedData['position'] ?? 0;
+
       sliderPosition = position.toDouble();
 
       audioLoading = false;
@@ -690,6 +696,7 @@ class AudioTextController extends GetxController {
 
   Future<void> saveCurrentPosition() async {
     if (bookId.isNotEmpty) {
+      print("saveCurrentPosition=============================================================>>>  ${_position}");
       final data = jsonEncode({'chapterIndex': currentChapterIndex, 'chapterId': currentChapterId, 'position': _position});
       await AppPrefs.setString('${CS.keyLastPosition}_$bookId', data);
     }
@@ -1094,6 +1101,7 @@ class AudioTextController extends GetxController {
       return;
     }
 
+
     currentWordIndex = uiWordIndex;
     currentParagraphIndex = uiParaIndex;
 
@@ -1209,7 +1217,7 @@ class AudioTextController extends GetxController {
     update();
   }
 
-  void _onPositionStream(Duration pos) {
+  Future<void> _onPositionStream(Duration pos) async {
     if (_isSeeking || _isDisposed) return;
 
     final newPos = pos.inMilliseconds.clamp(0, _duration);
@@ -1221,10 +1229,12 @@ class AudioTextController extends GetxController {
 
       _checkDrift();
 
-      final now = DateTime.now();
-      if (_lastPositionSave == null || now.difference(_lastPositionSave!) > Duration(seconds: 5)) {
-        saveCurrentPosition();
-        _lastPositionSave = now;
+      if (isAudioInitCount.value != 1) {
+        final now = DateTime.now();
+        if (_lastPositionSave == null || now.difference(_lastPositionSave!) > Duration(seconds: 5)) {
+          saveCurrentPosition();
+          _lastPositionSave = now;
+        }
       }
       update();
     }
@@ -1411,7 +1421,7 @@ class AudioTextController extends GetxController {
     _isSeeking = true;
     // audioLoading = true;
     // suppressAutoScroll = true;
-
+    isAudioInitCount.value++;
     try {
       _position = positionMs.clamp(0, _duration);
 
