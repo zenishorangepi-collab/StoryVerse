@@ -178,3 +178,15 @@ bool isLocalFile(String? path) {
   if (path == null || path.isEmpty) return false;
   return path.startsWith('/') || path.startsWith('file://');
 }
+
+Widget commonBookIcon({
+  double size = 50,
+  Color? color,
+  IconData? icon,
+}) {
+  return Icon(
+    icon??Icons.book,
+    size: size,
+    color: color ?? AppColors.colorGrey,
+  );
+}

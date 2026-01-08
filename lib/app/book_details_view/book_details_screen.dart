@@ -49,7 +49,10 @@ class BookDetailsScreen extends StatelessWidget {
                                 height: MediaQuery.of(context).size.height / 2.5,
                                 width: MediaQuery.of(context).size.width,
                                 fit: BoxFit.cover,
-                                imageUrl: controller.novelData.bookCoverUrl ?? "", // your image
+                                imageUrl: controller.novelData.bookCoverUrl ?? "",
+                            errorWidget: (context, url, error) {
+                              return commonBookIcon(icon: Icons.menu_book,size:MediaQuery.of(context).size.height/2.5 );
+                            },
                               ),
 
                           /// 🔹 Blur Effect
@@ -70,7 +73,9 @@ class BookDetailsScreen extends StatelessWidget {
                               child:
                                   isLocalFile(controller.novelData.bookCoverUrl)
                                       ? Image.file(File(controller.novelData.bookCoverUrl ?? ""), height: 150)
-                                      : CachedNetworkImage(imageUrl: controller.novelData.bookCoverUrl ?? "", height: 150),
+                                      : CachedNetworkImage(imageUrl: controller.novelData.bookCoverUrl ?? "", height: 150,  errorWidget: (context, url, error) {
+                                    return commonBookIcon(icon: Icons.menu_book,size: 120,color: AppColors.colorWhite);
+                                  },),
                             ),
                           ),
 

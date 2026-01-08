@@ -8,6 +8,7 @@ import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 import 'package:utsav_interview/app/download_novel/download_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
+import 'package:utsav_interview/core/common_function.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
@@ -66,7 +67,7 @@ class DownloadsScreen extends StatelessWidget {
                     itemCount: controller.downloadedNovels.length,
                     itemBuilder: (context, index) {
                       final download = controller.downloadedNovels[index];
-
+print(download.fileBookCoverUrl);
                       return Card(
                         color: AppColors.colorChipBackground,
                         margin: EdgeInsets.only(bottom: 16),
@@ -76,12 +77,11 @@ class DownloadsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
                               File(download.fileBookCoverUrl ?? ""),
-
                               width: 50,
                               height: 70,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) {
-                                return Image.asset(CS.imgBookCover2, width: 50, height: 70, fit: BoxFit.cover);
+                                return commonBookIcon();
                               },
                             ),
                           ),

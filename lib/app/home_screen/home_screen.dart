@@ -125,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                                                                 fit: BoxFit.cover,
                                                                 imageUrl: listRecents[index].bookCoverUrl ?? "",
                                                                 errorWidget: (context, error, stackTrace) {
-                                                                  return Image.asset(CS.imgBookCover2, height: 60, fit: BoxFit.cover);
+                                                                  return commonBookIcon();
                                                                 },
                                                               ),
                                                     ),
@@ -281,7 +281,7 @@ class HomeScreen extends StatelessWidget {
                                                   child: Container(height: 150, width: 100, color: AppColors.colorGrey),
                                                 ),
                                             errorWidget:
-                                                (context, url, error) => Container(height: 150, width: 100, color: Colors.grey, child: const Icon(Icons.book)),
+                                                (context, url, error) => Container(height: 150, width: 100, color: AppColors.colorChipBackground, child:  commonBookIcon()),
                                           ),
                                           SizedBox(
                                             width: 100,

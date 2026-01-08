@@ -106,7 +106,7 @@ class SearchScreen extends StatelessWidget {
                                 width: 50,
                                 fit: BoxFit.contain,
                                 imageUrl: book.bookCoverUrl ?? "",
-                                errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                errorWidget: (_, __, ___) => commonBookIcon(),
                               ),
                     ),
 

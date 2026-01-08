@@ -136,17 +136,17 @@ class AddToCollectionScreen extends StatelessWidget {
                   children: [
                     selected ? Icon(Icons.check_circle_rounded) : Icon(Icons.circle_outlined),
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                       decoration: BoxDecoration(color: AppColors.colorChipBackground, borderRadius: BorderRadius.circular(5)),
                       child:
                           isLocalFile(book.bookCoverUrl)
                               ? Image.file(File(book.bookCoverUrl ?? ""), height: 100, width: 50, fit: BoxFit.cover)
                               : CachedNetworkImage(
-                                height: 100,
+                                height: 80,
                                 width: 50,
                                 fit: BoxFit.cover,
                                 imageUrl: book.bookCoverUrl ?? "",
-                                errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                errorWidget: (_, __, ___) => commonBookIcon(),
                               ),
                     ),
 

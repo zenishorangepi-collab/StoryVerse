@@ -300,7 +300,7 @@ class LibraryScreen extends StatelessWidget {
                                         width: 50,
                                         fit: BoxFit.contain,
                                         imageUrl: book.bookCoverUrl ?? "",
-                                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                        errorWidget: (_, __, ___) => commonBookIcon(),
                                       ),
                             ),
                             const SizedBox(width: 15),
@@ -400,7 +400,8 @@ class LibraryScreen extends StatelessWidget {
                                         width: 50,
                                         fit: BoxFit.cover,
                                         imageUrl: book.bookCoverUrl ?? "",
-                                        errorWidget: (_, __, ___) => Image.asset(CS.imgBookCover2, height: 80),
+                                        errorWidget: (_, __, ___) => commonBookIcon(),
+
                                       ),
                             ),
                             const SizedBox(width: 15),

@@ -287,12 +287,7 @@ class AudioTextScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                   imageUrl: controller.bookCoverUrl,
                   errorWidget: (context, error, stackTrace) {
-                    return Image.asset(
-                      CS.imgBookCover2,
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.cover,
-                    );
+                    return commonBookIcon(icon: Icons.menu_book,size: MediaQuery.of(context).size.width);
                   },
                 ),
 
@@ -313,7 +308,7 @@ class AudioTextScreen extends StatelessWidget {
                           height: 260,
                           imageUrl: controller.bookCoverUrl,
                           errorWidget: (context, error, stackTrace) {
-                            return Image.asset(CS.imgBookCover2, height: 260);
+                            return commonBookIcon(icon: Icons.menu_book,size:MediaQuery.of(context).size.width/2,color: AppColors.colorWhite);
                           },
                         ),
               ),
@@ -1115,16 +1110,17 @@ class AudioTextScreen extends StatelessWidget {
                           (controller.bookCoverUrl.isNotEmpty)
                               ? controller.isOfflineMode
                                   ? Image.file(File(controller.fileBookCoverUrl), height: 80, width: 50, fit: BoxFit.contain)
-                                  : Image.network(
-                                    controller.bookCoverUrl ?? "",
-                                    height: 80,
-                                    width: 50,
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(color: AppColors.colorGrey, height: 80, width: 50);
-                                    },
-                                  )
-                              : Container(color: AppColors.colorGrey, height: 80, width: 50),
+                                  :
+                          CachedNetworkImage(
+                            imageUrl: controller.bookCoverUrl ?? "",
+                            height: 80,
+                            width: 50,
+                            fit: BoxFit.contain,
+                            errorWidget:
+                                (context, url, error) => commonBookIcon(size: 60),
+
+                          )
+                              : commonBookIcon(size: 60),
 
                           Expanded(
                             child: Column(
@@ -1202,12 +1198,7 @@ class AudioTextScreen extends StatelessWidget {
                                 fit: BoxFit.fill,
                                 imageUrl: controller.bookCoverUrl,
                                 errorWidget: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    CS.imgBookCover2,
-                                    height: MediaQuery.of(context).size.height,
-                                    width: MediaQuery.of(context).size.width,
-                                    fit: BoxFit.cover,
-                                  );
+                                  return commonBookIcon(size: 40);
                                 },
                               ),
                           Expanded(

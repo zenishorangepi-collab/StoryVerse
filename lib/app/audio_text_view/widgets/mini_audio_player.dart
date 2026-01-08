@@ -53,12 +53,12 @@ class MiniAudioPlayer extends StatelessWidget {
               isLocalFile(bookImage)
                   ? Image.file(File(bookImage), width: 50, height: 35, fit: BoxFit.contain)
                   : CachedNetworkImage(
-                    width: 50,
-                    height: 35,
+                    width: 40,
+                    height: 40,
                     fit: BoxFit.contain,
                     imageUrl: bookImage,
                     errorWidget: (context, error, stackTrace) {
-                      return Image.asset(CS.imgBookCover2, width: 50, height: 35, fit: BoxFit.contain);
+                      return commonBookIcon(size: 40);
                     },
                   ),
 
