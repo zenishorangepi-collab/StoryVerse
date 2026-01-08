@@ -24,7 +24,7 @@ class SearchScreen extends StatelessWidget {
         builder: (controller) {
           return Column(
             children: [
-              SizedBox(height: 40),
+              SizedBox(height: 60),
               Row(
                 children: [
                   Expanded(
@@ -58,11 +58,11 @@ class SearchScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              ).paddingSymmetric(vertical: 20),
+              ),
 
               Expanded(child: _list(controller)),
 
-              SizedBox(height: 50),
+              // SizedBox(height: 50),
             ],
           );
         },
@@ -125,7 +125,7 @@ class SearchScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
+              ).paddingOnly(bottom: index==(controller.listNovel.length-1)?50:0,top: index==0?20:0),
             );
           },
         );

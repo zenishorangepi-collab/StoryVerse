@@ -322,7 +322,7 @@ class LibraryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 70 : 0);
+                ).paddingOnly(bottom: isBookListening.value && index == (controller.savedRecents.length - 1) ? 90 : 0);
               },
             );
       },
@@ -423,7 +423,7 @@ class LibraryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 70 : 0);
+                ).paddingOnly(bottom: isBookListening.value && index == (controller.archivedRecents.length - 1) ? 90 : 0);
               },
             );
       },
@@ -476,7 +476,7 @@ class LibraryScreen extends StatelessWidget {
                 Get.toNamed(AppRoutes.downloadNovel);
               },
             ),
-            Divider(color: AppColors.colorGreyDivider).paddingOnly(bottom: isBookListening.value ? 70 : 0),
+            Divider(color: AppColors.colorGreyDivider).paddingOnly(bottom: isBookListening.value ? 80 : 0),
             // Text(CS.vByType, style: AppTextStyles.body14GreyBold).paddingOnly(bottom: 5, top: 15),
             // commonListTile(
             //   title: CS.vBooks,

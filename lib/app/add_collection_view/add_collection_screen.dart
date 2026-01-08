@@ -24,9 +24,10 @@ class AddToCollectionScreen extends StatelessWidget {
     return GetBuilder<AddToCollectionController>(
       builder: (controller) {
         return Scaffold(
-          backgroundColor: const Color(0xFF2B2B2B),
+          // backgroundColor: const Color(0xFF2B2B2B),
           appBar: AppBar(
-            backgroundColor: const Color(0xFF2B2B2B),
+            backgroundColor: AppColors.colorBgGray02,
+            surfaceTintColor: AppColors.colorTransparent,
             elevation: 0,
             leadingWidth: 40,
             leading: commonCircleButton(

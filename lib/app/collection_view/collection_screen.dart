@@ -24,9 +24,10 @@ class CollectionScreen extends StatelessWidget {
       init: CollectionController(),
       builder: (controller) {
         return Scaffold(
-          backgroundColor: const Color(0xFF2B2B2B),
+          // backgroundColor: const Color(0xFF2B2B2B),
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.colorBgGray02,
+            surfaceTintColor: AppColors.colorTransparent,
             elevation: 0,
             leadingWidth: 40,
             leading: commonCircleButton(

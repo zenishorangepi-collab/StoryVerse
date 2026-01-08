@@ -22,7 +22,7 @@ class CreateCollectionScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 50),
+                SizedBox(height: 70),
                 _buildHeader(controller),
 
                 SizedBox(height: 30),
@@ -72,7 +72,7 @@ class CreateCollectionScreen extends StatelessWidget {
           GestureDetector(
             onTap: () => Get.back(),
             child: Container(
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(color: AppColors.colorChipBackground, shape: BoxShape.circle),
               child: Icon(Icons.close, color: AppColors.colorWhite, size: 20),
             ),

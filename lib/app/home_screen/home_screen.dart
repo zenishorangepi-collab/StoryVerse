@@ -157,6 +157,7 @@ class HomeScreen extends StatelessWidget {
                                                     ],
                                                   ),
                                                 ),
+                                                const SizedBox(width: 15),
                                               ],
                                             ),
                                           ),
@@ -300,7 +301,7 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                             ],
-                          ).paddingOnly(bottom: isBookListening.value && categoryIndex==(activeCategories.length-1)?60 : 0);
+                          ).paddingOnly(bottom: isBookListening.value && categoryIndex==(activeCategories.length-1)?70 : 0);
                         }, childCount: activeCategories.length),
                       );
                     },
