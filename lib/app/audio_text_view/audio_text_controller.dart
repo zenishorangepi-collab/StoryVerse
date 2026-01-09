@@ -153,7 +153,7 @@ class AudioTextController extends GetxController {
   ];
 
   // Theme Options
-  String selectedFonts = CS.vInter;
+  String selectedFonts = CS.vLibreBaskerville;
   Color colorAudioTextBg = AppColors.colorTealDark;
   Color colorAudioTextParagraphBg = AppColors.colorTealDarkBg;
   int iThemeSelect = 0;
@@ -334,13 +334,15 @@ class AudioTextController extends GetxController {
   }
 
   void startListening() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async { getThemeSetting();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      getThemeSetting();
 
       lastScrollOffset = await _loadScrollPosition();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         restoreScrollPosition();
       });
       isBookListening.value = true;
+      print("=============------------->>>${isBookListening.value}");
       setIsBookListening(true);
 
       if (novelData != null) {

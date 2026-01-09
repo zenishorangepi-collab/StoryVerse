@@ -235,25 +235,137 @@ class AudioTextScreen extends StatelessWidget {
   /// new
   Widget _buildErrorView(AudioTextController controller) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: AppColors.colorRed),
-            const SizedBox(height: 16),
-            Text(controller.errorMessage ?? CS.vAnErrorOccurred, textAlign: TextAlign.center, style: AppTextStyles.errorText18),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                controller.hasError = false;
-                controller.errorMessage = null;
-
-                controller.initializeApp();
-              },
-              child: Text(CS.vRetry),
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 600),
+        tween: Tween(begin: 0.0, end: 1.0),
+        curve: Curves.easeOut,
+        builder: (context, value, child) {
+          return Opacity(
+            opacity: value,
+            child: Transform.scale(
+              scale: 0.8 + (value * 0.2),
+              child: child,
             ),
-          ],
+          );
+        },
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Error Icon with Pulse Effect
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 800),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  curve: Curves.elasticOut,
+                  builder: (context, value, child) {
+                    return Transform.scale(
+                      scale: value,
+                      child: child,
+                    );
+                  },
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFFF4444).withOpacity(0.1),
+                      border: Border.all(
+                        color: const Color(0xFFFF4444),
+                        width: 3,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.error_outline_rounded,
+                      color: Color(0xFFFF4444),
+                      size: 56,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Error Message
+                Text(
+                  controller.errorMessage ?? CS.vAnErrorOccurred,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFFF4444),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    height: 1.5,
+                  ),
+                ),
+
+                const SizedBox(height: 48),
+
+                // Retry Button
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      controller.hasError = false;
+                      controller.errorMessage = null;
+
+                      controller.initializeApp();
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 48,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF4444),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFF4444).withOpacity(0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.refresh_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            CS.vRetry,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Help Text
+                Text(
+                  'If the problem persists, please check your\ninternet connection or contact support.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 12,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -365,22 +477,24 @@ class AudioTextScreen extends StatelessWidget {
           child: CustomScrollView(
             controller: controller.scrollController,
             slivers: [
-              SliverAppBar(
-                pinned: false,
-                expandedHeight: 50,
+
+              SliverAppBar(toolbarHeight: 80,
+                pinned: false,centerTitle: false,
+                // expandedHeight: 50,
                 backgroundColor: AppColors.colorBlack,
                 automaticallyImplyLeading: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  // title: const Text("Audio Text Synchronizer"),
-                  background: Container(
-                    padding: const EdgeInsets.only(left: 15, bottom: 5),
-                    alignment: Alignment.bottomLeft,
-                    child: Text(controller.bookNme, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
-                  ),
-                ),
+                title:Container(height: 80,alignment: Alignment.centerLeft,child: Text(controller.bookNme,maxLines: 2, style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))) ,
+                // flexibleSpace: FlexibleSpaceBar(
+                //   background: Container(
+                //     padding: const EdgeInsets.only(left: 15, bottom: 5),
+                //     alignment: Alignment.bottomLeft,
+                //     child: Text(controller.bookNme, style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+                //   ),
+                //   // title: const Text("Audio Text Synchronizer"),
+                // ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.only(top: 16, left: 10, right: 10, bottom: 70),
+                padding: const EdgeInsets.only( left: 10, right: 10, bottom: 70),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     // ✅ Track chapter changes
@@ -773,8 +887,8 @@ class AudioTextScreen extends StatelessWidget {
               _speedSliderLabels(),
               const SizedBox(height: 25),
               _speedPresetButtons(controller),
-              const SizedBox(height: 25),
-              _speedSaveButton(),
+              // const SizedBox(height: 25),
+              // _speedSaveButton(),
               const SizedBox(height: 35),
             ],
           ),

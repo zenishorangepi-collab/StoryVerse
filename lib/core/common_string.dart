@@ -2,14 +2,14 @@ class CS {
   /// String
   static String vAppName = "Tera Novel";
   static const String heroTag = 'searchHero';
-  static String vPlay = "Play";
-  static String vPause = "Pause";
-  static String vSkip = "Skip";
-  static String vSave = "Save";
-  static String vReset = "Reset";
-  static String vRetry = "Retry";
-  static String vWelcome = "Welcome";
-  static String vFilters = "Filters";
+  static const String vPlay = "Play";
+  static const String vPause = "Pause";
+  static const String vSkip = "Skip";
+  static const String vSave = "Save";
+  static const String vReset = "Reset";
+  static const String vRetry = "Retry";
+  static const String vWelcome = "Welcome";
+  static const String vFilters = "Filters";
   static const String vForYou = "For You";
   static const String vFollowing = "Following";
   static const String vFavorites = "Favorites";

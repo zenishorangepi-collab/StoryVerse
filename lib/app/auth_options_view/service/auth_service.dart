@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 
 import 'package:utsav_interview/app/auth_options_view/authoptions_controller.dart';
+import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
@@ -163,6 +165,11 @@ class GoogleSignInService {
     try {
       await _auth.signOut();
       await _googleSignIn.signOut();
+      isBookListening.value = false;
+      isPlayAudio.value = false;
+      isAudioInitCount.value = 0;
+      bookInfo.value = NovelsDataModel();
+
       await AppPrefs.clear();
       Get.offAllNamed(AppRoutes.authOptionsScreen);
     } catch (_) {}

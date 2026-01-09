@@ -23,7 +23,8 @@ class DownloadsScreen extends StatelessWidget {
       builder: (controller) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: AppColors.colorBgGray02,
+            backgroundColor: AppColors.colorTransparent,
+            surfaceTintColor: AppColors.colorBgGray02,
             title: Text(CS.vDownloads, style: AppTextStyles.heading20WhiteSemiBold),
 
             actions: [
@@ -146,7 +147,7 @@ print(download.fileBookCoverUrl);
               TextButton(onPressed: () => Get.back(), child: Text(CS.vCancel, style: AppTextStyles.body14WhiteMedium)),
               TextButton(
                 onPressed: () {
-                  Get.back();
+                  // Get.back();
                   controller.deleteDownload(novelId);
                 },
                 child: Text(CS.vDelete, style: AppTextStyles.body14RedBold),

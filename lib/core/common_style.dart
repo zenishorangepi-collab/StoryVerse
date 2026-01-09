@@ -4,7 +4,7 @@ import 'package:utsav_interview/core/common_color.dart';
 
 enum AppFontType { inter, openSans, libreBaskerville }
 
-AppFontType currentAudioTextFonts = AppFontType.inter;
+AppFontType currentAudioTextFonts = AppFontType.libreBaskerville;
 double dCurrentAudioTextSize = 16;
 
 ///-------------------------------------------------------
@@ -13,6 +13,7 @@ double dCurrentAudioTextSize = 16;
 class AppTextStyles {
   /// AudioText Fonts Only
   static TextStyle audioTextFontOnly({double? fontSize, FontWeight? fontWeight, Color? color, double height = 1.3}) {
+
     switch (currentAudioTextFonts) {
       case AppFontType.inter:
         return GoogleFonts.inter(fontSize: dCurrentAudioTextSize, fontWeight: fontWeight, color: color, height: height);
