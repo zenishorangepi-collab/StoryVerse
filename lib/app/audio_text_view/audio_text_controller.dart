@@ -698,7 +698,7 @@ class AudioTextController extends GetxController {
 
   Future<void> saveCurrentPosition() async {
     if (bookId.isNotEmpty) {
-      print("saveCurrentPosition=============================================================>>>  ${_position}");
+      debugPrint("saveCurrentPosition=============================================================>>>  ${_position}");
       final data = jsonEncode({'chapterIndex': currentChapterIndex, 'chapterId': currentChapterId, 'position': _position});
       await AppPrefs.setString('${CS.keyLastPosition}_$bookId', data);
     }

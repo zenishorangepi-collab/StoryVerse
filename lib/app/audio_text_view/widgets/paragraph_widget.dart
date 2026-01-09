@@ -46,7 +46,11 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.isCurrentParagraph ? widget.colorAudioTextParagraphBg : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Wrap(spacing: 2, runSpacing: 3, children: _buildLineWidgets(allWords)),
+      child: LayoutBuilder(
+          builder: (context, constraints) {
+          return Wrap(spacing: 2, runSpacing: 3, children: _buildLineWidgets(allWords));
+        }
+      ),
     );
   }
 
@@ -107,6 +111,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
     return lineWidgets;
   }
 
+
   Widget _buildLineContainer(List<Widget> words) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 0),
@@ -116,7 +121,11 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         borderRadius: BorderRadius.circular(4),
       ),
 
-      child: Wrap(spacing: 2, runSpacing: 3, children: words),
+      child: LayoutBuilder(
+          builder: (context, constraints) {
+          return Wrap(spacing: 2, runSpacing: 3, children: words);
+        }
+      ),
     );
   }
 }
