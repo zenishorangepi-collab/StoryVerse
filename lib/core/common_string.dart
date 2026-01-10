@@ -369,6 +369,12 @@ class CS {
   static const String keyThemeIndex = 'theme_index';
   static const String keyAudioBgColor = 'audio_bg_color';
   static const String keyAudioParagraphBgColor = 'audio_paragraph_bg_color';
+  static const String keySubscriptionPlan = 'subscription_plan';
+  static const String keySubscriptionStatus = 'subscription_status';
+  static const String keySubscriptionStartDate = 'subscription_start_date';
+  static const String keySubscriptionEndDate = 'subscription_end_date';
+  static const String keyIsTrialActive = 'is_trial_active';
+  static const String keyHasUsedTrial = 'has_used_trial';
 
   /// Json
   static String vJsonTranscript1 = "assets/transcript-1.json";

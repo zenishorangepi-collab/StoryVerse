@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:307426584956:android:d32f95b39b52c0c66d5cf9",
+        "mobilesdk_app_id": "1:307426584956:android:69467bbee90e80976d5cf9",
         "android_client_info": {
-          "package_name": "com.storyverse.app"
+          "package_name": "com.orangepi.teranovel.teranovel"
         }
       },
       "oauth_client": [
@@ -32,10 +32,10 @@
               "client_type": 3
             },
             {
-              "client_id": "307426584956-p7b0i32sq36dom6h4dgmsc9r3hm65m1k.apps.googleusercontent.com",
+              "client_id": "307426584956-6s511vebvmde55notsblnrhpb8mcuvce.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.storyverse"
+                "bundle_id": "com.orangepi.teranovel.teranovel"
               }
             }
           ]

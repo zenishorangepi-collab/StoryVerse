@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>307426584956-rtvrp69ljnrn814rd8dar7if6l7ufo2g.apps.googleusercontent.com</string>
+	<string>307426584956-6s511vebvmde55notsblnrhpb8mcuvce.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.307426584956-rtvrp69ljnrn814rd8dar7if6l7ufo2g</string>
+	<string>com.googleusercontent.apps.307426584956-6s511vebvmde55notsblnrhpb8mcuvce</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>307426584956-hcfiqdlratl4lnuksv81c7ugub2euved.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.storyverse.app</string>
+	<string>com.orangepi.teranovel.teranovel</string>
 	<key>PROJECT_ID</key>
 	<string>storyverse-db8a5</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:307426584956:ios:b53548ce4d00a45a6d5cf9</string>
+	<string>1:307426584956:ios:d3246c326382f94f6d5cf9</string>
 	<key>DATABASE_URL</key>
 	<string>https://storyverse-db8a5-default-rtdb.firebaseio.com</string>
 </dict>
