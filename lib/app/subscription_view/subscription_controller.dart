@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/pref.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
@@ -16,8 +19,8 @@ class SubscriptionController extends GetxController {
   List<ProductDetails> _products = [];
   bool _isLoading = false;
 
-  static const String yearlyProductId = 'ultra_yearly_subscription';
-  static const String monthlyProductId = 'ultra_monthly_subscription';
+  static const String yearlyProductId = 'tera_yearly';
+  static const String monthlyProductId = 'novel_monthly';
 
   SubscriptionPlan selectedPlan = SubscriptionPlan.yearly;
 
@@ -237,7 +240,7 @@ class SubscriptionController extends GetxController {
 
       // Show loading
       Get.dialog(
-        Center(child: CircularProgressIndicator()),
+        Center(child:Platform.isIOS?CupertinoActivityIndicator(color: AppColors.colorWhite):CircularProgressIndicator(color: AppColors.colorWhite,),),
         barrierDismissible: false,
       );
 
@@ -287,7 +290,7 @@ class SubscriptionController extends GetxController {
   Future<void> restorePurchase() async {
     try {
       Get.dialog(
-        Center(child: CircularProgressIndicator()),
+        Center(child:Platform.isIOS?CupertinoActivityIndicator(color: AppColors.colorWhite):CircularProgressIndicator(color: AppColors.colorWhite,),),
         barrierDismissible: false,
       );
 
@@ -377,7 +380,7 @@ class SubscriptionController extends GetxController {
   void _showPendingUI() {
     Get.dialog(
       Center(
-        child: CircularProgressIndicator(),
+        child: Platform.isIOS?CupertinoActivityIndicator(color: AppColors.colorWhite):CircularProgressIndicator(color: AppColors.colorWhite,),
       ),
       barrierDismissible: false,
     );

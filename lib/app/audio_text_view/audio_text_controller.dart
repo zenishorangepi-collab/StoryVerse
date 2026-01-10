@@ -591,6 +591,46 @@ class AudioTextController extends GetxController {
   //   currentParagraphIndex = -1;
   // }
 
+  // ------------------------------------------------------------
+  // Audio Initialization
+  // ------------------------------------------------------------
+
+  Future<void> audioInitialize() async {
+    if (_isInitialized || _isDisposed) return;
+
+    try {
+      _isLoading = true;
+      update();
+
+      if (_audioUrl != null) {
+        await audioPlayer.setReleaseMode(ReleaseMode.stop);
+        if (isOfflineMode) {
+          await audioPlayer.setSource(DeviceFileSource(_audioUrl!));
+        } else {
+          await audioPlayer.setSourceUrl(_audioUrl!);
+        }
+        await audioPlayer.setPlaybackRate(_speed);
+
+        _positionSubscription?.cancel();
+        _stateSubscription?.cancel();
+        _completionSubscription?.cancel();
+
+        _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
+        _stateSubscription = audioPlayer.onPlayerStateChanged.listen(_onStateStream);
+        _completionSubscription = audioPlayer.onPlayerComplete.listen((_) => _handleCompletion());
+
+        _isInitialized = true;
+      }
+
+      _isLoading = false;
+      update();
+    } catch (e) {
+      _error = 'Failed to load audio: $e';
+      _isLoading = false;
+      update();
+    }
+  }
+
   Future<void> loadAudioForChapter(int index) async {
     currentChapterIndex = index;
     currentChapterId = allChapters[index].id ?? "";
@@ -601,14 +641,17 @@ class AudioTextController extends GetxController {
       _audioUrl = allChapters[index].url;
     }
 
-    await audioPlayer.stop();
-    if (isOfflineMode) {
-      // Use DeviceFileSource for local files
-      await audioPlayer.setSource(DeviceFileSource(_audioUrl!));
-    } else {
-      // Use UrlSource for remote files
-      await audioPlayer.setSourceUrl(_audioUrl!);
+    try{
+      await audioPlayer.stop();
+      if (isOfflineMode) {
+        await audioPlayer.setSource(DeviceFileSource(_audioUrl!));
+      } else {
+        await audioPlayer.setSourceUrl(_audioUrl!);
+      }
+    }catch(e){
+      debugPrint('❌ Error loading audio: $e');
     }
+
 
     final d = await audioPlayer.getDuration();
     _duration = d?.inMilliseconds ?? 0;
@@ -1138,45 +1181,6 @@ class AudioTextController extends GetxController {
     scrollController.animateTo(position, duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
   }
 
-  // ------------------------------------------------------------
-  // Audio Initialization
-  // ------------------------------------------------------------
-
-  Future<void> audioInitialize() async {
-    if (_isInitialized || _isDisposed) return;
-
-    try {
-      _isLoading = true;
-      update();
-
-      if (_audioUrl != null) {
-        await audioPlayer.setReleaseMode(ReleaseMode.stop);
-        if (isOfflineMode) {
-          await audioPlayer.setSource(DeviceFileSource(_audioUrl!));
-        } else {
-          await audioPlayer.setSourceUrl(_audioUrl!);
-        }
-        await audioPlayer.setPlaybackRate(_speed);
-
-        _positionSubscription?.cancel();
-        _stateSubscription?.cancel();
-        _completionSubscription?.cancel();
-
-        _positionSubscription = audioPlayer.onPositionChanged.listen(_onPositionStream);
-        _stateSubscription = audioPlayer.onPlayerStateChanged.listen(_onStateStream);
-        _completionSubscription = audioPlayer.onPlayerComplete.listen((_) => _handleCompletion());
-
-        _isInitialized = true;
-      }
-
-      _isLoading = false;
-      update();
-    } catch (e) {
-      _error = 'Failed to load audio: $e';
-      _isLoading = false;
-      update();
-    }
-  }
 
   // ------------------------------------------------------------
   // Audio Stream handlers

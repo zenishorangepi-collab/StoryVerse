@@ -49,7 +49,8 @@ class AudioTextScreen extends StatelessWidget {
         });
       },
       builder: (controller) {
-        if (controller.hasError) {
+        if (controller.hasError || controller.error != null) {
+
           return SafeArea(
             child: Scaffold(
               appBar: AppBar(
@@ -150,8 +151,8 @@ class AudioTextScreen extends StatelessWidget {
                 children: [
                   if (controller.isLoading) const LinearProgressIndicator(),
 
-                  if (controller.error != null)
-                    Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
+                  // if (controller.error != null)
+                  //   Container(color: Colors.red[100], padding: const EdgeInsets.all(8), child: Text(controller.error!, style: AppTextStyles.errorText18)),
 
                   /// -------------------------
                   /// 🔵 Transcript List (Slivers)
@@ -307,7 +308,8 @@ class AudioTextScreen extends StatelessWidget {
                     onTap: () {
                       controller.hasError = false;
                       controller.errorMessage = null;
-
+                      controller.uiParagraphs.clear();
+                      controller.update();
                       controller.initializeApp();
                     },
                     borderRadius: BorderRadius.circular(12),

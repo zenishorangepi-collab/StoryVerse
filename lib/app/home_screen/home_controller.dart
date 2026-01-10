@@ -86,6 +86,7 @@ class HomeController extends GetxController {
     }
   }
 
+
   fetchNovelCategories() async {
     listNovelCategoriesData.clear();
     final querySnapshot = await FirebaseFirestore.instance.collection('categories').get();

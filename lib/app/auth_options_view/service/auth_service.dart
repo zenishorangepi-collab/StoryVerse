@@ -9,11 +9,14 @@ import 'package:utsav_interview/app/audio_text_view/audio_text_controller.dart';
 
 import 'package:utsav_interview/app/auth_options_view/authoptions_controller.dart';
 import 'package:utsav_interview/app/home_screen/models/novel_model.dart';
+import 'package:utsav_interview/app/tabbar_screen/user_data_model.dart';
 import 'package:utsav_interview/core/common_color.dart';
 import 'package:utsav_interview/core/common_string.dart';
 import 'package:utsav_interview/core/common_style.dart';
 import 'package:utsav_interview/core/pref.dart';
 import 'package:utsav_interview/routes/app_routes.dart';
+
+import '../../tabbar_screen/tabbar_controller.dart';
 
 class GoogleSignInService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -169,6 +172,7 @@ class GoogleSignInService {
       isPlayAudio.value = false;
       isAudioInitCount.value = 0;
       bookInfo.value = NovelsDataModel();
+      userData = null;
 
       await AppPrefs.clear();
       Get.offAllNamed(AppRoutes.authOptionsScreen);
