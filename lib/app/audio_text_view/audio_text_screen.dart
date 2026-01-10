@@ -1556,7 +1556,7 @@ class AudioTextScreen extends StatelessWidget {
                         value: dCurrentAudioTextSize,
                         onChanged: (value) {
                           dCurrentAudioTextSize = value;
-                          controller.update();
+                          controller.rebuildParagraphs();
                         },
                       ),
                       Row(

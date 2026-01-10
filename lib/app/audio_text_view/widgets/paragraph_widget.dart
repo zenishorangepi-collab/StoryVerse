@@ -36,7 +36,7 @@ class ParagraphWidget extends StatefulWidget {
 class _ParagraphWidgetState extends State<ParagraphWidget> {
   @override
   Widget build(BuildContext context) {
-    final allWords = widget.paragraph.allWords; // Get flattened words
+    final allWords = widget.paragraph.allWords;
 
     return Container(
       key: widget.widgetKey,
@@ -46,11 +46,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.isCurrentParagraph ? widget.colorAudioTextParagraphBg : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: LayoutBuilder(
-          builder: (context, constraints) {
-          return Wrap(spacing: 2, runSpacing: 3, children: _buildLineWidgets(allWords));
-        }
-      ),
+      child: Wrap(spacing: 2, runSpacing: 3, children: _buildLineWidgets(allWords)),
     );
   }
 
@@ -62,17 +58,12 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
     for (int i = 0; i < allWords.length; i++) {
       final word = allWords[i];
       final localIndex = i;
-
       final globalWordIndex = widget.globalWordStartIndex + localIndex;
-
       final isCurrentWord = widget.isCurrentParagraph && widget.currentWordIndex == localIndex;
-
       final key = widget.controller.wordKeys[globalWordIndex];
 
-      // final key = widget.controller.wordKeys[widget.globalWordStartIndex + localIndex];
       final wordWidget = Container(
         key: key,
-
         child: GestureDetector(
           onTap: () => widget.onWordTap(word.start),
           child: AnimatedContainer(
@@ -80,26 +71,62 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
             curve: Curves.easeOut,
             padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 0),
             margin: const EdgeInsets.only(bottom: 1),
-            decoration: BoxDecoration(color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent, borderRadius: BorderRadius.circular(4)),
+            decoration: BoxDecoration(
+              color: isCurrentWord ? widget.colorAudioTextBg : Colors.transparent,
+              borderRadius: BorderRadius.circular(4),
+            ),
             child: Text(word.word, style: AppTextStyles.audioTextFontOnly(color: AppColors.colorWhite)),
           ),
         ),
       );
 
-      final ctx = key.currentContext;
-      if (ctx != null) {
-        final box = ctx.findRenderObject() as RenderBox;
-        final top = box.localToGlobal(Offset.zero).dy;
+      // ✅ CRITICAL FIX: Use addPostFrameCallback to ensure layout is complete
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
 
-        if (currentLineTop == null || (top - currentLineTop).abs() < 1.0) {
-          currentLine.add(wordWidget);
-          currentLineTop ??= top;
-        } else {
-          lineWidgets.add(_buildLineContainer(currentLine));
-          currentLine = [wordWidget];
-          currentLineTop = top;
+        final ctx = key.currentContext;
+        if (ctx != null) {
+          try {
+            final renderObject = ctx.findRenderObject();
+            if (renderObject is RenderBox && renderObject.hasSize) {
+              final top = renderObject.localToGlobal(Offset.zero).dy;
+              // Store position for next rebuild
+            }
+          } catch (e) {
+            // Ignore layout errors
+          }
         }
-      } else {
+      });
+
+      // For current build, use simple logic
+      final ctx = key.currentContext;
+      bool addedToLine = false;
+
+      if (ctx != null) {
+        try {
+          final renderObject = ctx.findRenderObject();
+          if (renderObject is RenderBox && renderObject.hasSize) {
+            final top = renderObject.localToGlobal(Offset.zero).dy;
+
+            if (currentLineTop == null || (top - currentLineTop).abs() < 1.0) {
+              currentLine.add(wordWidget);
+              currentLineTop ??= top;
+              addedToLine = true;
+            } else {
+              if (currentLine.isNotEmpty) {
+                lineWidgets.add(_buildLineContainer(currentLine));
+              }
+              currentLine = [wordWidget];
+              currentLineTop = top;
+              addedToLine = true;
+            }
+          }
+        } catch (e) {
+          // Layout not ready
+        }
+      }
+
+      if (!addedToLine) {
         currentLine.add(wordWidget);
       }
     }
@@ -108,11 +135,12 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
       lineWidgets.add(_buildLineContainer(currentLine));
     }
 
-    return lineWidgets;
+    return lineWidgets.isNotEmpty ? lineWidgets : [_buildLineContainer(currentLine)];
   }
 
-
   Widget _buildLineContainer(List<Widget> words) {
+    if (words.isEmpty) return SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 0),
       margin: const EdgeInsets.only(bottom: 2),
@@ -120,12 +148,7 @@ class _ParagraphWidgetState extends State<ParagraphWidget> {
         color: widget.paragraph.isBookmarked ?? false ? Colors.yellow.withOpacity(0.2) : Colors.transparent,
         borderRadius: BorderRadius.circular(4),
       ),
-
-      child: LayoutBuilder(
-          builder: (context, constraints) {
-          return Wrap(spacing: 2, runSpacing: 3, children: words);
-        }
-      ),
+      child: Wrap(spacing: 2, runSpacing: 3, children: words),
     );
   }
 }

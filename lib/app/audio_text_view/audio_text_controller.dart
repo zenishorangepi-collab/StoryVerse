@@ -198,7 +198,18 @@ class AudioTextController extends GetxController {
       // if (Get.arguments != null) initializeApp();
     });
   }
+  void rebuildParagraphs() {
+    // Force rebuild all paragraph keys
+    buildUiKeysOnce();
 
+    // Trigger UI update
+    update();
+
+    // Schedule a second update after layout
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!isClosed) update();
+    });
+  }
   getThemeSetting() async {
    await  loadSettings();
   }
