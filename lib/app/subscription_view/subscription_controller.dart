@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -11,31 +10,25 @@ enum SubscriptionPlan { yearly, monthly, free }
 enum SubscriptionStatus { active, expired, trial, none }
 
 class SubscriptionController extends GetxController {
-  // In-App Purchase
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   bool _isAvailable = false;
   List<ProductDetails> _products = [];
   bool _isLoading = false;
 
-  // Product IDs (replace with your actual product IDs from Play Console/App Store)
   static const String yearlyProductId = 'ultra_yearly_subscription';
   static const String monthlyProductId = 'ultra_monthly_subscription';
 
-  // Current selected plan
   SubscriptionPlan selectedPlan = SubscriptionPlan.yearly;
 
-  // Current subscription status
   SubscriptionStatus currentStatus = SubscriptionStatus.none;
 
-  // Subscription details
   String? currentPlanName;
   DateTime? subscriptionStartDate;
   DateTime? subscriptionEndDate;
   bool isTrialActive = false;
   int trialDaysRemaining = 0;
 
-  // Getters
   bool get isLoading => _isLoading;
   bool get isAvailable => _isAvailable;
   List<ProductDetails> get products => _products;
@@ -53,9 +46,6 @@ class SubscriptionController extends GetxController {
     super.onClose();
   }
 
-  // ============================================================
-  // INITIALIZE IN-APP PURCHASE
-  // ============================================================
   Future<void> _initializeInAppPurchase() async {
     try {
       // Check if In-App Purchase is available

@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>storyverse</string>
+	<string>Tera Novel</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>storyverse</string>
+	<string>Tera Novel</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -47,7 +47,7 @@
         <dict>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>com.googleusercontent.apps.307426584956-6s511vebvmde55notsblnrhpb8mcuvce</string>
+                <string>com.googleusercontent.apps.307426584956-v1nkrvsvddro8sam5b3i3hskorjk4au8</string>
             </array>
         </dict>
     </array>

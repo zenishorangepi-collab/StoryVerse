@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:307426584956:android:69467bbee90e80976d5cf9",
+        "mobilesdk_app_id": "1:307426584956:android:f322a1d93431ae8c6d5cf9",
         "android_client_info": {
-          "package_name": "com.orangepi.teranovel.teranovel"
+          "package_name": "com.orangepi.teranovel"
         }
       },
       "oauth_client": [

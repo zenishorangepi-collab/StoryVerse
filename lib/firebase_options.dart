@@ -67,6 +67,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'storyverse-db8a5.firebasestorage.app',
     androidClientId: '307426584956-kjuk1k5d10e5tob7qljoiqighej5h8uc.apps.googleusercontent.com',
     iosClientId: '307426584956-rtvrp69ljnrn814rd8dar7if6l7ufo2g.apps.googleusercontent.com',
-    iosBundleId: 'com.orangepi.teranovel.teranovel',
+    iosBundleId: 'com.orangepi.teranovel',
   );
 }

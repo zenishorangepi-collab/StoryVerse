@@ -11,7 +11,7 @@ class NovelsDataModel {
   String? publishedDate;
   String? summary;
   int? updatedAt;
-  double? totalAudioLength;
+  dynamic totalAudioLength;
   int? totalSize;
 
   NovelsDataModel({

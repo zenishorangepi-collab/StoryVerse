@@ -53,11 +53,11 @@ class AuthOptionsScreen extends StatelessWidget {
                     onPressed: () {
                       showTermsDialog(
                         onAgree: () async {
-                          showGoogleSignInPermissionDialog(
-                            onContinue: () async {
                               await GoogleSignInService.signInWithGoogle(context);
-                            },
-                          );
+                          // showGoogleSignInPermissionDialog(
+                          //   onContinue: () async {
+                          //   },
+                          // );
                         },
                       );
                     },
